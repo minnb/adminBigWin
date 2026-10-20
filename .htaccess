@@ -1,0 +1,8 @@
+Options -Indexes
+
+# Chặn truy cập web vào code nội bộ, công cụ CLI, cấu hình và schema.
+<FilesMatch "^(config\.php|config\.sample\.php|\.gitignore)$|\.sql$">
+    Require all denied
+</FilesMatch>
+RedirectMatch 404 ^/(.*/)?(lib|tools|migrations)/
+RedirectMatch 404 /\.git

@@ -1,0 +1,52 @@
+:root {
+  --bg: #f4f6f9; --card: #fff; --text: #14293d; --muted: #5b7288; --border: #d5dde6;
+  --primary: #1b6ec2; --ok: #107c41; --warn: #b26200; --danger: #c42b1c;
+}
+* { box-sizing: border-box; }
+body { margin: 0; padding: 16px; font: 14px/1.45 "Segoe UI", system-ui, sans-serif; background: var(--bg); color: var(--text); }
+h1 { font-size: 20px; margin: 0; }
+header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.muted { color: var(--muted); font-size: 12px; }
+.center { text-align: center; }
+.inline { display: inline; }
+code { font-size: 12px; }
+button { font: inherit; padding: 4px 10px; border: 1px solid var(--border); border-radius: 4px; background: #fff; cursor: pointer; }
+button:hover { border-color: var(--primary); }
+button.link { border: 0; background: none; color: var(--primary); }
+.btn-active { background: var(--ok); color: #fff; border-color: var(--ok); }
+.btn-revoked { color: var(--danger); border-color: var(--danger); }
+.btn-delete { color: var(--muted); border-style: dashed; }
+.pager { display: flex; gap: 12px; align-items: center; justify-content: center; margin-top: 10px; }
+.pager a { padding: 4px 10px; border: 1px solid var(--border); border-radius: 4px; background: var(--card); text-decoration: none; color: var(--primary); }
+input { font: inherit; padding: 4px 6px; border: 1px solid var(--border); border-radius: 4px; }
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 12px; }
+.tabs a { padding: 5px 10px; border-radius: 4px; text-decoration: none; color: var(--text); background: var(--card); border: 1px solid var(--border); }
+.tabs a.on { background: var(--primary); color: #fff; border-color: var(--primary); }
+.tabs .search { margin-left: auto; }
+.tabs .search input { width: 280px; max-width: 100%; }
+.table-wrap { overflow-x: auto; background: var(--card); border: 1px solid var(--border); border-radius: 6px; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 8px 10px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+th { background: #eef2f6; font-weight: 600; white-space: nowrap; }
+.badge { padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.badge.pending { background: #fff4d6; color: var(--warn); }
+.badge.active { background: #e3f4ea; color: var(--ok); }
+.badge.revoked { background: #fde8e6; color: var(--danger); }
+.info { display: flex; flex-direction: column; gap: 4px; min-width: 180px; }
+.actions form { display: block; margin-bottom: 4px; }
+.warn { color: var(--warn); font-size: 12px; font-weight: 600; }
+.err { color: var(--danger); }
+.foot { margin-top: 10px; }
+.login { max-width: 340px; margin: 10vh auto; background: var(--card); padding: 24px; border: 1px solid var(--border); border-radius: 6px; }
+.login form { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+.login label { display: flex; flex-direction: column; gap: 4px; }
+.login button { background: var(--primary); color: #fff; border-color: var(--primary); padding: 8px; }
+@media (max-width: 640px) { .tabs .search { margin-left: 0; width: 100%; } .tabs .search input { width: 100%; } }
+.main-nav { display: flex; gap: 6px; margin: 0 12px; flex: 1; }
+.main-nav a { padding: 4px 10px; border-radius: 4px; text-decoration: none; color: var(--text); }
+.main-nav a.on { background: var(--primary); color: #fff; }
+.owner select { margin-top: 4px; max-width: 220px; font: inherit; padding: 2px 4px; }
+form.row { flex-direction: row; flex-wrap: wrap; margin-bottom: 12px; }
+table.mini { margin-top: 6px; font-size: 12px; }
+table.mini th, table.mini td { padding: 3px 6px; }
+h2 { font-size: 16px; margin: 8px 0 4px; }
