@@ -14,29 +14,25 @@ $statuses = [
 const KHOA_BO_LOC = ['status' => 1, 'q' => 1, 'tg_multi' => 1];  // tham số GET được giữ qua redirect / phân trang
 
 // ── Hành động POST: 1 phần tử = 1 hành động (thêm hành động mới = thêm 1 dòng, không sửa luồng) ──
-// Mỗi hàm nhận ($pdo, id máy) và tự kiểm input riêng của nó; input sai = không làm gì.
+// Mỗi hàm nhận ($pdo, dòng máy đã tồn tại), tự kiểm input riêng, trả [loại 'ok'|'loi', thông báo].
 $HANH_DONG = [
-    'set_status' => function (PDO $pdo, int $id) use ($statuses): void {
+    'set_status' => function (PDO $pdo, array $may) use ($statuses): array {
         $status = (string)($_POST['status'] ?? '');
         if (!isset($statuses[$status])) {
-            return;
+            return ['loi', 'Trạng thái không hợp lệ.'];
         }
-        $pdo->prepare('UPDATE machines SET status = ? WHERE id = ?')->execute([$status, $id]);
+        $pdo->prepare('UPDATE machines SET status = ? WHERE id = ?')->execute([$status, $may['id']]);
+        return ['ok', "Đã chuyển máy {$may['ten']} sang \"{$statuses[$status]}\"."];
     },
-    'delete' => function (PDO $pdo, int $id): void {
+    'delete' => function (PDO $pdo, array $may): array {
         // Xoá máy rác (spam API). Máy THẬT bị xoá sẽ tự đăng ký lại + dùng thử lại → máy thật dùng Thu hồi.
-        $st = $pdo->prepare('SELECT machine_id FROM machines WHERE id = ?');
-        $st->execute([$id]);
-        $mid = $st->fetchColumn();
-        if ($mid === false) {
-            return;
-        }
         $pdo->beginTransaction();
-        $pdo->prepare('DELETE FROM check_logs WHERE machine_id = ?')->execute([$mid]);
-        $pdo->prepare('DELETE FROM machines WHERE id = ?')->execute([$id]);
+        $pdo->prepare('DELETE FROM check_logs WHERE machine_id = ?')->execute([$may['machine_id']]);
+        $pdo->prepare('DELETE FROM machines WHERE id = ?')->execute([$may['id']]);
         $pdo->commit();
+        return ['ok', "Đã xoá máy {$may['ten']}."];
     },
-    'set_owner' => function (PDO $pdo, int $id): void {
+    'set_owner' => function (PDO $pdo, array $may): array {
         // owner_id quyết định máy nào xem được backup của nhau (lib/api.php::dieu_kien_quyen_xem):
         // CẤM gán chủ không tồn tại — 2 máy cùng "chủ ma" sẽ thấy backup của nhau.
         $ownerId = (int)($_POST['owner_id'] ?? 0);
@@ -44,29 +40,39 @@ $HANH_DONG = [
             $st = $pdo->prepare('SELECT 1 FROM owners WHERE id = ?');
             $st->execute([$ownerId]);
             if (!$st->fetchColumn()) {
-                return;
+                return ['loi', 'Chủ máy đã chọn không còn tồn tại — tải lại trang rồi chọn lại.'];
             }
         }
-        $pdo->prepare('UPDATE machines SET owner_id = ? WHERE id = ?')->execute([$ownerId > 0 ? $ownerId : null, $id]);
+        $pdo->prepare('UPDATE machines SET owner_id = ? WHERE id = ?')->execute([$ownerId > 0 ? $ownerId : null, $may['id']]);
+        return ['ok', $ownerId > 0 ? "Đã gán chủ cho máy {$may['ten']}." : "Đã bỏ gán chủ của máy {$may['ten']}."];
     },
-    'reset_secret' => function (PDO $pdo, int $id): void {
+    'reset_secret' => function (PDO $pdo, array $may): array {
         $pdo->prepare('UPDATE machines SET device_secret_hash = NULL, secret_mismatch_at = NULL WHERE id = ?')
-            ->execute([$id]);
+            ->execute([$may['id']]);
+        return ['ok', "Đã đặt lại khoá máy {$may['ten']} — lần kiểm tra bản quyền tới, app sẽ đăng ký khoá mới."];
     },
-    'save_info' => function (PDO $pdo, int $id): void {
+    'save_info' => function (PDO $pdo, array $may): array {
         $pdo->prepare('UPDATE machines SET customer_name = ?, note = ? WHERE id = ?')->execute([
             post_text('customer_name', 150),
             post_text('note', 500),
-            $id,
+            $may['id'],
         ]);
+        return ['ok', "Đã lưu thông tin máy {$may['ten']}."];
     },
 ];
 
 if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     csrf_check();
     $hanhDong = $HANH_DONG[(string)($_POST['action'] ?? '')] ?? null;
-    if ($hanhDong !== null) {
-        $hanhDong($pdo, (int)($_POST['id'] ?? 0));
+    $st = $pdo->prepare("SELECT id, machine_id, COALESCE(NULLIF(hostname, ''), SUBSTR(machine_id, 1, 8)) AS ten FROM machines WHERE id = ?");
+    $st->execute([(int)($_POST['id'] ?? 0)]);
+    $may = $st->fetch();
+    if ($hanhDong === null) {
+        bao('loi', 'Thao tác không được hỗ trợ.');
+    } elseif (!$may) {
+        bao('loi', 'Máy không còn tồn tại (có thể vừa bị xoá ở tab khác).');
+    } else {
+        bao(...$hanhDong($pdo, $may));
     }
     header('Location: index.php?' . http_build_query(array_intersect_key($_GET, KHOA_BO_LOC + ['page' => 1])));
     exit;

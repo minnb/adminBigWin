@@ -19,10 +19,19 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
         $loi = 'Tên chủ máy không được để trống';
     } else {
         if ($id > 0) {
-            $pdo->prepare('UPDATE owners SET ten = ?, ghi_chu = ? WHERE id = ?')->execute([$ten, $ghiChu, $id]);
+            // Kiểm tồn tại riêng: UPDATE không đổi gì cũng trả rowCount = 0.
+            $coChu = $pdo->prepare('SELECT 1 FROM owners WHERE id = ?');
+            $coChu->execute([$id]);
+            if ($coChu->fetchColumn()) {
+                $pdo->prepare('UPDATE owners SET ten = ?, ghi_chu = ? WHERE id = ?')->execute([$ten, $ghiChu, $id]);
+                bao('ok', "Đã lưu chủ máy \"$ten\".");
+            } else {
+                bao('loi', 'Chủ máy này không còn tồn tại — không lưu được.');
+            }
         } else {
             // created_at NOT NULL, không có DEFAULT → BẮT BUỘC ghi đích danh (thiếu = lỗi 1364, đo 2026-10-20).
             $pdo->prepare('INSERT INTO owners (ten, ghi_chu, created_at) VALUES (?, ?, NOW())')->execute([$ten, $ghiChu]);
+            bao('ok', "Đã thêm chủ máy \"$ten\".");
         }
         header('Location: owners.php');
         exit;

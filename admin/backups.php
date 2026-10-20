@@ -9,13 +9,15 @@ require_login();
 $pdo = db();
 $mid = (string)($_GET['machine'] ?? '');
 if (!preg_match('/^[0-9a-f]{64}$/', $mid)) {
-    http_response_code(400);
-    exit('Mã machine không hợp lệ (yêu cầu chuỗi hex 64 ký tự)');
+    trang_bao_loi(400, 'Mã máy không hợp lệ', 'Đường dẫn phải có ?machine=<mã 64 ký tự hex>. Mở trang này từ nút "Sao lưu" trong danh sách máy.');
 }
 
 $st = $pdo->prepare('SELECT m.*, o.ten AS ten_chu FROM machines m LEFT JOIN owners o ON o.id = m.owner_id WHERE m.machine_id = ?');
 $st->execute([$mid]);
 $may = $st->fetch();
+if (!$may) {
+    trang_bao_loi(404, 'Không tìm thấy máy', 'Máy này không còn trong danh sách (đã bị xoá). Backup cũ của nó vẫn được giữ trên server nhưng không xem được từ đây.');
+}
 
 $st = $pdo->prepare('SELECT v.id, v.bo, v.hash, v.so_dong_json, v.kich_thuoc, v.app_version, v.created_at,
                             (SELECT COUNT(*) FROM backup_access_logs a WHERE a.version_id = v.id) AS so_lan_tai

@@ -105,6 +105,5 @@ try {
     ghi_log($pdo, $may['machine_id'], $ip, 'usage_push');
     ok(['da_nhan' => $daNhan, 'bi_bo' => $biBo]);
 } catch (Throwable $e) {
-    error_log('BigWIN usage_push: ' . $e->getMessage());
-    fail(500, 'server');
+    loi_may_chu($e);
 }

@@ -13,9 +13,15 @@ const SO_LAN_SAI_TOI_DA = 5;
 const KHOA_PHUT = 15;
 
 $error = '';
-if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
+// Đếm admin NGAY khi mở trang: lỗi DB (sai config, thiếu bảng) hiện ra trước khi gõ mật khẩu, và
+// DB trống thì nói rõ "chưa có tài khoản" thay vì "sai mật khẩu".
+$pdo = db();
+$chuaCoAdmin = (int)$pdo->query('SELECT COUNT(*) FROM admins')->fetchColumn() === 0;
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && $chuaCoAdmin) {
     csrf_check();
-    $pdo = db();
+    $error = 'Chưa có tài khoản admin nào trong database — tạo tài khoản theo hướng dẫn bên dưới rồi đăng nhập lại.';
+} elseif (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
+    csrf_check();
     $ip = client_ip();
 
     $pdo->exec('DELETE FROM admin_login_fails WHERE created_at < NOW() - INTERVAL 1 DAY');
@@ -83,6 +89,16 @@ page_head('Đăng nhập — BigWIN License');
         <div class="mb-6 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 dark:bg-rose-950/40 dark:border-rose-900/60 dark:text-rose-300 text-xs flex items-center gap-3">
             <i class="fa-solid fa-circle-exclamation text-base flex-shrink-0 text-rose-500"></i>
             <span><?= h($error) ?></span>
+        </div>
+        <?php endif; ?>
+
+        <?php if ($chuaCoAdmin): ?>
+        <div class="mb-6 p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-800 dark:bg-amber-950/40 dark:border-amber-900/60 dark:text-amber-300 text-xs space-y-2">
+            <div class="font-bold"><i class="fa-solid fa-user-plus mr-1.5"></i>Chưa có tài khoản admin</div>
+            <div>Cách 1 — cPanel → Terminal, trong thư mục web chạy:</div>
+            <code class="block p-2 rounded-lg bg-white/70 dark:bg-slate-900/70 font-mono break-all">php tools/create_admin.php &lt;tên&gt; &lt;mật khẩu ≥ 8 ký tự&gt;</code>
+            <div>Cách 2 — không có Terminal: trên máy có PHP chạy <code class="font-mono">php -r "echo password_hash('MẬT_KHẨU', PASSWORD_DEFAULT);"</code>, rồi trong phpMyAdmin chạy:</div>
+            <code class="block p-2 rounded-lg bg-white/70 dark:bg-slate-900/70 font-mono break-all">INSERT INTO admins (username, password_hash, created_at) VALUES ('tên', 'chuỗi_hash_vừa_in', NOW());</code>
         </div>
         <?php endif; ?>
 

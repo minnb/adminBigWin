@@ -24,4 +24,12 @@ return [
 
     // Số ngày giữ check_logs (nhật ký gọi API). Dọn ngẫu nhiên trong api/check.php.
     'log_luu_ngay' => 90,
+
+    // Khoá công khai nhúng trong app (core/license_service.py::LICENSE_PUBLIC_KEY_B64). Trang admin so với
+    // khoá ký ở trên — lệch (lỡ sinh khoá mới) thì cảnh báo ngay, vì mọi app sẽ từ chối server.
+    'app_public_key' => 'gUaiauzt/UejLDWom4yjz/VJc7lJGe9FdymVxKXNc+E=',
+
+    // true = trang lỗi hiện nguyên văn lỗi PHP/MySQL cả khi CHƯA đăng nhập (trang đăng nhập là công khai).
+    // Chỉ bật tạm lúc cài đặt, xong TẮT. Admin đã đăng nhập luôn thấy chi tiết.
+    'debug' => false,
 ];

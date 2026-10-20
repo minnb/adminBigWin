@@ -82,6 +82,5 @@ try {
     ghi_log($pdo, $may['machine_id'], $ip, 'backup_da_luu');
     ok(['ket_qua' => 'da_luu', 'version_id' => $versionId]);
 } catch (Throwable $e) {
-    error_log('BigWIN backup_push: ' . $e->getMessage());
-    fail(500, 'server');
+    loi_may_chu($e);
 }

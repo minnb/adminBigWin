@@ -64,12 +64,14 @@ try {
     $machineId = $in['machine_id'] ?? '';
     $nonce = $in['nonce'] ?? '';
     // la_hex: đúng độ dài + chỉ hex thường. Chặt hơn regex `$` cũ (regex nhận thêm 1 "\n" ở cuối).
-    if (!la_hex($machineId, 64) || !la_hex($nonce, 32)) {
+    $hostname = str_field($in, 'hostname', 100);
+    // App thật: machine_id = sha256 (không thể toàn số 0) và luôn gửi tên máy → thiếu = giả, KHÔNG đăng ký.
+    if (!la_hex($machineId, 64) || !la_hex($nonce, 32)
+        || $machineId === str_repeat('0', 64) || $hostname === '') {
         ghi_log($pdo, '', $ip, 'bad_input');
         fail(400, 'input');
     }
 
-    $hostname = str_field($in, 'hostname', 100);
     $appVersion = str_field($in, 'app_version', 20);
     $tgUsername = str_field($in, 'tg_username', 64);
     $tgName = str_field($in, 'tg_name', 128);
@@ -113,8 +115,7 @@ try {
 
     $sk = @file_get_contents((string)cfg('secret_key_file'));
     if ($sk === false || strlen($sk) !== SODIUM_CRYPTO_SIGN_SECRETKEYBYTES) {
-        error_log('BigWIN license: secret key missing/invalid');
-        fail(500, 'server');
+        throw new LoiCauHinh('khoa_ky', 'Không đọc được file khoá ký (secret_key_file trong config.php): sai đường dẫn, thiếu quyền đọc hoặc file không đủ 64 byte. Dùng ĐÚNG file license_secret.key cũ — sinh khoá mới thì mọi app đã phát hành sẽ từ chối server.');
     }
 
     $payload = json_encode([
@@ -132,6 +133,5 @@ try {
         'sig'     => base64_encode($sig),
     ]);
 } catch (Throwable $e) {
-    error_log('BigWIN license: ' . $e->getMessage());
-    fail(500, 'server');
+    loi_may_chu($e);
 }

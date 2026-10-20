@@ -3,6 +3,38 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../lib/bootstrap.php';
 
+if (!function_exists('trang_bao_loi')) {
+    /** Trang lỗi ĐỘC LẬP (CSS inline, không CDN/layout) — lỗi có thể nổ giữa lúc đang render trang. */
+    function trang_bao_loi(int $http, string $tieuDe, string $goiY, string $chiTiet = ''): never
+    {
+        if (!headers_sent()) {
+            http_response_code($http);
+            header('Content-Type: text/html; charset=utf-8');
+        }
+        echo '<!DOCTYPE html><html lang="vi"><head><meta charset="utf-8">'
+            . '<meta name="viewport" content="width=device-width, initial-scale=1"><title>' . h($tieuDe) . ' — BigWIN Admin</title></head>'
+            . '<body style="margin:0;padding:16px;font-family:system-ui,\'Segoe UI\',sans-serif;background:#f1f5f9;color:#0f172a">'
+            . '<div style="max-width:680px;margin:40px auto;padding:24px;background:#fff;border:1px solid #fecaca;border-left:6px solid #e11d48;border-radius:12px">'
+            . '<h1 style="margin:0 0 12px;font-size:20px;color:#be123c">' . h($tieuDe) . '</h1>'
+            . '<p style="margin:0 0 12px;line-height:1.6">' . h($goiY) . '</p>'
+            . ($chiTiet === '' ? '' : '<pre style="margin:0;white-space:pre-wrap;word-break:break-all;background:#f8fafc;padding:12px;border-radius:8px;font-size:12px">' . h($chiTiet) . '</pre>')
+            . '<p style="margin:16px 0 0;font-size:13px"><a href="index.php">← Về trang quản trị</a></p></div></body></html>';
+        exit;
+    }
+}
+
+// Mọi lỗi chưa bắt (DB, cấu hình, code) → trang báo lỗi có hướng dẫn sửa thay vì "HTTP ERROR 500" trắng.
+// Nguyên văn lỗi CHỈ hiện cho admin đã đăng nhập hoặc khi config bật 'debug' (trang đăng nhập là công khai).
+set_exception_handler(function (Throwable $e): void {
+    $ref = ghi_loi($e);
+    $cd = chan_doan_loi($e);
+    $chiTiet = "Mã lỗi: {$cd['ma']} · Mã tra cứu trong error_log: $ref";
+    if (che_do_debug() || !empty($_SESSION['admin_id'])) {
+        $chiTiet .= "\n" . get_class($e) . ': ' . $e->getMessage() . "\n@ " . $e->getFile() . ':' . $e->getLine();
+    }
+    trang_bao_loi(500, 'Máy chủ gặp lỗi', $cd['goi_y'], $chiTiet);
+});
+
 if (session_status() === PHP_SESSION_NONE) {
     ini_set('session.gc_maxlifetime', '604800');
     session_set_cookie_params([
@@ -43,9 +75,60 @@ if (!function_exists('csrf_check')) {
     function csrf_check(): void
     {
         if (!hash_equals($_SESSION['csrf'] ?? '', (string)($_POST['csrf'] ?? ''))) {
-            http_response_code(403);
-            exit('CSRF Error: Token không hợp lệ hoặc đã hết hạn.');
+            trang_bao_loi(403, 'Phiên làm việc đã hết hạn', 'Mã bảo vệ form (CSRF) không khớp — thường do mở trang quá lâu hoặc đã đăng xuất ở tab khác. Tải lại trang rồi thao tác lại.');
         }
+    }
+}
+
+if (!function_exists('bao')) {
+    /** Thông báo kết quả thao tác, hiện 1 lần ở trang kế tiếp (sau redirect). $loai: 'ok' | 'loi'. */
+    function bao(string $loai, string $noiDung): void
+    {
+        $_SESSION['bao'][] = [$loai, $noiDung];
+    }
+}
+
+if (!function_exists('kiem_tra_he_thong')) {
+    /**
+     * Cấu hình server còn thiếu gì → danh sách việc admin cần làm (rỗng = ổn). Hiện ở đầu mọi trang
+     * admin để lỗi thiếu bảng / khoá được thấy NGAY, không đợi tới lúc app gọi API mới 500.
+     *
+     * @return string[]
+     */
+    function kiem_tra_he_thong(PDO $pdo): array
+    {
+        $viec = [];
+        if (!function_exists('sodium_crypto_sign_detached')) {
+            $viec[] = 'PHP thiếu extension sodium — cPanel → Select PHP Version → Extensions, bật "sodium".';
+        }
+        $bangCan = ['owners', 'machines', 'check_logs', 'admin_login_fails', 'admins',
+                    'backup_versions', 'usage_summaries', 'backup_access_logs'];
+        $bangCo = $pdo->query('SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE()')
+            ->fetchAll(PDO::FETCH_COLUMN);
+        $thieuBang = array_diff($bangCan, $bangCo);
+        if ($thieuBang) {
+            $viec[] = 'Thiếu bảng: ' . implode(', ', $thieuBang) . ' — import schema.sql (bảng đã có không bị ảnh hưởng).';
+        }
+        $cotCo = $pdo->query("SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'machines'")
+            ->fetchAll(PDO::FETCH_COLUMN);
+        $thieuCot = $cotCo ? array_diff(['owner_id', 'device_secret_hash', 'secret_mismatch_at'], $cotCo) : [];
+        if ($thieuCot) {
+            $viec[] = 'Bảng machines thiếu cột: ' . implode(', ', $thieuCot) . ' — chạy các file migrations/*.sql theo thứ tự ngày.';
+        }
+        $sk = @file_get_contents((string)cfg('secret_key_file'));
+        if ($sk === false || strlen($sk) !== SODIUM_CRYPTO_SIGN_SECRETKEYBYTES) {
+            $viec[] = 'Không đọc được file khoá ký (secret_key_file trong config.php) — kiểm tra đường dẫn + quyền đọc. Dùng ĐÚNG file license_secret.key cũ.';
+        } elseif (cfg('app_public_key') && base64_encode(sodium_crypto_sign_publickey_from_secretkey($sk)) !== cfg('app_public_key')) {
+            $viec[] = 'Khoá ký trên server KHÔNG khớp khoá công khai nhúng trong app (app_public_key) — mọi app sẽ từ chối server. Upload lại đúng file license_secret.key cũ.';
+        }
+        if ($sk !== false) {
+            sodium_memzero($sk);
+        }
+        $kb = @file_get_contents((string)cfg('backup_key_file'));
+        if ($kb === false || strlen($kb) !== SODIUM_CRYPTO_SECRETBOX_KEYBYTES) {
+            $viec[] = 'Không đọc được file khoá backup (backup_key_file trong config.php) — sao lưu cloud sẽ lỗi. Dùng ĐÚNG file backup_secretbox.key cũ.';
+        }
+        return $viec;
     }
 }
 
@@ -319,6 +402,28 @@ if (!function_exists('admin_header')) {
     <!-- Main Content Area -->
     <main class="flex-1 p-4 sm:p-6 lg:p-8 space-y-6">
 <?php
+        // Đang render dở (header đã gửi) → lỗi ở đây KHÔNG được ném ra, chỉ thành 1 dòng cảnh báo.
+        try {
+            $dsViec = kiem_tra_he_thong(db());
+        } catch (Throwable $e) {
+            $dsViec = ['Không kiểm tra được cấu hình (mã lỗi: ' . chan_doan_loi($e)['ma'] . ', tra error_log: ' . ghi_loi($e) . ').'];
+        }
+        foreach ($dsViec as $viec): ?>
+        <div class="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-800 dark:bg-amber-950/40 dark:border-amber-900/60 dark:text-amber-300 text-sm flex items-start gap-3">
+            <i class="fa-solid fa-triangle-exclamation mt-0.5 flex-shrink-0"></i>
+            <span><span class="font-semibold">Cấu hình server chưa đủ:</span> <?= h($viec) ?></span>
+        </div>
+<?php   endforeach;
+        foreach ($_SESSION['bao'] ?? [] as [$loai, $noiDung]):
+            $mau = $loai === 'ok'
+                ? 'bg-emerald-50 border-emerald-200 text-emerald-800 dark:bg-emerald-950/40 dark:border-emerald-900/60 dark:text-emerald-300'
+                : 'bg-rose-50 border-rose-200 text-rose-700 dark:bg-rose-950/40 dark:border-rose-900/60 dark:text-rose-300'; ?>
+        <div class="p-4 rounded-2xl border text-sm flex items-center gap-3 <?= $mau ?>">
+            <i class="fa-solid <?= $loai === 'ok' ? 'fa-circle-check' : 'fa-circle-exclamation' ?> flex-shrink-0"></i>
+            <span><?= h($noiDung) ?></span>
+        </div>
+<?php   endforeach;
+        unset($_SESSION['bao']);
     }
 }
 

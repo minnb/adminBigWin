@@ -44,6 +44,5 @@ try {
     ghi_log($pdo, $may['machine_id'], $ip, 'backup_list');
     ok(['phien_ban' => $ds]);
 } catch (Throwable $e) {
-    error_log('BigWIN backup_list: ' . $e->getMessage());
-    fail(500, 'server');
+    loi_may_chu($e);
 }

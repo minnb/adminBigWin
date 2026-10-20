@@ -36,6 +36,5 @@ try {
     ghi_log($pdo, $may['machine_id'], $ip, 'backup_get');
     ok(['bo' => $r['bo'], 'hash' => $r['hash'], 'data' => base64_encode(giai_ma($r['du_lieu']))]);
 } catch (Throwable $e) {
-    error_log('BigWIN backup_get: ' . $e->getMessage());
-    fail(500, 'server');
+    loi_may_chu($e);
 }

@@ -10,14 +10,31 @@ require_once __DIR__ . '/crypto.php';  // ma_hoa / giai_ma — lỗi khoá ném 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
 
-function fail(int $code, string $msg): void
+// `never`: nếu `exit` bị vô hiệu (uopz trên hosting) PHP ném TypeError thay vì chạy tiếp
+// xuống INSERT — lớp chặn thứ 2 sau uopz_allow_exit() ở bootstrap.php.
+function fail(int $code, string $msg): never
 {
     http_response_code($code);
     echo json_encode(['error' => $msg]);
     exit;
 }
 
-function ok(array $data): void
+/**
+ * Lỗi phía server → 500 + {"error":"server","ma":…,"ref":…}. `ma` (vd db_thieu_bang) cho biết hướng
+ * sửa mà không lộ chi tiết; nguyên văn lỗi nằm trong error_log, tìm theo `ref`.
+ */
+function loi_may_chu(Throwable $e): never
+{
+    $ref = ghi_loi($e);
+    http_response_code(500);
+    echo json_encode(['error' => 'server', 'ma' => chan_doan_loi($e)['ma'], 'ref' => $ref]);
+    exit;
+}
+
+// Lỗi lọt ngoài try/catch của endpoint (vd thiếu config.php) vẫn trả JSON, không phải trang 500 trắng.
+set_exception_handler('loi_may_chu');
+
+function ok(array $data): never
 {
     echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     exit;

@@ -12,7 +12,7 @@ function khoa_backup(): string
     if ($k === null) {
         $doc = @file_get_contents((string)cfg('backup_key_file'));
         if ($doc === false || strlen($doc) !== SODIUM_CRYPTO_SECRETBOX_KEYBYTES) {
-            throw new RuntimeException('backup key missing/invalid');
+            throw new LoiCauHinh('khoa_backup', 'Không đọc được file khoá backup (backup_key_file trong config.php): sai đường dẫn, thiếu quyền đọc hoặc file không đủ 32 byte. Dùng ĐÚNG file backup_secretbox.key cũ — sinh khoá mới sẽ không mở được các bản backup đã lưu.');
         }
         $k = $doc;
     }
@@ -30,7 +30,7 @@ function giai_ma(string $blob): string
     $nonce = substr($blob, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
     $plain = sodium_crypto_secretbox_open(substr($blob, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES), $nonce, khoa_backup());
     if ($plain === false) {
-        throw new RuntimeException('backup decrypt failed');
+        throw new LoiCauHinh('giai_ma_that_bai', 'Không giải mã được bản backup: file khoá backup hiện tại KHÁC khoá lúc lưu (đã sinh khoá mới?) hoặc dữ liệu hỏng. Khôi phục đúng file backup_secretbox.key cũ.');
     }
     return $plain;
 }
