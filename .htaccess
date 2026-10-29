@@ -1,0 +1,8 @@
+Options -Indexes
+RewriteEngine On
+
+# Mã nguồn web nằm trong src/webapp/. Rewrite NỘI BỘ (không redirect) để URL cũ
+# (/api/check.php, /admin/...) giữ nguyên và POST body của app không bị mất.
+RedirectMatch 404 /\.git
+RewriteCond %{REQUEST_URI} !/src/webapp/
+RewriteRule ^(.*)$ src/webapp/$1 [L]
