@@ -49,12 +49,12 @@ window.BW_MOCK = (() => {
   ];
 
   const KHACH_HANG = [
-    { id: 1, ten: 'Anh Ba — Chợ Lớn', zalo: '0903 112 445', telegram: '@anhba_cl', he_so: { ti_le_chiet_khau_de: 25 } },
-    { id: 2, ten: 'Chị Tư Bến Thành', zalo: '0918 223 778', telegram: '@chitu_bt', he_so: { he_so_ghi_lo: 22500 } },
-    { id: 3, ten: 'Cô Năm Q.5', zalo: '0937 654 120', telegram: '', he_so: {} },
-    { id: 4, ten: 'Út Hiền Gò Vấp', zalo: '', telegram: '@uthien_gv', he_so: { he_so_de: 75, ti_le_chiet_khau_de: 20 } },
-    { id: 5, ten: 'Bác Sáu Thủ Đức', zalo: '0909 887 001', telegram: '@bacsau', he_so: { he_so_lo: 78000, he_so_ghi_lo: 23500 } },
-    { id: 6, ten: 'Tám Xe Ôm', zalo: '0388 456 999', telegram: '', he_so: {} },
+    { id: 1, ten: 'Anh Ba — Chợ Lớn', zalo: '0903 112 445', telegram: '@anhba_cl', tele_id: 1101, he_so: { ti_le_chiet_khau_de: 25 } },
+    { id: 2, ten: 'Chị Tư Bến Thành', zalo: '0918 223 778', telegram: '@chitu_bt', tele_id: 1102, he_so: { he_so_ghi_lo: 22500 } },
+    { id: 3, ten: 'Cô Năm Q.5', zalo: '0937 654 120', telegram: '', tele_id: null, he_so: {} },
+    { id: 4, ten: 'Út Hiền Gò Vấp', zalo: '', telegram: '@uthien_gv', tele_id: 1104, he_so: { he_so_de: 75, ti_le_chiet_khau_de: 20 } },
+    { id: 5, ten: 'Bác Sáu Thủ Đức', zalo: '0909 887 001', telegram: '@bacsau', tele_id: 1105, he_so: { he_so_lo: 78000, he_so_ghi_lo: 23500 } },
+    { id: 6, ten: 'Tám Xe Ôm', zalo: '0388 456 999', telegram: '', tele_id: null, he_so: {} },
   ];
 
   const MAU_TIN = [
@@ -77,15 +77,43 @@ window.BW_MOCK = (() => {
   ];
 
   const TELEGRAM_TIN = [
-    { id: 9101, khach_id: 1, gio: '17:12', text: 'de 81 18 x50k lo 27 63 x10', trang_thai: 'ok', da_luu: true },
-    { id: 9102, khach_id: 2, gio: '17:25', text: 'đê 45 54 x 2 lít\nlô 63 x5 điểm', trang_thai: 'ok', da_luu: false },
-    { id: 9103, khach_id: 4, gio: '17:31', text: 'de 27 x30k lo 04 81 x20\nsien 27 81 x10k', trang_thai: 'err', da_luu: false },
-    { id: 9104, khach_id: 5, gio: '17:38', text: 'lo 81 x 50 diem\nde kep x10k', trang_thai: 'err', da_luu: false },
-    { id: 9105, khach_id: 1, gio: '17:42', text: 'xq 81 27 63 x 1 chục', trang_thai: 'warn', da_luu: true, sua_tren_tg: true },
-    { id: 9106, khach_id: 3, gio: '17:47', text: '3c 281 x20k de 18 x100k', trang_thai: 'ok', da_luu: false },
-    { id: 9107, khach_id: 6, gio: '17:53', text: 'de tong 5 x10k lo 63.27 x15', trang_thai: 'ok', da_luu: false },
-    { id: 9108, khach_id: 2, gio: '18:02', text: 'lo 18 81 x 3 củ', trang_thai: 'err', da_luu: false },
+    // Khách 1: Anh Ba (Nhận về)
+    { id: 9101, message_id: 10451, khach_id: 1, chieu: 'in', gio: '17:12', text: 'de 81 18 x50k lo 27 63 x10', trang_thai: 'ok', da_luu: false },
+    { id: 9102, message_id: 10452, khach_id: 1, chieu: 'in', gio: '17:25', text: 'đê 45 54 x 2 lít\nlô 63 x5 điểm', trang_thai: 'warn', da_luu: false },
+    { id: 9103, message_id: 10453, khach_id: 1, chieu: 'in', gio: '17:31', text: 'de 27 x30k lo 04 81 x20\nsien 27 81 x10k', trang_thai: 'err', da_luu: false },
+    { id: 9104, message_id: 10454, khach_id: 1, chieu: 'in', gio: '17:42', text: 'xq 81 27 63 x 1 chục', trang_thai: 'warn', da_luu: false },
+    { id: 9105, message_id: 10455, khach_id: 1, chieu: 'in', gio: '17:48', text: '3c 128 281 x10k\nde 18 x50k', trang_thai: 'ok', da_luu: false },
+    { id: 9107, message_id: 10465, khach_id: 1, chieu: 'in', gio: '17:55', text: 'de bo 12 34 x50k\nde cham 8 9 x30k\nde kep x20k\nlo 18 81 27 72 x10d\nlo 36 63 45 54 x15d\nxien 18 27, 81 72 x50k\nxien 36 45, 63 54 x30k\nxq 18 27 63 x20k\n3c 128 281 363 x10k\n3c 454 545 x10k', trang_thai: 'ok', da_luu: false },
+    // Khách 1: Anh Ba (Gửi đi)
+    { id: 9106, message_id: 10460, khach_id: 1, chieu: 'out', gio: '17:50', text: 'de 81 18 x50k lo 27 63 x10', trang_thai: 'ok', da_luu: false },
+
+    // Khách 2: Chị Tư Bến Thành (Nhận về)
+    { id: 9201, message_id: 10512, khach_id: 2, chieu: 'in', gio: '16:45', text: 'de bo 12 x20k\nde cham 8 x10k', trang_thai: 'ok', da_luu: false },
+    { id: 9202, message_id: 10513, khach_id: 2, chieu: 'in', gio: '17:15', text: 'lo 18 81 x 3 củ', trang_thai: 'err', da_luu: false },
+    { id: 9203, message_id: 10514, khach_id: 2, chieu: 'in', gio: '17:35', text: 'lo 27 63 x20 diem\nde 81 x100k', trang_thai: 'ok', da_luu: false },
+
+    // Khách 4: Út Hiền Gò Vấp (Nhận về)
+    { id: 9401, message_id: 10601, khach_id: 4, chieu: 'in', gio: '17:05', text: 'de 27 72 x50k lo 04 x10', trang_thai: 'ok', da_luu: false },
+    { id: 9402, message_id: 10602, khach_id: 4, chieu: 'in', gio: '17:28', text: 'xien 27 81 63 x20k\n3c 456 x10k', trang_thai: 'ok', da_luu: false },
+
+    // Khách 5: Bác Sáu Thủ Đức (Nhận về)
+    { id: 9501, message_id: 10701, khach_id: 5, chieu: 'in', gio: '17:38', text: 'lo 81 x 50 diem\nde kep x10k', trang_thai: 'ok', da_luu: false },
+    { id: 9502, message_id: 10702, khach_id: 5, chieu: 'in', gio: '17:52', text: 'de 81 x50k lo 2763 x10', trang_thai: 'err', da_luu: false },
   ];
+
+  const USERS_CHATTED_TODAY = [
+    { uid: '1101', username: 'anhba_cl', name: 'Anh Ba — Chợ Lớn', time: '17:48', text: '3c 128 281 x10k de 18 x50k' },
+    { uid: '1102', username: 'chitu_bt', name: 'Chị Tư Bến Thành', time: '17:35', text: 'lo 27 63 x20 diem de 81 x100k' },
+    { uid: '1104', username: 'uthien_gv', name: 'Út Hiền Gò Vấp', time: '17:28', text: 'xien 27 81 63 x20k 3c 456 x10k' },
+    { uid: '1105', username: 'bacsau', name: 'Bác Sáu Thủ Đức', time: '17:52', text: 'de 81 x50k lo 2763 x10' },
+  ];
+
+  const TG_CONFIG = {
+    api_id: '2981726',
+    api_hash: 'c8f12a3b90e1f728c89b27182903ab81',
+    session_name: 'bigwin_telethon',
+    gemini_api_key: 'AIzaSyA8B9123-Kj98234-Mn76231-BigWinKey',
+  };
 
   const TU_HOC = [
     { goc: 'lít', moi: '00k', hit: 412, dung_cuoi: '30-10 17:52', nguon: 'tự học' },
@@ -126,6 +154,7 @@ window.BW_MOCK = (() => {
   return {
     homNay: iso(homNay), homQua: iso(homQua),
     KQ: { [iso(homNay)]: KQ_HOM_NAY, [iso(homQua)]: KQ_HOM_QUA },
-    HE_SO_MAC_DINH, COT_HE_SO, KHACH_HANG, MAU_TIN, TELEGRAM_TIN, TU_HOC, DAN_SO, DA_LUU,
+    HE_SO_MAC_DINH, COT_HE_SO, KHACH_HANG, MAU_TIN, TELEGRAM_TIN, USERS_CHATTED_TODAY, TG_CONFIG, TU_HOC, DAN_SO, DA_LUU,
   };
 })();
+

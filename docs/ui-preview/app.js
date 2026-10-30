@@ -191,13 +191,37 @@ function bw() {
     _timer: null,
     luuTrung: null,
 
-    // ── telegram ──
-    tgLoc: 'tat_ca',
-    tgChon: 9103,
-    tgSua: '',
+    // ── telegram (chuẩn theo telegram_forms.py) ──
     tgKetNoi: true,
     tgBuoc: 'sdt',
     tgPhone: '0903 112 445',
+    tgOtp: '',
+    tg2fa: '',
+    tgConfig: JSON.parse(JSON.stringify(M.TG_CONFIG || { api_id: '2981726', api_hash: 'c8f12a3b90e1f728c89b27182903ab81', session_name: 'bigwin_telethon', gemini_api_key: 'AIzaSyA8B9123-Kj98234-Mn76231' })),
+    tgShowMaskedHash: false,
+    tgShowMaskedGemini: false,
+
+    tgKhachId: 1,
+    tgChieu: 'in', // 'in': Nhận về, 'out': Gửi đi
+    tgMaxTin: 2000,
+    tgDangDongBo: false,
+    tgTimerStr: '⏱ 00s',
+    _tgTimerJob: null,
+    _tgTimerStart: 0,
+
+    tgDanhSach: [],
+    tgChiXemLoi: false,
+    tgTinChon: null,
+    tgDockText: '',
+    tgDockKetQua: null,
+    tgDockChiTiet: [],
+    tgPreviewDaSanSang: false,
+    tgDockLayout: 'split', // 'split' (chia trên/dưới tự co giãn), 'side' (song song 2 cột), 'max' (phóng to editor)
+    tgChanDoanMo: true, // Cho phép gấp gọn chẩn đoán lỗi
+
+    tgSummaryData: null,
+    tgTongHopBets: [],
+    tgBanTgList: M.USERS_CHATTED_TODAY || [],
 
     // ── kqxs / khách / lịch sử ──
     chi2So: false,
@@ -224,7 +248,7 @@ function bw() {
       if (/^mau[1-4]$/.test(h)) this.tin = M.MAU_TIN[+h[3] - 1].text;
       if (h === 'lichsu') this.lsMo = 5;
       this.phanTichNgay();
-      this.chonTg(this.tgChon);
+      this.batDauDongBoTg(true);
       window.addEventListener('keydown', (e) => this.phim(e));
     },
 
@@ -419,27 +443,326 @@ function bw() {
       this.modal = 'trung';
     },
 
-    // ═════════ telegram ═════════
-    tgTrangThai(t) {
-      if (!phanTich(t.text, this.tuHoc).canSave) return 'err';
-      return t.sua_tren_tg ? 'warn' : 'ok';
+    // ═════════ telegram (chuẩn theo telegram_forms.py) ═════════
+    get khachCoTelegram() {
+      return this.khach.filter((k) => k.telegram && k.telegram.trim() !== '');
+    },
+    get tgKhachChon() {
+      return this.khach.find((k) => k.id === Number(this.tgKhachId)) || this.khachCoTelegram[0] || this.khach[0];
+    },
+    doiKhachTg() {
+      if (this.tgDangDongBo) return;
+      this.tgDanhSach = [];
+      this.tgTinChon = null;
+      this.tgDockText = '';
+      this.tgDockChiTiet = [];
+      this.tgPreviewDaSanSang = false;
+      this.bao(`Đã chuyển sang khách: ${this.tgKhachChon?.ten}. Bấm "⚡ BẮT ĐẦU ĐỒNG BỘ" để lấy tin.`, 'ok', 'fa-user');
+    },
+    batDauDongBoTg(silent = false) {
+      if (this.tgDangDongBo) return;
+      if (!this.kqNgay) {
+        this.bao(`Chưa có KQXS ngày ${this.ngayHienThi} — vui lòng Cập nhật KQXS (Alt+R) trước khi đồng bộ!`, 'err', 'fa-circle-xmark');
+        return;
+      }
+      const kh = this.tgKhachChon;
+      if (!kh) {
+        this.bao('Vui lòng chọn khách hàng có tài khoản Telegram', 'warn', 'fa-user');
+        return;
+      }
+
+      this.tgDangDongBo = true;
+      this._tgTimerStart = Date.now();
+      this.tgTimerStr = '⏱ 00s';
+      clearInterval(this._tgTimerJob);
+      this._tgTimerJob = setInterval(() => {
+        const s = Math.floor((Date.now() - this._tgTimerStart) / 1000);
+        const m = Math.floor(s / 60);
+        const sec = s % 60;
+        this.tgTimerStr = m > 0 ? `⏱ ${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}` : `⏱ ${String(sec).padStart(2, '0')}s`;
+      }, 1000);
+
+      const delay = silent ? 10 : 700;
+      setTimeout(() => {
+        clearInterval(this._tgTimerJob);
+        this.tgDangDongBo = false;
+
+        const khId = Number(this.tgKhachId);
+        let tinNguon = M.TELEGRAM_TIN.filter((t) => t.khach_id === khId && (t.chieu || 'in') === this.tgChieu);
+        if (!tinNguon.length) {
+          tinNguon = M.TELEGRAM_TIN.filter((t) => (t.chieu || 'in') === this.tgChieu).slice(0, 3);
+        }
+
+        let stt = 1;
+        const dsMoi = [];
+        for (const t of tinNguon) {
+          const phan = phanTich(t.text, this.tuHoc);
+          const bets = phan.bets.map((b) => {
+            const d = this.tinhDong(b, kh);
+            d.thanh_tien = d.trung - d.ghi + d.ck;
+            return d;
+          });
+          const totals = this.tong(bets);
+          const isErr = !phan.canSave;
+          const isWarn = phan.dich && phan.dich.length > 0;
+          const status = isErr ? 'error' : (isWarn ? 'warn' : 'ok');
+          const status_label = isErr ? 'PARSE_ERROR' : (isWarn ? '⚠️ NGHI NGỜ' : '✅ OK');
+
+          dsMoi.push({
+            id: t.id,
+            stt: stt++,
+            message_id: t.message_id || (10400 + stt),
+            khach_id: khId,
+            chieu: this.tgChieu,
+            gio: t.gio || '17:30',
+            text_goc: t.text,
+            text_hien_thi: t.text,
+            text_kiem_tra: phan.sach,
+            status: status,
+            status_label: status_label,
+            tien_ghi: totals.ghi,
+            tien_ck: totals.ck,
+            tien_trung: totals.trung,
+            phai_tra: totals.trung - totals.ghi + totals.ck,
+            errors: phan.loi || [],
+            he_thong_dich: phan.dich || [],
+            bets: bets,
+          });
+        }
+
+        this.tgDanhSach = dsMoi;
+        this.tgPreviewDaSanSang = dsMoi.some((t) => t.status !== 'error');
+
+        // Tự động chọn dòng lỗi đầu tiên hoặc dòng đầu tiên
+        const loiDau = dsMoi.find((t) => t.status === 'error') || dsMoi[0];
+        if (loiDau) this.chonTinTg(loiDau);
+
+        if (!silent) {
+          this.bao(`Đã quét ${dsMoi.length} tin Telegram của ${kh.ten} (${this.tgChieu === 'in' ? 'Nhận về' : 'Gửi đi'})`, 'ok', 'fa-bolt');
+          this.moSyncSummaryDialog(true);
+        }
+      }, delay);
+    },
+    chonTinTg(t) {
+      this.tgTinChon = t;
+      this.tgDockText = t.text_hien_thi;
+      this.capNhatDockChiTiet();
+    },
+    capNhatDockChiTiet() {
+      if (!this.tgTinChon) return;
+      const kh = this.tgKhachChon;
+      const phan = phanTich(this.tgDockText, this.tuHoc);
+      const bets = phan.bets.map((b) => {
+        const d = this.tinhDong(b, kh);
+        d.thanh_tien = d.trung - d.ghi + d.ck;
+        return d;
+      });
+      this.tgDockKetQua = phan;
+      this.tgDockChiTiet = bets;
+    },
+    parseThuDock() {
+      if (!this.tgTinChon) return;
+      this.capNhatDockChiTiet();
+      const phan = this.tgDockKetQua;
+      if (!phan.canSave) {
+        this.bao(`Parse thử: Tin còn ${phan.loi.length} lỗi cú pháp cần sửa`, 'err', 'fa-circle-xmark');
+      } else {
+        const totals = this.tong(this.tgDockChiTiet);
+        this.bao(`Parse thử thành công: ${this.tgDockChiTiet.length} cược · Ghi ${fmt(totals.ghi)}đ · ${totals.can >= 0 ? 'Khách nộp' : 'Chủ trả'} ${fmt(Math.abs(totals.can))}đ`, 'ok', 'fa-circle-check');
+      }
+    },
+    luuDockThayDoi() {
+      if (!this.tgTinChon) return;
+      this.capNhatDockChiTiet();
+      const phan = this.tgDockKetQua;
+      if (!phan.canSave) {
+        this.bao(`Không thể lưu: Tin vẫn còn ${phan.loi.length} lỗi cú pháp!`, 'err', 'fa-triangle-exclamation');
+        return;
+      }
+
+      const t = this.tgTinChon;
+      const moi = this.tgDockText.trim();
+      t.text_hien_thi = moi;
+      t.text_kiem_tra = phan.sach;
+
+      // Học quy tắc nếu người dùng sửa từ viết tắt
+      const qt = this.rutQuyTac(t.text_goc, moi);
+      let ghiChuHoc = '';
+      if (qt && !qt.tuChoi) {
+        const co = this.tuHoc.find((r) => r.goc === qt.x);
+        if (co) { co.moi = qt.y; co.hit++; }
+        else this.tuHoc.unshift({ goc: qt.x, moi: qt.y, hit: 1, dung_cuoi: 'vừa xong', nguon: 'tự học' });
+        ghiChuHoc = ` 🧠 Đã ghi nhớ: "${qt.x}" → "${qt.y}"`;
+      }
+
+      const isWarn = phan.dich && phan.dich.length > 0;
+      t.status = isWarn ? 'warn' : 'ok';
+      t.status_label = isWarn ? '⚠️ NGHI NGỜ' : '✅ OK';
+      t.errors = [];
+      t.he_thong_dich = phan.dich || [];
+      t.bets = this.tgDockChiTiet;
+      const totals = this.tong(this.tgDockChiTiet);
+      t.tien_ghi = totals.ghi;
+      t.tien_ck = totals.ck;
+      t.tien_trung = totals.trung;
+      t.phai_tra = totals.trung - totals.ghi + totals.ck;
+
+      this.tgPreviewDaSanSang = this.tgDanhSach.some((x) => x.status !== 'error');
+      this.bao(`Đã cập nhật tin #${t.stt} (msg ${t.message_id}) -> ${t.status_label}.${ghiChuHoc}`, 'ok', 'fa-floppy-disk');
+    },
+    xoaTinTg(id) {
+      const idx = this.tgDanhSach.findIndex((x) => x.id === id);
+      if (idx === -1) return;
+      const item = this.tgDanhSach[idx];
+      if (!confirm(`Xoá tin #${item.stt} (msg ${item.message_id}) khỏi danh sách đối soát?\n\nKhi ghi DB, tin này sẽ không được ghi vào sổ.`)) {
+        return;
+      }
+      this.tgDanhSach.splice(idx, 1);
+      this.tgDanhSach.forEach((t, i) => { t.stt = i + 1; });
+      if (this.tgTinChon?.id === id) {
+        this.tgTinChon = this.tgDanhSach[idx] || this.tgDanhSach[idx - 1] || null;
+        if (this.tgTinChon) this.chonTinTg(this.tgTinChon);
+        else { this.tgDockText = ''; this.tgDockChiTiet = []; }
+      }
+      this.tgPreviewDaSanSang = this.tgDanhSach.some((x) => x.status !== 'error');
+      this.bao(`Đã xoá tin #${item.stt} khỏi danh sách`, 'warn', 'fa-trash');
+    },
+    troToiViTriLoi(err) {
+      const el = this.tgDockLayout === 'side' ? this.$refs.tgDockEditorSide : this.$refs.tgDockEditor;
+      if (!el || err.start < 0) return;
+      el.focus();
+      el.setSelectionRange(err.start, err.end);
+    },
+    get tgDockLineCount() {
+      if (!this.tgDockText) return 1;
+      return (this.tgDockText.match(/\n/g) || []).length + 1;
+    },
+    get tgDockCharCount() {
+      return (this.tgDockText || '').length;
+    },
+    get tgCalcEditorHeight() {
+      if (this.tgDockLayout === 'side' || this.tgDockLayout === 'max') {
+        return '100%';
+      }
+      // Chế độ split: tự động tính chiều cao theo số lượng dòng
+      const lines = this.tgDockLineCount;
+      // 1-3 dòng: 160px; 4-7 dòng: 220px; 8-12 dòng: 300px; >12 dòng: 380px
+      const calcPx = Math.min(Math.max(lines * 28 + 64, 170), 380);
+      return calcPx + 'px';
+    },
+    doiLayoutTg(mode) {
+      this.tgDockLayout = mode;
+      const ten = mode === 'side' ? 'Song song 2 cột (Editor // Bảng đối soát)' : mode === 'max' ? 'Phóng to tối đa ô soạn thảo' : 'Chia trên / dưới (Tự co giãn)';
+      this.bao(`Chế độ xem: ${ten}`, 'ok', 'fa-table-columns');
+    },
+    get tgDanhSachHienThi() {
+      if (this.tgChiXemLoi) {
+        return this.tgDanhSach.filter((t) => t.status === 'error' || t.status === 'warn');
+      }
+      return this.tgDanhSach;
+    },
+    get tgWritableRows() {
+      return this.tgDanhSach.filter((t) => t.status !== 'error');
+    },
+    get tgCoDuLieuGhi() {
+      return this.tgPreviewDaSanSang && this.tgWritableRows.length > 0;
     },
     get tgDem() {
-      return {
-        tat_ca: this.tg.length,
-        moi: this.tg.filter((t) => !t.da_luu).length,
-        loi: this.tg.filter((t) => this.tgTrangThai(t) === 'err').length,
-        da_luu: this.tg.filter((t) => t.da_luu).length,
+      const ok = this.tgDanhSach.filter((t) => t.status === 'ok').length;
+      const warn = this.tgDanhSach.filter((t) => t.status === 'warn').length;
+      const err = this.tgDanhSach.filter((t) => t.status === 'error').length;
+      return { tong: this.tgDanhSach.length, ok, warn, err, moi: err };
+    },
+    get tgCanChuY() {
+      return this.tgDem.warn + this.tgDem.err;
+    },
+    get tgTongTien() {
+      const okRows = this.tgWritableRows;
+      const ghi = okRows.reduce((s, t) => s + (t.tien_ghi || 0), 0);
+      const ck = okRows.reduce((s, t) => s + (t.tien_ck || 0), 0);
+      const trung = okRows.reduce((s, t) => s + (t.tien_trung || 0), 0);
+      const phai_tra = trung - ghi + ck;
+      return { ghi, ck, trung, phai_tra };
+    },
+    xacNhanGhiDB() {
+      const okRows = this.tgWritableRows;
+      if (!okRows.length) {
+        this.bao('Không có tin hợp lệ nào để ghi vào Database!', 'err', 'fa-triangle-exclamation');
+        return;
+      }
+      const soLoi = this.tgDanhSach.length - okRows.length;
+      let msg = `Ghi ${okRows.length} tin nhắn vào cơ sở dữ liệu đối soát cho khách ${this.tgKhachChon?.ten}?`;
+      if (soLoi > 0) {
+        msg += `\n\n⚠️ Có ${soLoi} tin lỗi cú pháp (đỏ) sẽ BỊ BỎ QUA.`;
+      }
+      msg += `\n\n🔁 Tin Telegram cũ của khách trong ngày ${this.ngayHienThi} sẽ được ghi đè bằng danh sách này (tin nhập tay giữ nguyên).`;
+
+      if (!confirm(msg)) return;
+
+      this.daLuu = this.daLuu.filter((p) => !(p.khach_id === Number(this.tgKhachId) && p.nguon === 'Telegram'));
+      for (const t of okRows) {
+        this.daLuu.push({
+          khach_id: Number(this.tgKhachId),
+          gio: t.gio || new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+          nguon: 'Telegram',
+          text: t.text_hien_thi,
+          bets: t.bets.map(({ loai, so, tien }) => ({ loai, so, tien })),
+        });
+      }
+
+      this.bao(`✅ Đã ghi thành công ${okRows.length} tin vào Database!`, 'ok', 'fa-floppy-disk');
+      this.moSyncSummaryDialog(false);
+    },
+    moSyncSummaryDialog(isPreview = false) {
+      const okRows = this.tgWritableRows;
+      const allBets = okRows.flatMap((t) => t.bets || []);
+      const loaiSoMap = {};
+      for (const b of allBets) {
+        const k = b.loai;
+        if (!loaiSoMap[k]) loaiSoMap[k] = { loai: k, nhan: NHAN_LOAI[k] || k, ghi: 0, ck: 0, trung: 0, diem_trung: 0 };
+        loaiSoMap[k].ghi += b.ghi || 0;
+        loaiSoMap[k].ck += b.ck || 0;
+        loaiSoMap[k].trung += b.trung || 0;
+        if (k === 'LO' && b.soLan) loaiSoMap[k].diem_trung += (b.tien * b.soLan);
+      }
+      const ORDER = ['DE', 'LO', '3C', 'LX2', 'LX3', 'LX4'];
+      const loaiSoList = [];
+      ORDER.forEach((ls) => { if (loaiSoMap[ls]) loaiSoList.push(loaiSoMap[ls]); });
+      Object.keys(loaiSoMap).forEach((ls) => { if (!ORDER.includes(ls)) loaiSoList.push(loaiSoMap[ls]); });
+
+      const tt = this.tgTongTien;
+      this.tgSummaryData = {
+        isPreview,
+        tenKhach: this.tgKhachChon?.ten,
+        ngay: this.ngayHienThi,
+        done: okRows.length,
+        skipped: 0,
+        failed: this.tgDem.err,
+        tong_ghi: tt.ghi,
+        tong_ck: tt.ck,
+        tong_trung: tt.trung,
+        phai_tra: tt.phai_tra,
+        loai_so: loaiSoList,
       };
+      this.modal = 'tg_summary';
     },
-    get tgLocDs() {
-      return this.tg.filter((t) => this.tgLoc === 'tat_ca' || (this.tgLoc === 'moi' && !t.da_luu) || (this.tgLoc === 'loi' && this.tgTrangThai(t) === 'err') || (this.tgLoc === 'da_luu' && t.da_luu));
+    moTongHopToanBo() {
+      const okRows = this.tgWritableRows;
+      const combined = okRows.flatMap((t) => t.bets || []);
+      this.tgTongHopBets = combined;
+      this.modal = 'tg_tonghop';
     },
-    get tgTin() { return this.tg.find((t) => t.id === this.tgChon); },
-    get tgKq() { return phanTich(this.tgSua, this.tuHoc); },
-    get tgDong() { const kh = this.khach.find((k) => k.id === this.tgTin?.khach_id); return this.tgKq.bets.map((b) => this.tinhDong(b, kh)); },
-    chonTg(id) { this.tgChon = id; this.tgSua = this.tg.find((t) => t.id === id)?.text || ''; },
-    tgHighlight() { return veHighlight(this.tgSua, this.tgKq.marks); },
+    taiBanTelegram() {
+      this.modal = 'tg_friends';
+    },
+    taiLaiKH() {
+      this.khach = JSON.parse(JSON.stringify(M.KHACH_HANG));
+      this.bao('Đã tải lại danh sách khách hàng có liên kết Telegram', 'ok', 'fa-rotate');
+    },
+    luuTgConfig() {
+      this.modal = null;
+      this.bao('Đã lưu cấu hình Telegram & AI thành công', 'ok', 'fa-floppy-disk');
+    },
     rutQuyTac(goc, moi) {
       const a = goc.split(/\s+/); const b = moi.split(/\s+/);
       let i = 0; while (i < a.length && i < b.length && a[i] === b[i]) i++;
@@ -450,33 +773,10 @@ function bw() {
       if (so(x) !== so(y) || !/\p{L}/u.test(x) || x.length > 60) return { tuChoi: true, x, y };
       return { x, y };
     },
-    luuVaDay() {
-      const t = this.tgTin;
-      const kqSua = this.tgKq;
-      if (!kqSua.canSave) { this.bao('Tin sau khi sửa vẫn còn lỗi — chưa lưu', 'err', 'fa-triangle-exclamation'); return; }
-      const qt = this.rutQuyTac(t.text, this.tgSua);
-      if (qt && !qt.tuChoi) {
-        const co = this.tuHoc.find((r) => r.goc === qt.x);
-        if (co) { co.moi = qt.y; co.hit++; } else this.tuHoc.unshift({ goc: qt.x, moi: qt.y, hit: 1, dung_cuoi: 'vừa xong', nguon: 'tự học' });
-        this.bao(`Bộ nhớ tự học đã ghi nhận: “${qt.x}” → “${qt.y}”. Lần sau app tự hiểu.`, 'learn', 'fa-brain');
-      } else if (qt?.tuChoi) {
-        this.bao(`Không học “${qt.x}” → “${qt.y}”: quy tắc làm đổi con số cược (hàng rào an toàn)`, 'warn', 'fa-shield-halved');
-      }
-      t.text = this.tgSua; t.da_luu = true;
-      const gio = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
-      this.daLuu.push({ khach_id: t.khach_id, gio, nguon: 'Telegram', text: this.tgSua, bets: kqSua.bets.map(({ loai, so, tien }) => ({ loai, so, tien })) });
-      this.bao(`Đã lưu tin ${t.gio} của ${this.tenKhach(t.khach_id)}`, 'ok', 'fa-floppy-disk');
-      const tiep = this.tg.find((x) => !x.da_luu);
-      if (tiep) this.chonTg(tiep.id);
-    },
-    dongBoTg() {
-      this.bao('Đã quét 47 hội thoại hôm nay — 1 tin mới', 'ok', 'fa-rotate');
-      if (!this.tg.find((t) => t.id === 9109)) this.tg.push({ id: 9109, khach_id: 6, gio: '18:09', text: 'de 81 x20k lo 27 x5', trang_thai: 'ok', da_luu: false });
-    },
     tgTiep() {
       if (this.tgBuoc === 'sdt') this.tgBuoc = 'otp';
       else if (this.tgBuoc === 'otp') this.tgBuoc = '2fa';
-      else { this.tgKetNoi = true; this.modal = null; this.tgBuoc = 'sdt'; this.bao('Đã kết nối Telegram — phiên được mã hoá trên máy chủ', 'ok', 'fa-paper-plane'); }
+      else { this.tgKetNoi = true; this.modal = null; this.tgBuoc = 'sdt'; this.bao('Đã kết nối Telegram — phiên được mã hoá an toàn', 'ok', 'fa-paper-plane'); }
     },
 
     // ═════════ lịch sử & chốt sổ ═════════

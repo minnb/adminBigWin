@@ -6,14 +6,14 @@
 <title>BigWIN Web — Prototype</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <script src="https://cdn.tailwindcss.com/3.4.16"></script>
 <script>
   tailwind.config = {
     theme: { extend: {
-      fontFamily: { sans: ['"Be Vietnam Pro"', 'system-ui', 'sans-serif'], mono: ['"JetBrains Mono"', 'Consolas', 'monospace'] },
-      colors: { pos: { blue: '#1B6EC2', ink: '#14293D', title: '#0B2F55', muted: '#4A6882', ok: '#107C41', err: '#CC0000', warn: '#B86200', learn: '#6F42C1' } },
+      fontFamily: { sans: ['"Inter"', 'system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'], mono: ['"JetBrains Mono"', 'Consolas', 'monospace'] },
+      colors: { pos: { blue: '#1B6EC2', ink: '#0F172A', title: '#0A2540', muted: '#334E68', ok: '#107C41', err: '#CC0000', warn: '#B86200', learn: '#6F42C1' } },
     } },
   };
 </script>
@@ -22,24 +22,24 @@
 <script src="app.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js"></script>
 </head>
-<body x-data="bw()" class="h-screen flex flex-col overflow-hidden text-[15px]">
+<body x-data="bw()" class="h-screen flex flex-col overflow-hidden text-[15.5px]">
 
 <!-- ════════════════ TOPBAR / STATUS BAR ════════════════ -->
-<header class="bg-white border-b border-slate-200 shrink-0 min-w-0">
+<header class="bg-[#0A2540] text-white border-b border-[#071B2F] shrink-0 min-w-0 shadow-sm">
   <div class="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 h-16 min-w-0 overflow-hidden">
     <div class="flex items-center gap-2.5 pr-3 lg:w-56 shrink-0">
-      <div class="w-10 h-10 rounded-xl bg-pos-blue text-white grid place-items-center font-extrabold text-lg">B</div>
+      <div class="w-10 h-10 rounded-xl bg-pos-blue text-white grid place-items-center font-extrabold text-lg shadow-md ring-2 ring-blue-400/30">B</div>
       <div class="leading-tight hidden sm:block">
-        <div class="font-extrabold text-pos-title text-lg">BigWIN</div>
-        <div class="text-[11.5px] text-pos-muted font-semibold">Đối soát XSMB</div>
+        <div class="font-extrabold text-white text-lg tracking-tight">BigWIN</div>
+        <div class="text-[11.5px] text-sky-200 font-semibold">Đối soát XSMB</div>
       </div>
     </div>
 
     <!-- Ngày làm việc -->
-    <label class="flex items-center gap-2 rounded-xl border px-3 h-11"
-           :class="laHomNay ? 'border-slate-200 bg-slate-50' : 'border-amber-400 bg-amber-50'">
-      <i class="fa-regular fa-calendar text-pos-muted" :class="!laHomNay && 'text-pos-warn'"></i>
-      <input type="date" x-model="ngay" @change="phanTichNgay()" class="bg-transparent mono font-bold text-pos-title outline-none w-[132px]">
+    <label class="flex items-center gap-2 rounded-xl border px-3 h-11 transition shadow-inner"
+           :class="laHomNay ? 'border-sky-800 bg-[#133E68] text-white' : 'border-amber-400 bg-amber-500/20 text-amber-200'">
+      <i class="fa-regular fa-calendar text-sky-300" :class="!laHomNay && '!text-amber-300'"></i>
+      <input type="date" x-model="ngay" @change="phanTichNgay()" class="bg-transparent mono font-bold text-white outline-none w-[132px]">
     </label>
     <span x-show="!laHomNay" x-cloak class="pill pill-warn hidden md:inline-flex" title="Bạn đang làm việc trên ngày cũ">
       <i class="fa-solid fa-clock-rotate-left"></i> Đang xem ngày cũ
@@ -51,22 +51,22 @@
       <i class="fa-solid" :class="{ 'fa-circle-check': trangThaiKQ.ma === 'du', 'fa-spinner fa-spin': trangThaiKQ.ma === 'dang', 'fa-tower-broadcast': trangThaiKQ.ma === 'quay', 'fa-circle-xmark': trangThaiKQ.ma === 'chua' }"></i>
       KQXS: <span x-text="trangThaiKQ.nhan"></span>
     </button>
-    <span class="hidden xl:inline text-xs text-pos-muted" x-show="kqNgay">cập nhật <span class="mono" x-text="kqCapNhatLuc"></span></span>
+    <span class="hidden xl:inline text-xs text-sky-200/80" x-show="kqNgay">cập nhật <span class="mono text-sky-200" x-text="kqCapNhatLuc"></span></span>
 
     <div class="ml-auto flex items-center gap-3">
-      <span class="mono font-bold text-pos-title text-lg hidden md:inline" x-text="gio"></span>
+      <span class="mono font-bold text-sky-200 text-lg hidden md:inline" x-text="gio"></span>
 
       <!-- Role switcher (giả lập) -->
-      <div class="hidden sm:flex items-center rounded-xl border border-slate-200 bg-slate-50 p-1 text-[13px] font-bold" title="Chỉ có trong bản prototype: xem giao diện theo quyền">
-        <span class="px-2 text-pos-muted font-semibold hidden lg:inline">Đang xem dưới quyền:</span>
-        <button class="px-3 py-1.5 rounded-lg" :class="role === 'user' ? 'bg-white shadow-sm text-pos-blue' : 'text-pos-muted'" @click="role = 'user'; if (man === 'admin') man = 'nhap'">User (Đại lý)</button>
-        <button class="px-3 py-1.5 rounded-lg" :class="role === 'admin' ? 'bg-pos-title text-white shadow-sm' : 'text-pos-muted'" @click="role = 'admin'">Admin</button>
+      <div class="hidden sm:flex items-center rounded-xl border border-sky-800/80 bg-[#133E68] p-1 text-[13px] font-bold" title="Chỉ có trong bản prototype: xem giao diện theo quyền">
+        <span class="px-2 text-sky-200 font-semibold hidden lg:inline">Quyền:</span>
+        <button class="px-3 py-1.5 rounded-lg transition" :class="role === 'user' ? 'bg-pos-blue text-white shadow-sm' : 'text-sky-200 hover:text-white'" @click="role = 'user'; if (man === 'admin') man = 'nhap'">User (Đại lý)</button>
+        <button class="px-3 py-1.5 rounded-lg transition" :class="role === 'admin' ? 'bg-pos-blue text-white shadow-sm' : 'text-sky-200 hover:text-white'" @click="role = 'admin'">Admin</button>
       </div>
       <div class="flex items-center gap-2">
-        <div class="w-10 h-10 rounded-full grid place-items-center font-bold text-white" :class="role === 'admin' ? 'bg-pos-title' : 'bg-pos-ok'" x-text="role === 'admin' ? 'QT' : 'MP'"></div>
+        <div class="w-10 h-10 rounded-full grid place-items-center font-bold text-white shadow-md ring-2 ring-white/20" :class="role === 'admin' ? 'bg-indigo-600' : 'bg-emerald-600'" x-text="role === 'admin' ? 'QT' : 'MP'"></div>
         <div class="leading-tight hidden lg:block">
-          <div class="font-bold text-sm" x-text="role === 'admin' ? 'Quản trị viên' : 'Đại lý Minh Phát'"></div>
-          <div class="text-xs text-pos-muted" x-text="role === 'admin' ? 'admin · toàn quyền' : 'user · dữ liệu riêng'"></div>
+          <div class="font-bold text-sm text-white" x-text="role === 'admin' ? 'Quản trị viên' : 'Đại lý Minh Phát'"></div>
+          <div class="text-xs text-sky-200" x-text="role === 'admin' ? 'admin · toàn quyền' : 'user · dữ liệu riêng'"></div>
         </div>
       </div>
     </div>
@@ -79,7 +79,7 @@
 <nav class="hidden lg:flex flex-col w-64 shrink-0 bg-white border-r border-slate-200 p-3 gap-1">
   <button class="nav-item" :class="man === 'nhap' && 'on'" @click="man = 'nhap'"><i class="fa-solid fa-keyboard w-5"></i>Nhập tin nhanh<span class="kbd">Alt 1</span></button>
   <button class="nav-item" :class="man === 'telegram' && 'on'" @click="man = 'telegram'"><i class="fa-brands fa-telegram w-5"></i>Telegram
-    <span class="ml-auto pill pill-err !py-0 !px-2 text-[11px]" x-show="tgDem.moi" x-text="tgDem.moi"></span></button>
+    <span class="ml-auto pill pill-err !py-0 !px-2 text-[11px]" x-show="tgDem.err" x-text="tgDem.err"></span></button>
   <button class="nav-item" :class="man === 'kqxs' && 'on'" @click="man = 'kqxs'"><i class="fa-solid fa-trophy w-5"></i>Kết quả XSMB<span class="kbd">Alt 3</span></button>
   <button class="nav-item" :class="man === 'khach' && 'on'" @click="man = 'khach'"><i class="fa-solid fa-users w-5"></i>Khách hàng & Giá<span class="kbd">Alt 4</span></button>
   <button class="nav-item" :class="man === 'lichsu' && 'on'" @click="man = 'lichsu'"><i class="fa-solid fa-receipt w-5"></i>Lịch sử & Chốt sổ<span class="kbd">Alt 5</span></button>
@@ -115,100 +115,108 @@
 <section x-show="man === 'nhap'" class="grid gap-4 grid-cols-[minmax(0,1fr)] lg:grid-cols-[minmax(0,45fr)_minmax(0,55fr)] lg:h-full">
 
   <!-- Cột trái: nhập & kiểm tra -->
-  <div class="card p-4 flex flex-col gap-3 min-h-0">
-    <div class="flex gap-2 items-stretch">
-      <!-- Combobox khách -->
-      <div class="relative flex-1" @click.outside="moKhach = false">
-        <label class="text-xs font-bold text-pos-muted uppercase tracking-wider">Khách hàng <span class="kbd ml-1 !text-[10px]">/</span></label>
-        <div class="relative mt-1">
-          <i class="fa-solid fa-user absolute left-3 top-1/2 -translate-y-1/2 text-pos-muted"></i>
-          <input x-ref="oKhach" class="ctl !pl-9 font-bold" :placeholder="khachChon ? khachChon.ten : 'Gõ tên khách…'"
-                 x-model="timKhach" @focus="moKhach = true; khachIdx = 0" @input="moKhach = true; khachIdx = 0" @keydown="phimKhach($event)">
-        </div>
-        <div x-show="moKhach" x-cloak class="absolute z-30 mt-1 w-full card shadow-xl max-h-72 scroll-y p-1">
-          <template x-for="(k, i) in khachLoc" :key="k.id">
-            <button class="w-full text-left px-3 py-2.5 rounded-lg flex items-center gap-3"
-                    :class="i === khachIdx ? 'bg-[--flat-primary-soft]' : 'hover:bg-slate-50'" @mouseenter="khachIdx = i" @click="chonKhach(k)">
-              <span class="w-8 h-8 rounded-full bg-slate-100 grid place-items-center text-xs font-bold text-pos-title" x-text="k.ten.split(' ').slice(-1)[0][0]"></span>
-              <span class="flex-1 min-w-0">
-                <span class="block font-bold truncate" x-text="k.ten"></span>
-                <span class="block text-xs text-pos-muted mono" x-text="goiYHeSo(k)"></span>
-              </span>
-              <i class="fa-solid fa-check text-pos-blue" x-show="k.id === khachId"></i>
-            </button>
-          </template>
-          <div x-show="!khachLoc.length" class="px-3 py-4 text-sm text-pos-muted">Không có khách khớp “<span x-text="timKhach"></span>”</div>
-        </div>
+  <div class="card flex flex-col min-h-0 border border-[#CBDCEE] shadow-sm overflow-hidden bg-white">
+    <div class="px-4 py-2.5 bg-[#E4EFF8] border-b border-[#CBDCEE] flex items-center justify-between shrink-0">
+      <div class="font-extrabold text-pos-title text-sm flex items-center gap-2">
+        <i class="fa-solid fa-keyboard text-pos-blue"></i> Nhập Tin Cược XSMB
       </div>
-      <div class="w-[170px] hidden sm:block">
-        <label class="text-xs font-bold text-pos-muted uppercase tracking-wider">Ngày đối soát</label>
-        <input type="date" x-model="ngay" @change="phanTichNgay()" class="ctl mt-1 mono font-bold" :class="!laHomNay && '!border-amber-400 !bg-amber-50'">
+      <span class="text-xs text-pos-muted font-bold">Cú pháp tự nhiên</span>
+    </div>
+    <div class="p-4 flex flex-col gap-3 flex-1 min-h-0 overflow-y-auto">
+      <div class="flex gap-2 items-stretch">
+        <!-- Combobox khách -->
+        <div class="relative flex-1" @click.outside="moKhach = false">
+          <label class="text-xs font-bold text-pos-muted uppercase tracking-wider">Khách hàng <span class="kbd ml-1 !text-[10px]">/</span></label>
+          <div class="relative mt-1">
+            <i class="fa-solid fa-user absolute left-3 top-1/2 -translate-y-1/2 text-pos-muted"></i>
+            <input x-ref="oKhach" class="ctl !pl-9 font-bold" :placeholder="khachChon ? khachChon.ten : 'Gõ tên khách…'"
+                   x-model="timKhach" @focus="moKhach = true; khachIdx = 0" @input="moKhach = true; khachIdx = 0" @keydown="phimKhach($event)">
+          </div>
+          <div x-show="moKhach" x-cloak class="absolute z-30 mt-1 w-full card shadow-xl max-h-72 scroll-y p-1">
+            <template x-for="(k, i) in khachLoc" :key="k.id">
+              <button class="w-full text-left px-3 py-2.5 rounded-lg flex items-center gap-3"
+                      :class="i === khachIdx ? 'bg-[--flat-primary-soft]' : 'hover:bg-slate-50'" @mouseenter="khachIdx = i" @click="chonKhach(k)">
+                <span class="w-8 h-8 rounded-full bg-slate-100 grid place-items-center text-xs font-bold text-pos-title" x-text="k.ten.split(' ').slice(-1)[0][0]"></span>
+                <span class="flex-1 min-w-0">
+                  <span class="block font-bold truncate" x-text="k.ten"></span>
+                  <span class="block text-xs text-pos-muted mono" x-text="goiYHeSo(k)"></span>
+                </span>
+                <i class="fa-solid fa-check text-pos-blue" x-show="k.id === khachId"></i>
+              </button>
+            </template>
+            <div x-show="!khachLoc.length" class="px-3 py-4 text-sm text-pos-muted">Không có khách khớp “<span x-text="timKhach"></span>”</div>
+          </div>
+        </div>
+        <div class="w-[170px] hidden sm:block">
+          <label class="text-xs font-bold text-pos-muted uppercase tracking-wider">Ngày đối soát</label>
+          <input type="date" x-model="ngay" @change="phanTichNgay()" class="ctl mt-1 mono font-bold" :class="!laHomNay && '!border-amber-400 !bg-amber-50'">
+        </div>
+        <button class="btn btn-ghost self-end !px-3.5" title="Thêm khách nhanh" @click="themKhachNhanh()"><i class="fa-solid fa-plus"></i></button>
       </div>
-      <button class="btn btn-ghost self-end !px-3.5" title="Thêm khách nhanh" @click="themKhachNhanh()"><i class="fa-solid fa-plus"></i></button>
-    </div>
-    <div class="text-xs text-pos-muted -mt-1" x-show="khachChon">
-      Giá đang áp dụng: <span class="mono font-semibold text-pos-ink" x-text="goiYHeSo(khachChon)"></span>
-      · <button class="underline" @click="man = 'khach'">sửa bảng giá</button>
-    </div>
+      <div class="text-xs text-pos-muted -mt-1" x-show="khachChon">
+        Giá đang áp dụng: <span class="mono font-semibold text-pos-ink" x-text="goiYHeSo(khachChon)"></span>
+        · <button class="underline" @click="man = 'khach'">sửa bảng giá</button>
+      </div>
 
-    <!-- Mẫu tin -->
-    <div class="flex flex-wrap gap-2">
-      <span class="text-xs font-bold text-pos-muted uppercase tracking-wider self-center mr-1">Thử mẫu:</span>
-      <template x-for="m in MAU" :key="m.ten">
-        <button class="text-[13px] font-semibold px-3 py-1.5 rounded-lg border" @click="dungMau(m)"
-                :class="{ 'border-emerald-200 bg-emerald-50 text-pos-ok': m.mau === 'ok', 'border-amber-200 bg-amber-50 text-pos-warn': m.mau === 'warn', 'border-red-200 bg-red-50 text-pos-err': m.mau === 'err' }">
-          <i class="fa-solid mr-1" :class="m.icon"></i><span x-text="m.ten"></span>
+      <!-- Mẫu tin -->
+      <div class="flex flex-wrap gap-2">
+        <span class="text-xs font-bold text-pos-muted uppercase tracking-wider self-center mr-1">Thử mẫu:</span>
+        <template x-for="m in MAU" :key="m.ten">
+          <button class="text-[13px] font-semibold px-3 py-1.5 rounded-lg border" @click="dungMau(m)"
+                  :class="{ 'border-emerald-200 bg-emerald-50 text-pos-ok': m.mau === 'ok', 'border-amber-200 bg-amber-50 text-pos-warn': m.mau === 'warn', 'border-red-200 bg-red-50 text-pos-err': m.mau === 'err' }">
+            <i class="fa-solid mr-1" :class="m.icon"></i><span x-text="m.ten"></span>
+          </button>
+        </template>
+      </div>
+
+      <!-- Editor -->
+      <div class="editor h-[230px] lg:h-[34%] lg:min-h-[200px] shrink-0">
+        <div class="lop" x-ref="lop" x-html="highlight" aria-hidden="true"></div>
+        <textarea x-ref="oTin" x-model="tin" @input="goTin()" @scroll="dongBo($event)" spellcheck="false"
+                  aria-label="Nội dung tin nhắn cược" placeholder="Dán hoặc gõ tin nhắn của khách vào đây…"></textarea>
+      </div>
+      <div class="flex items-center gap-2 text-sm -mt-1">
+        <template x-if="dangPhanTich"><span class="pill pill-info"><i class="fa-solid fa-spinner fa-spin"></i> Đang kiểm tra…</span></template>
+        <template x-if="!dangPhanTich && kq && kq.canSave"><span class="pill pill-ok"><i class="fa-solid fa-circle-check"></i> Hợp lệ · <span x-text="kq.bets.length"></span> dòng cược</span></template>
+        <template x-if="!dangPhanTich && kq && kq.loi.length"><span class="pill pill-err"><i class="fa-solid fa-circle-xmark"></i> <span x-text="kq.loi.length"></span> lỗi cần sửa</span></template>
+        <template x-if="!dangPhanTich && kq && kq.dich.length"><span class="pill pill-warn"><i class="fa-solid fa-wand-magic-sparkles"></i> <span x-text="kq.dich.length"></span> chỗ app tự hiểu</span></template>
+        <span class="ml-auto text-xs text-pos-muted hidden md:inline">Đỏ = lỗi · Vàng = app tự sửa</span>
+      </div>
+
+      <!-- App tự hiểu / Lỗi -->
+      <div class="flex-1 min-h-[120px] scroll-y rounded-xl border border-slate-200 bg-[--flat-panel] p-2 space-y-1.5">
+        <template x-for="(l, i) in kq?.loi || []" :key="'l' + i">
+          <button class="w-full text-left flex items-start gap-3 rounded-lg bg-white border border-red-200 px-3 py-2 hover:border-red-400" @click="nhayToi(l)">
+            <i class="fa-solid fa-circle-xmark text-pos-err mt-1"></i>
+            <span class="flex-1">
+              <span class="mono font-bold text-pos-err bg-[--flat-danger-bg] px-1.5 rounded" x-text="l.text"></span>
+              <span class="block text-sm mt-0.5" x-text="l.msg"></span>
+            </span>
+            <span class="text-xs font-bold text-pos-blue whitespace-nowrap mt-1">Nhảy tới <i class="fa-solid fa-arrow-turn-down rotate-[-90deg]"></i></span>
+          </button>
+        </template>
+        <template x-for="(d, i) in kq?.dich || []" :key="'d' + i">
+          <div class="flex items-center gap-3 rounded-lg bg-white border border-amber-200 px-3 py-2">
+            <i class="fa-solid fa-wand-magic-sparkles text-pos-warn"></i>
+            <span class="text-sm">App tự hiểu</span>
+            <span class="mono font-bold bg-[--flat-warning-bg] px-1.5 rounded" x-text="d.goc"></span>
+            <i class="fa-solid fa-arrow-right text-pos-muted text-xs"></i>
+            <span class="mono font-bold text-pos-ok bg-[--flat-success-bg] px-1.5 rounded" x-text="d.moi"></span>
+          </div>
+        </template>
+        <div x-show="kq && !kq.loi.length && !kq.dich.length" class="text-sm text-pos-muted px-2 py-3 flex items-center gap-2">
+          <i class="fa-solid fa-circle-check text-pos-ok"></i> Tin chuẩn cú pháp — không có gì cần sửa.
+        </div>
+      </div>
+
+      <!-- Hành động -->
+      <div class="flex flex-wrap gap-2">
+        <button class="btn btn-ghost" @click="phanTichNgay(); bao('Đã phân tích lại — chưa lưu gì', 'ok', 'fa-magnifying-glass')"><i class="fa-solid fa-magnifying-glass"></i>Phân tích & Kiểm tra</button>
+        <button class="btn btn-success flex-1 justify-center text-[16px]" @click="luu()" :class="kq && !kq.canSave && 'opacity-70'">
+          <i class="fa-solid fa-floppy-disk"></i>Đối soát & Lưu <span class="kbd">Ctrl + Enter</span>
         </button>
-      </template>
-    </div>
-
-    <!-- Editor -->
-    <div class="editor h-[230px] lg:h-[34%] lg:min-h-[200px] shrink-0">
-      <div class="lop" x-ref="lop" x-html="highlight" aria-hidden="true"></div>
-      <textarea x-ref="oTin" x-model="tin" @input="goTin()" @scroll="dongBo($event)" spellcheck="false"
-                aria-label="Nội dung tin nhắn cược" placeholder="Dán hoặc gõ tin nhắn của khách vào đây…"></textarea>
-    </div>
-    <div class="flex items-center gap-2 text-sm -mt-1">
-      <template x-if="dangPhanTich"><span class="pill pill-info"><i class="fa-solid fa-spinner fa-spin"></i> Đang kiểm tra…</span></template>
-      <template x-if="!dangPhanTich && kq && kq.canSave"><span class="pill pill-ok"><i class="fa-solid fa-circle-check"></i> Hợp lệ · <span x-text="kq.bets.length"></span> dòng cược</span></template>
-      <template x-if="!dangPhanTich && kq && kq.loi.length"><span class="pill pill-err"><i class="fa-solid fa-circle-xmark"></i> <span x-text="kq.loi.length"></span> lỗi cần sửa</span></template>
-      <template x-if="!dangPhanTich && kq && kq.dich.length"><span class="pill pill-warn"><i class="fa-solid fa-wand-magic-sparkles"></i> <span x-text="kq.dich.length"></span> chỗ app tự hiểu</span></template>
-      <span class="ml-auto text-xs text-pos-muted hidden md:inline">Đỏ = lỗi · Vàng = app tự sửa</span>
-    </div>
-
-    <!-- App tự hiểu / Lỗi -->
-    <div class="flex-1 min-h-[120px] scroll-y rounded-xl border border-slate-200 bg-[--flat-panel] p-2 space-y-1.5">
-      <template x-for="(l, i) in kq?.loi || []" :key="'l' + i">
-        <button class="w-full text-left flex items-start gap-3 rounded-lg bg-white border border-red-200 px-3 py-2 hover:border-red-400" @click="nhayToi(l)">
-          <i class="fa-solid fa-circle-xmark text-pos-err mt-1"></i>
-          <span class="flex-1">
-            <span class="mono font-bold text-pos-err bg-[--flat-danger-bg] px-1.5 rounded" x-text="l.text"></span>
-            <span class="block text-sm mt-0.5" x-text="l.msg"></span>
-          </span>
-          <span class="text-xs font-bold text-pos-blue whitespace-nowrap mt-1">Nhảy tới <i class="fa-solid fa-arrow-turn-down rotate-[-90deg]"></i></span>
-        </button>
-      </template>
-      <template x-for="(d, i) in kq?.dich || []" :key="'d' + i">
-        <div class="flex items-center gap-3 rounded-lg bg-white border border-amber-200 px-3 py-2">
-          <i class="fa-solid fa-wand-magic-sparkles text-pos-warn"></i>
-          <span class="text-sm">App tự hiểu</span>
-          <span class="mono font-bold bg-[--flat-warning-bg] px-1.5 rounded" x-text="d.goc"></span>
-          <i class="fa-solid fa-arrow-right text-pos-muted text-xs"></i>
-          <span class="mono font-bold text-pos-ok bg-[--flat-success-bg] px-1.5 rounded" x-text="d.moi"></span>
-        </div>
-      </template>
-      <div x-show="kq && !kq.loi.length && !kq.dich.length" class="text-sm text-pos-muted px-2 py-3 flex items-center gap-2">
-        <i class="fa-solid fa-circle-check text-pos-ok"></i> Tin chuẩn cú pháp — không có gì cần sửa.
+        <button class="text-xs text-pos-muted underline w-full text-right" @click="gaLapTrung()">Giả lập cảnh báo trùng bộ cược</button>
       </div>
-    </div>
-
-    <!-- Hành động -->
-    <div class="flex flex-wrap gap-2">
-      <button class="btn btn-ghost" @click="phanTichNgay(); bao('Đã phân tích lại — chưa lưu gì', 'ok', 'fa-magnifying-glass')"><i class="fa-solid fa-magnifying-glass"></i>Phân tích & Kiểm tra</button>
-      <button class="btn btn-success flex-1 justify-center text-[16px]" @click="luu()" :class="kq && !kq.canSave && 'opacity-70'">
-        <i class="fa-solid fa-floppy-disk"></i>Đối soát & Lưu <span class="kbd">Ctrl + Enter</span>
-      </button>
-      <button class="text-xs text-pos-muted underline w-full text-right" @click="gaLapTrung()">Giả lập cảnh báo trùng bộ cược</button>
     </div>
   </div>
 
@@ -245,13 +253,13 @@
     </div>
 
     <!-- Bảng dòng cược -->
-    <div class="card flex-1 min-h-[320px] flex flex-col overflow-hidden">
-      <div class="flex items-center gap-2 px-4 py-3 border-b border-slate-200 flex-wrap">
-        <div class="font-bold text-pos-title">Chi tiết sau khi bung số</div>
-        <span class="text-sm text-pos-muted"><span class="mono" x-text="dong.length"></span> dòng</span>
+    <div class="card flex-1 min-h-[320px] flex flex-col overflow-hidden border border-[#CBDCEE] shadow-sm">
+      <div class="flex items-center gap-2 px-4 py-2.5 bg-[#E4EFF8] border-b border-[#CBDCEE] flex-wrap shrink-0">
+        <div class="font-extrabold text-pos-title text-sm flex items-center gap-1.5"><i class="fa-solid fa-list-check text-pos-blue"></i> Chi tiết sau khi bung số</div>
+        <span class="text-xs text-pos-muted font-bold"><span class="mono" x-text="dong.length"></span> dòng</span>
         <div class="ml-auto flex gap-1.5 flex-wrap">
           <template x-for="(n, l) in demLoai" :key="l">
-            <span class="bet !min-w-0" :class="badge(l)"><span x-text="NHAN_LOAI[l]"></span> · <span class="mono" x-text="n"></span></span>
+            <span class="bet !min-w-0" :class="badge(l)"><span x-text="NHAN_LOAI[l]"></span> · <span class="mono font-bold" x-text="n"></span></span>
           </template>
         </div>
       </div>
@@ -296,117 +304,474 @@
   </div>
 </section>
 
-<!-- ════════════════ MÀN 2: TELEGRAM ════════════════ -->
+<!-- ════════════════ MÀN 2: TELEGRAM (CHUẨN HOÁ THEO TELEGRAM_FORMS.PY) ════════════════ -->
 <section x-show="man === 'telegram'" x-cloak class="flex flex-col gap-3 lg:h-full">
-  <div class="card px-4 py-3 flex flex-wrap items-center gap-3">
-    <i class="fa-brands fa-telegram text-[#229ED9] text-2xl"></i>
-    <div class="font-bold text-pos-title text-lg">Đồng bộ Telegram</div>
-    <button class="pill" :class="tgKetNoi ? 'pill-ok' : 'pill-err'" @click="modal = 'tg'">
-      <span class="dot" :class="tgKetNoi ? 'dot-ok' : 'dot-err'"></span>
-      <span x-text="tgKetNoi ? 'Đã kết nối · +84 903 ••• 445' : 'Chưa kết nối — bấm để kết nối'"></span>
-    </button>
-    <div class="flex gap-1 ml-auto flex-wrap">
-      <template x-for="f in [['tat_ca','Tất cả'],['moi','Chưa xử lý'],['loi','Có lỗi cần sửa'],['da_luu','Đã lưu']]" :key="f[0]">
-        <button class="px-3 py-2 rounded-lg text-sm font-bold" :class="tgLoc === f[0] ? 'bg-pos-blue text-white' : 'bg-slate-100 text-pos-muted hover:bg-slate-200'" @click="tgLoc = f[0]">
-          <span x-text="f[1]"></span> <span class="mono opacity-80" x-text="tgDem[f[0]]"></span>
+
+  <!-- 1. TOP CONTROL & CONNECTION PANEL -->
+  <div class="card flex flex-col shrink-0 bg-white border border-[#CBDCEE] shadow-sm overflow-hidden">
+    <!-- Hàng 0: Trạng thái Telegram + Các nút quản lý nhanh -->
+    <div class="px-4 py-2.5 bg-[#E4EFF8] border-b border-[#CBDCEE] flex items-center justify-between flex-wrap gap-2">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-[#229ED9] text-white grid place-items-center text-lg shadow-sm">
+          <i class="fa-brands fa-telegram"></i>
+        </div>
+        <div class="font-extrabold text-pos-title text-base sm:text-lg">Đồng Bộ Tin Nhắn Telegram</div>
+        <button class="pill" :class="tgKetNoi ? 'pill-ok' : 'pill-err'" @click="modal = 'tg'">
+          <span class="dot" :class="tgKetNoi ? 'dot-ok' : 'dot-err'"></span>
+          <span x-text="tgKetNoi ? '🟢 Telegram: Đã đăng nhập' : '❌ Chưa đăng nhập Telegram'"></span>
         </button>
-      </template>
-    </div>
-    <button class="btn btn-primary !py-2" @click="dongBoTg()"><i class="fa-solid fa-rotate"></i>Đồng bộ ngay</button>
-  </div>
-
-  <div class="grid gap-3 grid-cols-[minmax(0,1fr)] lg:grid-cols-[320px_minmax(0,1fr)_minmax(0,1.15fr)] flex-1 min-h-0">
-    <!-- Danh sách -->
-    <div class="card flex flex-col min-h-[300px] overflow-hidden">
-      <div class="px-4 py-2.5 border-b border-slate-200 text-xs font-bold text-pos-muted uppercase tracking-wider">Tin nhắn hôm nay</div>
-      <div class="flex-1 scroll-y divide-y divide-slate-100">
-        <template x-for="t in tgLocDs" :key="t.id">
-          <button class="w-full text-left px-4 py-3 flex gap-3 items-start" :class="t.id === tgChon ? 'bg-[--flat-primary-soft] border-l-4 border-pos-blue' : 'hover:bg-slate-50 border-l-4 border-transparent'" @click="chonTg(t.id)">
-            <span class="dot mt-1.5" :class="'dot-' + tgTrangThai(t)"></span>
-            <span class="flex-1 min-w-0">
-              <span class="flex items-center gap-2">
-                <span class="font-bold truncate" x-text="tenKhach(t.khach_id)"></span>
-                <span class="mono text-xs text-pos-muted ml-auto" x-text="t.gio"></span>
-              </span>
-              <span class="block mono text-[13px] text-pos-muted truncate" x-text="t.text.replace(/\n/g, ' · ')"></span>
-              <span class="flex gap-1 mt-1">
-                <span class="pill !py-0 !text-[11px]" :class="t.da_luu ? 'pill-ok' : 'pill-info'" x-text="t.da_luu ? 'Đã lưu' : 'Mới'"></span>
-                <span class="pill pill-err !py-0 !text-[11px]" x-show="tgTrangThai(t) === 'err'">Lỗi cú pháp</span>
-                <span class="pill pill-warn !py-0 !text-[11px]" x-show="t.sua_tren_tg">Khách sửa trên TG</span>
-              </span>
-            </span>
-          </button>
-        </template>
-        <div x-show="!tgLocDs.length" class="p-6 text-center text-pos-muted text-sm">Không có tin nào trong bộ lọc này.</div>
       </div>
-      <div class="px-4 py-2 border-t border-slate-200 text-xs text-pos-muted flex gap-3">
-        <span><span class="dot dot-ok"></span> Hợp lệ</span><span><span class="dot dot-warn"></span> Đã sửa trên TG</span><span><span class="dot dot-err"></span> Lỗi</span>
+      <div class="flex items-center gap-1.5 flex-wrap">
+        <button class="btn btn-ghost !py-1 !px-3 !text-xs !min-h-[34px] bg-white border-[#CBDCEE]" @click="taiLaiKH()" title="Tải lại danh sách khách hàng có liên kết Telegram">
+          <i class="fa-solid fa-rotate text-pos-blue"></i> 🔄 Tải Lại KH
+        </button>
+        <button class="btn btn-ghost !py-1 !px-3 !text-xs !min-h-[34px] bg-white border-[#CBDCEE]" @click="taiBanTelegram()" title="Xem danh sách người dùng đã chat trên Telegram hôm nay">
+          <i class="fa-solid fa-users text-pos-blue"></i> 👥 Bạn Trên TG
+        </button>
+        <button class="btn btn-ghost !py-1 !px-3 !text-xs !min-h-[34px] bg-white border-[#CBDCEE]" @click="modal = 'tg_config'" title="Thiết lập API ID, API Hash và Gemini Key">
+          <i class="fa-solid fa-gear text-pos-muted"></i> ⚙️ Cấu Hình Telegram
+        </button>
       </div>
     </div>
 
-    <!-- Tin gốc -->
-    <div class="card p-4 flex flex-col gap-3 min-h-[300px]" x-show="tgTin">
+    <!-- Hàng 1: Tham số đồng bộ + Nút Hero Action -->
+    <div class="p-3 bg-white flex items-center gap-3 flex-wrap">
+      <!-- Khách hàng -->
       <div class="flex items-center gap-2">
-        <div class="w-10 h-10 rounded-full bg-[#229ED9] text-white grid place-items-center font-bold" x-text="tenKhach(tgTin?.khach_id).split(' ').slice(-1)[0][0]"></div>
-        <div>
-          <div class="font-bold" x-text="tenKhach(tgTin?.khach_id)"></div>
-          <div class="text-xs text-pos-muted mono">Tin #<span x-text="tgTin?.id"></span> · <span x-text="tgTin?.gio"></span> · <span x-text="ngayHienThi"></span></div>
+        <label class="text-xs font-bold text-pos-muted uppercase tracking-wider whitespace-nowrap">Khách hàng:</label>
+        <select class="ctl !py-1.5 !min-h-[38px] font-bold text-sm min-w-[210px] max-w-[300px]" x-model="tgKhachId" @change="doiKhachTg()">
+          <template x-for="k in khachCoTelegram" :key="k.id">
+            <option :value="k.id" x-text="k.id + ' - ' + k.ten + ' (' + k.telegram + ')'"></option>
+          </template>
+        </select>
+      </div>
+
+      <!-- Ngày đối soát -->
+      <div class="flex items-center gap-2">
+        <label class="text-xs font-bold text-pos-muted uppercase tracking-wider whitespace-nowrap">Ngày:</label>
+        <input type="date" x-model="ngay" @change="phanTichNgay(); if (tgDanhSach.length) batDauDongBoTg(true)"
+               class="ctl !py-1.5 !min-h-[38px] !w-[145px] mono font-bold text-sm"
+               :class="!laHomNay && '!border-amber-400 !bg-amber-50'">
+      </div>
+
+      <!-- Chiều tin nhắn (Radiobutton) -->
+      <div class="flex items-center gap-2">
+        <label class="text-xs font-bold text-pos-muted uppercase tracking-wider whitespace-nowrap">Loại:</label>
+        <div class="flex rounded-lg border border-slate-200 bg-slate-50 p-0.5">
+          <button class="px-3 py-1 rounded-md text-xs font-bold transition flex items-center gap-1.5"
+                  :class="tgChieu === 'in' ? 'bg-red-50 text-red-600 shadow-sm border border-red-200' : 'text-pos-muted hover:text-pos-ink'"
+                  @click="tgChieu = 'in'; doiKhachTg()">
+            <i class="fa-solid fa-arrow-down-left"></i> 📥 Nhận về
+          </button>
+          <button class="px-3 py-1 rounded-md text-xs font-bold transition flex items-center gap-1.5"
+                  :class="tgChieu === 'out' ? 'bg-blue-50 text-pos-blue shadow-sm border border-blue-200' : 'text-pos-muted hover:text-pos-ink'"
+                  @click="tgChieu = 'out'; doiKhachTg()">
+            <i class="fa-solid fa-arrow-up-right"></i> 📤 Gửi đi
+          </button>
         </div>
       </div>
-      <div class="text-xs font-bold text-pos-muted uppercase tracking-wider">Tin gốc khách nhắn</div>
-      <div class="rounded-2xl rounded-tl-sm bg-slate-100 px-4 py-3 mono text-[16px] whitespace-pre-wrap leading-[1.8]" x-text="tgTin?.text"></div>
-      <div x-show="tgTin?.sua_tren_tg" class="rounded-xl bg-amber-50 border border-amber-200 px-3 py-2 text-sm flex gap-2">
-        <i class="fa-solid fa-pen-to-square text-pos-warn mt-0.5"></i>
-        <span>Khách đã <b>sửa tin này trên Telegram</b> sau khi bạn lưu (17:44). Kiểm tra lại số trước khi chốt.</span>
+
+      <!-- Max tin -->
+      <div class="flex items-center gap-1.5">
+        <label class="text-xs font-bold text-pos-muted uppercase tracking-wider whitespace-nowrap">Max:</label>
+        <input type="number" class="ctl !py-1 !min-h-[38px] !w-16 text-center mono font-bold text-sm" x-model="tgMaxTin">
       </div>
-      <div class="mt-auto text-sm text-pos-muted bg-[--flat-panel] rounded-xl p-3">
-        <i class="fa-solid fa-lightbulb text-pos-warn mr-1"></i>
-        Sửa ở khung bên phải. Khi bạn sửa một <b>từ viết tắt</b> (vd <span class="mono">sien</span> → <span class="mono">xien</span>), app sẽ <b>nhớ</b> và tự hiểu từ đó ở các tin sau.
+
+      <!-- Hero Buttons -->
+      <div class="ml-auto flex items-center gap-2 flex-wrap">
+        <button class="btn btn-primary !py-2 !px-4 shadow-sm !min-h-[38px]" :disabled="tgDangDongBo" @click="batDauDongBoTg()">
+          <i class="fa-solid" :class="tgDangDongBo ? 'fa-spinner fa-spin' : 'fa-bolt'"></i>
+          <span x-text="tgDangDongBo ? 'Đang đồng bộ...' : '⚡ BẮT ĐẦU ĐỒNG BỘ'"></span>
+        </button>
+        <button class="btn btn-success !py-2 !px-4 shadow-sm !min-h-[38px]" :disabled="!tgCoDuLieuGhi || tgDangDongBo" @click="xacNhanGhiDB()">
+          <i class="fa-solid fa-floppy-disk"></i> 💾 GHI VÀO DATABASE
+        </button>
       </div>
     </div>
+  </div>
 
-    <!-- Dock sửa -->
-    <div class="card p-4 flex flex-col gap-3 min-h-[300px]" x-show="tgTin">
-      <div class="flex items-center gap-2">
-        <div class="font-bold text-pos-title">Sửa nhanh & kiểm tra</div>
-        <span class="ml-auto pill" :class="tgKq.canSave ? 'pill-ok' : 'pill-err'" x-text="tgKq.canSave ? 'Hợp lệ · ' + tgKq.bets.length + ' dòng' : tgKq.loi.length + ' lỗi'"></span>
+  <!-- 2. PROGRESS & ALERT STRIP -->
+  <!-- Progress & Timer khi đang quét -->
+  <div x-show="tgDangDongBo" x-cloak class="card p-3 bg-blue-50/70 border-blue-200 flex items-center justify-between shrink-0">
+    <div class="flex items-center gap-2.5 text-sm text-pos-blue font-bold">
+      <i class="fa-solid fa-spinner fa-spin text-base"></i>
+      <span>Đang kết nối & tải tin nhắn từ Telegram...</span>
+    </div>
+    <span class="mono font-bold text-pos-muted text-sm" x-text="tgTimerStr"></span>
+  </div>
+
+  <!-- 3. MASTER-DETAIL SPLIT GRID (50% / 50%) -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 flex-1 min-h-0">
+
+    <!-- CỘT TRÁI: MASTER LIVE STREAM TABLE (50%) -->
+    <div class="card flex flex-col min-h-0 overflow-hidden bg-white border border-[#CBDCEE] shadow-sm">
+      <div class="px-4 py-2.5 bg-[#E4EFF8] border-b border-[#CBDCEE] flex items-center justify-between shrink-0">
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-extrabold text-pos-title uppercase tracking-wider flex items-center gap-1.5"><i class="fa-solid fa-list-ul text-pos-blue"></i> Danh Sách Tin Nhắn Đồng Bộ</span>
+          <span class="mono text-xs font-bold text-pos-muted bg-white/80 border border-[#CBDCEE] px-2 py-0.5 rounded-full" x-text="tgDanhSachHienThi.length + ' tin'"></span>
+        </div>
+        <button x-show="tgCanChuY > 0" @click="tgChiXemLoi = !tgChiXemLoi"
+                class="pill !py-0.5 !px-2.5 !text-[11px] font-bold transition flex items-center gap-1.5"
+                :class="tgChiXemLoi ? 'pill-err ring-1 ring-red-400' : 'bg-white border border-[#CBDCEE] text-pos-muted hover:text-pos-ink'"
+                :title="tgChiXemLoi ? 'Bấm để hiển thị toàn bộ tin nhắn' : 'Bấm để chỉ lọc các tin có lỗi hoặc nghi ngờ'">
+          <i class="fa-solid fa-filter text-[10px]"></i>
+          <span x-text="tgChiXemLoi ? 'Đang lọc: Cần chú ý (' + tgCanChuY + ')' : 'Lọc tin cần chú ý (' + tgCanChuY + ')'"></span>
+        </button>
       </div>
-      <div class="editor h-[150px] shrink-0">
-        <div class="lop" x-html="tgHighlight()" aria-hidden="true"></div>
-        <textarea x-model="tgSua" spellcheck="false" aria-label="Sửa tin Telegram"></textarea>
-      </div>
-      <div class="space-y-1">
-        <template x-for="(l, i) in tgKq.loi" :key="i">
-          <div class="text-sm flex gap-2"><i class="fa-solid fa-circle-xmark text-pos-err mt-1"></i><span><span class="mono font-bold text-pos-err" x-text="l.text"></span> — <span x-text="l.msg"></span></span></div>
-        </template>
-      </div>
-      <div class="flex-1 min-h-[110px] scroll-y rounded-xl border border-slate-200">
-        <table class="tbl text-sm">
-          <thead><tr><th>Loại</th><th>Số</th><th class="!text-right">Ghi</th><th class="!text-right">Trúng</th></tr></thead>
+
+      <div class="flex-1 scroll-y">
+        <table class="tbl text-[14.5px]">
+          <thead>
+            <tr>
+              <th class="w-12 text-center">STT</th>
+              <th class="w-24 text-center">ID Tin</th>
+              <th>Tin Nhắn Gốc</th>
+              <th class="w-28 text-center">Trạng Thái</th>
+              <th class="w-32 text-right">Tiền Ghi</th>
+              <th class="w-16 text-center">❌ Xóa</th>
+            </tr>
+          </thead>
           <tbody>
-            <template x-for="(d, i) in tgDong" :key="i">
-              <tr :class="d.trung > 0 && 'trung'">
-                <td><span class="bet" :class="badge(d.loai)" x-text="NHAN_LOAI[d.loai]"></span></td>
-                <td class="mono font-bold" x-text="d.so.join('-')"></td>
-                <td class="num" x-text="fmt(d.ghi)"></td>
-                <td class="num font-bold" :class="d.trung ? 'text-pos-err' : 'text-slate-300'" x-text="fmt(d.trung)"></td>
+            <template x-for="(t, idx) in tgDanhSachHienThi" :key="t.id">
+              <tr class="cursor-pointer transition select-none"
+                  :class="{
+                    'bg-[--flat-primary-soft] border-l-4 border-pos-blue font-semibold': tgTinChon?.id === t.id,
+                    'bg-red-50/50 text-red-900': t.status === 'error',
+                    'bg-amber-50/40 text-amber-900': t.status === 'warn' && tgTinChon?.id !== t.id
+                  }"
+                  @click="chonTinTg(t)">
+                <td class="text-center mono text-pos-muted" x-text="t.stt"></td>
+                <td class="text-center mono text-xs text-pos-muted" x-text="t.message_id"></td>
+                <td class="font-medium max-w-[220px] truncate" :title="t.text_goc" x-text="t.text_hien_thi.replace(/\n/g, ' · ')"></td>
+                <td class="text-center">
+                  <span class="pill !py-0.5 !px-2 !text-[11px]"
+                        :class="t.status === 'ok' ? 'pill-ok' : (t.status === 'warn' ? 'pill-warn' : 'pill-err')"
+                        x-text="t.status === 'ok' ? '✅ OK' : (t.status === 'warn' ? '⚠️ Nghi ngờ' : '❌ Lỗi cú pháp')"></span>
+                </td>
+                <td class="num font-semibold" x-text="fmt(t.tien_ghi) + 'đ'"></td>
+                <td class="text-center">
+                  <button class="text-slate-400 hover:text-pos-err transition px-2 py-1 rounded" title="Xóa tin này khỏi danh sách đối soát" @click.stop="xoaTinTg(t.id)">
+                    <i class="fa-solid fa-trash-can"></i>
+                  </button>
+                </td>
               </tr>
             </template>
+            <tr x-show="!tgDanhSachHienThi.length">
+              <td colspan="6" class="text-center text-pos-muted py-14">
+                <i class="fa-regular fa-comments text-4xl mb-2.5 block opacity-30"></i>
+                <div class="font-bold text-sm">Chưa có dữ liệu đồng bộ</div>
+                <div class="text-xs text-pos-muted mt-1">Chọn khách hàng rồi bấm nút <b>⚡ BẮT ĐẦU ĐỒNG BỘ</b> ở trên.</div>
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
-      <div class="flex gap-2">
-        <button class="btn btn-ghost" @click="chonTg(tgChon)"><i class="fa-solid fa-rotate-left"></i>Hoàn tác</button>
-        <button class="btn btn-learn flex-1 justify-center" @click="luuVaDay()"><i class="fa-solid fa-brain"></i>Lưu & Dạy app nhớ từ này</button>
+
+      <!-- Chân cột Master: Nút Xóa nhanh & Tổng hợp kết quả -->
+      <div class="p-2.5 border-t border-[#CBDCEE] bg-[#F0F5FA] flex items-center justify-between shrink-0">
+        <button class="btn btn-ghost !py-1.5 !px-3 !text-xs text-pos-err hover:bg-red-50 !min-h-[36px] bg-white border-[#CBDCEE]" :disabled="!tgTinChon" @click="xoaTinTg(tgTinChon?.id)">
+          <i class="fa-solid fa-trash-can"></i> 🗑️ Xóa tin đã chọn
+        </button>
+        <button class="btn btn-ghost !py-1.5 !px-3 !text-xs font-bold text-pos-title hover:bg-white !min-h-[36px] bg-white border-[#CBDCEE]" :disabled="!tgDanhSach.length" @click="moTongHopToanBo()">
+          <i class="fa-solid fa-chart-pie text-pos-blue"></i> 📊 Tổng hợp kết quả
+        </button>
       </div>
     </div>
+
+    <!-- CỘT PHẢI: DETAIL & INLINE QUICK EDIT DOCK (50%) -->
+    <div class="card flex flex-col min-h-0 overflow-hidden bg-white border border-[#CBDCEE] shadow-sm">
+      <!-- Header chung cho Cột Phải -->
+      <div class="px-4 py-2.5 bg-[#E4EFF8] border-b border-[#CBDCEE] flex items-center justify-between shrink-0 flex-wrap gap-2">
+        <template x-if="!tgTinChon">
+          <div class="font-extrabold text-sm text-pos-title flex items-center gap-1.5">
+            <i class="fa-solid fa-pen-to-square text-pos-blue"></i> Chi Tiết & Soạn Thảo Tin Nhắn
+          </div>
+        </template>
+        <template x-if="tgTinChon">
+          <div class="flex items-center gap-2">
+            <span class="font-extrabold text-sm text-pos-title flex items-center gap-1.5">
+              <i class="fa-solid fa-thumbtack text-pos-blue"></i> Đang chọn: Tin #<span x-text="tgTinChon.stt"></span> · <span class="mono text-xs text-pos-muted">msg_id=<span x-text="tgTinChon.message_id"></span></span>
+            </span>
+            <span class="pill !text-xs font-bold"
+                  :class="tgTinChon.status === 'ok' ? 'pill-ok' : (tgTinChon.status === 'warn' ? 'pill-warn' : 'pill-err')"
+                  x-text="'[ ' + tgTinChon.status_label + ' ]'"></span>
+          </div>
+        </template>
+
+        <!-- Công cụ chuyển đổi layout cho ô soạn thảo -->
+        <div class="flex items-center gap-1" x-show="tgTinChon">
+          <span class="text-xs text-pos-muted font-bold hidden sm:inline mr-1">Bố cục:</span>
+          <div class="flex rounded-lg border border-[#CBDCEE] bg-white p-0.5 text-xs font-bold shadow-sm">
+            <button class="px-2.5 py-1 rounded-md transition flex items-center gap-1"
+                    :class="tgDockLayout === 'split' ? 'bg-pos-blue text-white shadow-sm' : 'text-pos-muted hover:text-pos-ink'"
+                    @click="doiLayoutTg('split')" title="Chia dọc: Ô soạn thảo tự động nở theo số dòng + Bảng bên dưới">
+              <i class="fa-solid fa-arrows-up-down"></i> <span class="hidden md:inline">Tự co giãn</span>
+            </button>
+            <button class="px-2.5 py-1 rounded-md transition flex items-center gap-1"
+                    :class="tgDockLayout === 'side' ? 'bg-pos-blue text-white shadow-sm' : 'text-pos-muted hover:text-pos-ink'"
+                    @click="doiLayoutTg('side')" title="Song song: Ô soạn thảo bên trái, Bảng kết quả bên phải (Cao 100%)">
+              <i class="fa-solid fa-table-columns"></i> <span class="hidden md:inline">Song song (2 cột)</span>
+            </button>
+            <button class="px-2.5 py-1 rounded-md transition flex items-center gap-1"
+                    :class="tgDockLayout === 'max' ? 'bg-pos-blue text-white shadow-sm' : 'text-pos-muted hover:text-pos-ink'"
+                    @click="doiLayoutTg('max')" title="Phóng to tối đa ô soạn thảo toàn bộ chiều cao">
+              <i class="fa-solid fa-up-right-and-down-left-from-center"></i> <span class="hidden md:inline">Max Editor</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Trạng thái chưa chọn tin -->
+      <template x-if="!tgTinChon">
+        <div class="flex-1 flex flex-col items-center justify-center p-8 text-center text-pos-muted">
+          <i class="fa-solid fa-arrow-left text-3xl mb-3 text-slate-300"></i>
+          <div class="font-bold text-base text-pos-title">👈 Chọn một dòng tin nhắn bên bảng trái</div>
+          <p class="text-xs text-pos-muted mt-1 max-w-xs">Để xem chi tiết chẩn đoán lỗi cú pháp, kết quả đối soát tạm thời hoặc chỉnh sửa trực tiếp tại đây.</p>
+        </div>
+      </template>
+
+      <!-- Trạng thái đang chọn tin -->
+      <template x-if="tgTinChon">
+        <div class="flex-1 flex flex-col min-h-0 p-3.5 gap-2.5 overflow-hidden">
+
+          <!-- 2. Khối CHẨN ĐOÁN LỖI (Gấp gọn thông minh) -->
+          <div x-show="tgTinChon.errors?.length || tgTinChon.he_thong_dich?.length"
+               class="rounded-xl bg-amber-50 border border-amber-300 p-2 text-xs shrink-0 transition">
+            <div class="flex items-center justify-between font-bold text-pos-warn cursor-pointer select-none"
+                 @click="tgChanDoanMo = !tgChanDoanMo" title="Bấm để ẩn/hiện chi tiết lỗi">
+              <div class="flex items-center gap-1.5">
+                <i class="fa-solid fa-stethoscope"></i>
+                <span>🩺 CHẨN ĐOÁN (<span x-text="(tgTinChon.errors?.length || 0) + (tgTinChon.he_thong_dich?.length || 0)"></span> mục) — bấm vào dòng để trỏ đến lỗi</span>
+              </div>
+              <button type="button" class="text-pos-muted hover:text-pos-ink px-1.5 py-0.5 rounded text-[11px] flex items-center gap-1">
+                <span x-text="tgChanDoanMo ? 'Thu gọn' : 'Mở xem'"></span>
+                <i class="fa-solid text-[10px]" :class="tgChanDoanMo ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+              </button>
+            </div>
+            <div x-show="tgChanDoanMo" x-collapse class="space-y-1.5 mt-2 max-h-28 scroll-y pt-1 border-t border-amber-200">
+              <template x-for="(err, ei) in tgTinChon.errors" :key="'e'+ei">
+                <div class="cursor-pointer hover:underline text-pos-err flex items-start gap-1.5" @click="troToiViTriLoi(err)">
+                  <i class="fa-solid fa-circle-xmark mt-0.5 shrink-0"></i>
+                  <span><span x-text="err.msg"></span> <b class="mono bg-red-100 px-1 rounded" x-text="err.text ? '→ &quot;' + err.text + '&quot;' : ''"></b></span>
+                </div>
+              </template>
+              <template x-for="(dc, di) in tgTinChon.he_thong_dich" :key="'d'+di">
+                <div class="text-amber-800 flex items-center gap-1.5">
+                  <i class="fa-solid fa-wand-magic-sparkles text-pos-warn shrink-0"></i>
+                  <span>🟡 App tự hiểu <b class="mono bg-amber-200/60 px-1 rounded" x-text="'&quot;' + dc.goc + '&quot;'"></b> thành <b class="mono bg-emerald-200/60 px-1 rounded text-pos-ok" x-text="'&quot;' + dc.moi + '&quot;'"></b> — kiểm tra lại</span>
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <!-- 3. KHU VỰC THAO TÁC: DOCK WORKSPACE (Tự động thích ứng theo 3 Layout Mode) -->
+          
+          <!-- [LAYOUT 1: SONG SONG 2 CỘT (SIDE-BY-SIDE)] -->
+          <div x-show="tgDockLayout === 'side'" class="grid grid-cols-1 xl:grid-cols-2 gap-3 flex-1 min-h-0 overflow-hidden">
+            <!-- Cột trái: Ô Soạn Thảo Full Height -->
+            <div class="flex flex-col min-h-0 h-full border border-[#CBDCEE] rounded-xl bg-white overflow-hidden shadow-sm">
+              <div class="px-3 py-2 bg-[#E4EFF8] border-b border-[#CBDCEE] flex items-center justify-between shrink-0">
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-extrabold text-pos-title flex items-center gap-1">
+                    <i class="fa-solid fa-pen-to-square text-pos-blue"></i> NỘI DUNG CHỈNH SỬA:
+                  </span>
+                  <span class="mono text-[11px] font-bold text-pos-muted bg-white/80 border border-[#CBDCEE] px-2 py-0.5 rounded-full"
+                        x-text="tgDockLineCount + ' dòng · ' + tgDockCharCount + ' ký tự'"></span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <button class="btn btn-ghost !py-1 !px-2.5 !text-xs font-bold text-pos-blue hover:bg-white !min-h-[30px] bg-white border-[#CBDCEE]" @click="parseThuDock()">
+                    <i class="fa-solid fa-magnifying-glass"></i> Parse
+                  </button>
+                  <button class="btn btn-success !py-1 !px-2.5 !text-xs font-bold !min-h-[30px]" @click="luuDockThayDoi()">
+                    <i class="fa-solid fa-floppy-disk"></i> Lưu
+                  </button>
+                </div>
+              </div>
+              <div class="flex-1 min-h-0 p-2">
+                <textarea x-ref="tgDockEditorSide" x-model="tgDockText"
+                          class="w-full h-full p-2.5 mono text-[15.5px] leading-relaxed text-pos-ink bg-transparent border-0 outline-none resize-none scroll-y"
+                          spellcheck="false" placeholder="Gõ trực tiếp để sửa nội dung tin nhắn Telegram..."></textarea>
+              </div>
+            </div>
+
+            <!-- Cột phải: Bảng Kết QuẢ Đối Soát Full Height -->
+            <div class="flex flex-col min-h-0 h-full border border-[#CBDCEE] rounded-xl bg-white overflow-hidden shadow-sm">
+              <div class="px-3 py-2 bg-[#E4EFF8] border-b border-[#CBDCEE] flex items-center justify-between shrink-0">
+                <span class="text-xs font-extrabold text-pos-title flex items-center gap-1">
+                  <i class="fa-solid fa-chart-column text-emerald-600"></i> KẾT QUẢ ĐỐI SOÁT TẠM THỜI:
+                </span>
+                <span class="mono text-xs text-pos-muted font-bold bg-white/80 border border-[#CBDCEE] px-2 py-0.5 rounded-full" x-text="tgDockChiTiet.length + ' cược hợp lệ'"></span>
+              </div>
+              <div class="flex-1 min-h-0 scroll-y">
+                <table class="tbl text-xs">
+                  <thead>
+                    <tr>
+                      <th>Loại</th><th>Số</th><th class="text-right">Đánh</th>
+                      <th class="text-right">Tiền ghi</th><th class="text-right">Trúng</th><th class="text-right">Thành tiền</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <template x-for="r in tgDockChiTiet" :key="r.id || (r.loai + r.so.join(''))">
+                      <tr :class="r.trung > 0 && 'trung'">
+                        <td><span class="bet !min-w-[48px] !text-[11px] !py-0.5" :class="badge(r.loai)" x-text="NHAN_LOAI[r.loai]"></span></td>
+                        <td class="mono font-bold text-sm tracking-wide" x-text="r.so.join('-')"></td>
+                        <td class="num font-medium" x-text="r.nhanTien"></td>
+                        <td class="num font-semibold" x-text="fmt(r.ghi)"></td>
+                        <td class="num font-bold" :class="r.trung ? 'text-pos-err' : 'text-slate-300'" x-text="r.trung ? fmt(r.trung) : '0'"></td>
+                        <td class="num font-bold" :class="r.thanh_tien >= 0 ? 'text-pos-ok' : 'text-pos-err'" x-text="fmt(r.thanh_tien)"></td>
+                      </tr>
+                    </template>
+                    <tr x-show="!tgDockChiTiet.length">
+                      <td colspan="6" class="text-center text-pos-muted py-8">Chưa có cược hợp lệ nào.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <!-- Số trúng nổi bật -->
+              <div x-show="tgDockChiTiet.some(r => r.trung > 0)" class="p-2 bg-emerald-50/80 border-t border-emerald-200 text-xs shrink-0 flex items-center gap-2 flex-wrap">
+                <span class="font-bold text-pos-ok"><i class="fa-solid fa-trophy mr-1"></i>Trúng:</span>
+                <template x-for="r in tgDockChiTiet.filter(r => r.trung > 0)" :key="'trung_s_'+r.loai+r.so.join('')">
+                  <span class="pill pill-ok !py-0 !px-2 font-mono font-bold">
+                    <span x-text="r.loai + ' ' + r.so.join('-')"></span>: +<span x-text="fmt(r.trung)"></span>
+                  </span>
+                </template>
+              </div>
+            </div>
+          </div>
+
+          <!-- [LAYOUT 2 & 3: CHIA DỌC TỰ CO GIÃN (SPLIT) HOẶC MAX EDITOR] -->
+          <div x-show="tgDockLayout !== 'side'" class="flex flex-col flex-1 min-h-0 overflow-hidden gap-2.5">
+            <!-- Ô SOẠN THẢO: Chiều cao tự thích ứng theo số dòng + cho phép kéo dãn -->
+            <div class="flex flex-col border border-[#CBDCEE] rounded-xl bg-white shadow-sm overflow-hidden transition-all duration-150"
+                 :class="tgDockLayout === 'max' ? 'flex-1 min-h-0' : 'shrink-0'"
+                 :style="tgDockLayout === 'split' ? { height: tgCalcEditorHeight, minHeight: '160px', maxHeight: '420px' } : {}">
+              
+              <!-- Toolbar của ô soạn thảo -->
+              <div class="px-3.5 py-2 bg-[#E4EFF8] border-b border-[#CBDCEE] flex items-center justify-between shrink-0 flex-wrap gap-2">
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-extrabold text-pos-title flex items-center gap-1">
+                    <i class="fa-solid fa-pen-to-square text-pos-blue"></i> 📨 NỘI DUNG CHỈNH SỬA (Gõ trực tiếp để sửa):
+                  </span>
+                  <span class="mono text-[11px] font-bold text-pos-muted bg-white/80 border border-[#CBDCEE] px-2 py-0.5 rounded-full"
+                        x-text="tgDockLineCount + ' dòng · ' + tgDockCharCount + ' ký tự'"></span>
+                </div>
+                
+                <div class="flex items-center gap-2">
+                  <button class="btn btn-ghost !py-1 !px-3 !text-xs font-bold text-pos-blue hover:bg-white !min-h-[32px] bg-white border-[#CBDCEE]" @click="parseThuDock()">
+                    <i class="fa-solid fa-magnifying-glass"></i> 🔍 Parse Thử & Đối Soát
+                  </button>
+                  <button class="btn btn-success !py-1 !px-3 !text-xs font-bold !min-h-[32px]" @click="luuDockThayDoi()">
+                    <i class="fa-solid fa-floppy-disk"></i> 💾 Lưu Tin & Cập Nhật
+                  </button>
+                  <button class="btn btn-ghost !py-1 !px-2 !text-xs text-pos-muted hover:text-pos-ink !min-h-[32px] bg-white border-[#CBDCEE]"
+                          :title="tgDockLayout === 'max' ? 'Thu nhỏ về dạng chia dọc' : 'Phóng to tối đa ô soạn thảo'"
+                          @click="doiLayoutTg(tgDockLayout === 'max' ? 'split' : 'max')">
+                    <i class="fa-solid" :class="tgDockLayout === 'max' ? 'fa-down-left-and-up-right-to-center' : 'fa-up-right-and-down-left-from-center'"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Vùng Textarea cho phép resize dọc tự do -->
+              <div class="flex-1 min-h-0 relative">
+                <textarea x-ref="tgDockEditor" x-model="tgDockText"
+                          class="w-full h-full p-3 mono text-[15.5px] leading-relaxed text-pos-ink bg-transparent border-0 outline-none scroll-y"
+                          :class="tgDockLayout === 'split' ? 'resize-y' : 'resize-none'"
+                          spellcheck="false" placeholder="Nội dung tin nhắn..."></textarea>
+              </div>
+            </div>
+
+            <!-- BẢNG KẾT QUẢ ĐỐI SOÁT TẠM THỜI -->
+            <div class="border border-[#CBDCEE] rounded-xl overflow-hidden bg-white shadow-sm flex flex-col"
+                 :class="tgDockLayout === 'max' ? 'max-h-36 shrink-0' : 'flex-1 min-h-[140px]'">
+              <div class="px-3.5 py-2 bg-[#E4EFF8] border-b border-[#CBDCEE] font-extrabold text-xs text-pos-title flex justify-between items-center shrink-0">
+                <div class="flex items-center gap-2">
+                  <span>📊 KẾT QUẢ ĐỐI SOÁT TẠM THỜI:</span>
+                  <span class="mono text-xs text-pos-muted font-bold bg-white/80 border border-[#CBDCEE] px-2 py-0.5 rounded-full" x-text="tgDockChiTiet.length + ' cược hợp lệ'"></span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span x-show="tgDockChiTiet.length" class="text-xs text-pos-muted">
+                    Tổng ghi: <b class="mono text-pos-ink" x-text="fmt(tgTinChon.tien_ghi) + 'đ'"></b>
+                  </span>
+                  <button x-show="tgDockLayout === 'max'" class="text-xs text-pos-blue font-bold underline" @click="doiLayoutTg('split')">
+                    Mở rộng bảng ↗
+                  </button>
+                </div>
+              </div>
+
+              <div class="flex-1 scroll-y min-h-0">
+                <table class="tbl text-xs">
+                  <thead>
+                    <tr>
+                      <th>Loại</th><th>Số</th><th class="text-right">Đánh</th>
+                      <th class="text-right">Tiền ghi</th><th class="text-right">Trúng</th><th class="text-right">Thành tiền</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <template x-for="r in tgDockChiTiet" :key="r.id || (r.loai + r.so.join(''))">
+                      <tr :class="r.trung > 0 && 'trung'">
+                        <td><span class="bet !min-w-[50px] !text-[11px] !py-0.5" :class="badge(r.loai)" x-text="NHAN_LOAI[r.loai]"></span></td>
+                        <td class="mono font-bold text-sm tracking-wide" x-text="r.so.join('-')"></td>
+                        <td class="num font-medium" x-text="r.nhanTien"></td>
+                        <td class="num font-semibold" x-text="fmt(r.ghi)"></td>
+                        <td class="num font-bold" :class="r.trung ? 'text-pos-err' : 'text-slate-300'" x-text="r.trung ? fmt(r.trung) : '0'"></td>
+                        <td class="num font-bold" :class="r.thanh_tien >= 0 ? 'text-pos-ok' : 'text-pos-err'" x-text="fmt(r.thanh_tien)"></td>
+                      </tr>
+                    </template>
+                    <tr x-show="!tgDockChiTiet.length">
+                      <td colspan="6" class="text-center text-pos-muted py-6">
+                        <i class="fa-solid fa-triangle-exclamation text-amber-500 mr-1"></i> Chưa có cược hợp lệ nào được đối soát.
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Khối hiển thị số trúng nổi bật nếu có -->
+              <div x-show="tgDockChiTiet.some(r => r.trung > 0)" class="p-2 bg-emerald-50/70 border-t border-emerald-200 text-xs shrink-0 flex items-center gap-2 flex-wrap">
+                <span class="font-bold text-pos-ok"><i class="fa-solid fa-trophy mr-1"></i>Số trúng:</span>
+                <template x-for="r in tgDockChiTiet.filter(r => r.trung > 0)" :key="'trung'+r.loai+r.so.join('')">
+                  <span class="pill pill-ok !py-0 !px-2 font-mono font-bold">
+                    <span x-text="r.loai + ' ' + r.so.join('-')"></span>: +<span x-text="fmt(r.trung)"></span>
+                  </span>
+                </template>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+    </div>
   </div>
+
+  <!-- 4. BOTTOM SUMMARY & LOG BAR -->
+  <div class="card p-3 flex items-center justify-between flex-wrap gap-3 shrink-0 bg-[#E4EFF8] border border-[#CBDCEE] shadow-sm">
+    <div class="flex items-center gap-3 text-xs font-bold">
+      <span class="text-pos-title">📊 Tổng tin: <b class="mono font-extrabold" x-text="tgDem.tong"></b></span>
+      <span class="text-pos-ok">✅ Hợp lệ: <b class="mono" x-text="tgDem.ok"></b></span>
+      <span class="text-pos-warn" x-show="tgDem.warn">⚠️ Nghi ngờ: <b class="mono" x-text="tgDem.warn"></b></span>
+      <span class="text-pos-err" x-show="tgDem.err">❌ Lỗi: <b class="mono" x-text="tgDem.err"></b></span>
+    </div>
+
+    <div class="flex items-center gap-4 text-xs mono font-bold ml-auto flex-wrap">
+      <span>TIỀN GHI: <b class="text-pos-ink text-sm" x-text="fmt(tgTongTien.ghi)"></b></span>
+      <span>CK: <b class="text-pos-muted text-sm" x-text="fmt(tgTongTien.ck)"></b></span>
+      <span>TRÚNG: <b class="text-pos-err text-sm" x-text="fmt(tgTongTien.trung)"></b></span>
+      <span class="text-sm px-3 py-1.5 rounded-lg border shadow-sm"
+            :class="tgTongTien.phai_tra >= 0 ? 'bg-emerald-50 text-pos-ok border-emerald-300' : 'bg-red-50 text-pos-err border-red-300'">
+        👉 <span x-text="tgTongTien.phai_tra >= 0 ? 'KHÁCH NỘP: ' : 'PHẢI TRẢ: '"></span>
+        <b class="text-base" x-text="fmt(Math.abs(tgTongTien.phai_tra)) + 'đ'"></b>
+      </span>
+    </div>
+  </div>
+
 </section>
+
 
 <!-- ════════════════ MÀN 3: KẾT QUẢ XSMB ════════════════ -->
 <section x-show="man === 'kqxs'" x-cloak class="flex flex-col gap-3">
-  <div class="card px-4 py-3 flex flex-wrap items-center gap-3">
-    <div class="font-bold text-pos-title text-lg">Kết quả XSMB · <span class="mono" x-text="ngayHienThi"></span></div>
+  <div class="card px-4 py-3 bg-[#E4EFF8] border border-[#CBDCEE] flex flex-wrap items-center gap-3 shadow-sm">
+    <div class="font-extrabold text-pos-title text-lg flex items-center gap-2">
+      <i class="fa-solid fa-trophy text-pos-blue"></i> Kết quả XSMB · <span class="mono" x-text="ngayHienThi"></span>
+    </div>
     <span class="pill" :class="trangThaiKQ.cls" x-text="trangThaiKQ.nhan"></span>
     <label class="ml-auto flex items-center gap-2 text-sm font-semibold cursor-pointer select-none">
       <span class="relative inline-block w-11 h-6">
@@ -422,14 +787,21 @@
     </button>
   </div>
 
-  <div x-show="!kqNgay" class="card p-10 text-center">
+  <div x-show="!kqNgay" class="card p-10 text-center border border-[#CBDCEE] shadow-sm">
     <i class="fa-solid fa-tower-broadcast text-4xl text-pos-warn"></i>
     <div class="font-bold text-lg mt-3">Chưa có kết quả ngày <span x-text="ngayHienThi"></span></div>
     <div class="text-pos-muted mt-1">XSMB quay lúc 18:15. Hệ thống tự lấy mỗi 5 phút từ 18:30; hoặc bấm <b>Cập nhật KQXS ngay</b>.</div>
   </div>
 
   <div x-show="kqNgay" class="grid gap-3 grid-cols-[minmax(0,1fr)] xl:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
-    <div class="card overflow-hidden" :class="kqDangTai && 'opacity-50 animate-pulse'">
+    <div class="card overflow-hidden border border-[#CBDCEE] shadow-sm bg-white" :class="kqDangTai && 'opacity-50 animate-pulse'">
+      <div class="px-4 py-2.5 bg-[#E4EFF8] border-b border-[#CBDCEE] font-extrabold text-sm text-pos-title flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-list-ol text-pos-blue"></i>
+          <span>Bảng Kết Quả Xổ Số Miền Bắc Truyền Thống</span>
+        </div>
+        <span class="mono text-xs text-pos-muted font-bold bg-white/80 border border-[#CBDCEE] px-2 py-0.5 rounded-full" x-text="'Ngày: ' + ngayHienThi"></span>
+      </div>
       <table class="w-full">
         <template x-for="(g, gi) in kqNgay || []" :key="g[0]">
           <tr class="kq-row" :class="gi % 2 && 'bg-[--flat-panel]'">
@@ -447,8 +819,10 @@
     </div>
 
     <div class="flex flex-col gap-3">
-      <div class="card overflow-x-auto">
-        <div class="px-4 py-2.5 border-b border-slate-200 font-bold text-pos-title">Loto Đầu – Đuôi</div>
+      <div class="card overflow-x-auto border border-[#CBDCEE] shadow-sm bg-white">
+        <div class="px-4 py-2.5 bg-[#E4EFF8] border-b border-[#CBDCEE] font-extrabold text-sm text-pos-title flex items-center gap-2">
+          <i class="fa-solid fa-table-cells text-pos-blue"></i> Loto Đầu – Đuôi
+        </div>
         <table class="w-full">
           <thead><tr class="bg-[--flat-panel] text-xs uppercase text-pos-muted"><th class="py-2 w-16">Đầu</th><th class="text-left px-3">Đuôi (số nhỏ = nháy)</th></tr></thead>
           <template x-for="r in dauDuoi" :key="r.dau">
@@ -466,13 +840,17 @@
           </template>
         </table>
       </div>
-      <div class="card p-4">
-        <div class="font-bold text-pos-title mb-2">Lô về nhiều nháy</div>
-        <div class="flex flex-wrap gap-2">
-          <template x-for="[so, n] in loVeNhieu" :key="so">
-            <span class="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2"><span class="mono font-extrabold text-lg" x-text="so"></span> <span class="text-sm text-pos-warn font-bold" x-text="n + ' nháy'"></span></span>
-          </template>
-          <span x-show="!loVeNhieu.length" class="text-pos-muted text-sm">Không có số nào về từ 2 nháy.</span>
+      <div class="card p-0 overflow-hidden border border-[#CBDCEE] shadow-sm bg-white">
+        <div class="px-4 py-2.5 bg-[#E4EFF8] border-b border-[#CBDCEE] font-extrabold text-sm text-pos-title flex items-center gap-2">
+          <i class="fa-solid fa-fire text-pos-warn"></i> Lô Về Nhiều Nháy (Từ 2 Nháy Trở Lên)
+        </div>
+        <div class="p-4">
+          <div class="flex flex-wrap gap-2">
+            <template x-for="[so, n] in loVeNhieu" :key="so">
+              <span class="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2"><span class="mono font-extrabold text-lg" x-text="so"></span> <span class="text-sm text-pos-warn font-bold" x-text="n + ' nháy'"></span></span>
+            </template>
+            <span x-show="!loVeNhieu.length" class="text-pos-muted text-sm">Không có số nào về từ 2 nháy.</span>
+          </div>
         </div>
       </div>
     </div>
@@ -481,16 +859,18 @@
 
 <!-- ════════════════ MÀN 4: KHÁCH HÀNG & GIÁ ════════════════ -->
 <section x-show="man === 'khach'" x-cloak class="flex flex-col gap-3">
-  <div class="card px-4 py-3 flex flex-wrap items-center gap-3">
-    <div class="font-bold text-pos-title text-lg">Khách hàng & Bảng giá</div>
+  <div class="card px-4 py-3 bg-[#E4EFF8] border border-[#CBDCEE] flex flex-wrap items-center gap-3 shadow-sm">
+    <div class="font-extrabold text-pos-title text-lg flex items-center gap-2">
+      <i class="fa-solid fa-users text-pos-blue"></i> Khách hàng & Bảng giá
+    </div>
     <div class="relative w-full sm:w-72 sm:ml-4">
       <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-pos-muted"></i>
-      <input class="ctl !pl-9" placeholder="Tìm khách…" x-model="timKH">
+      <input class="ctl !pl-9 bg-white" placeholder="Tìm khách…" x-model="timKH">
     </div>
     <button class="btn btn-primary ml-auto" @click="themKhachNhanh()"><i class="fa-solid fa-user-plus"></i>Thêm khách</button>
   </div>
 
-  <div class="card px-4 py-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
+  <div class="card px-4 py-2.5 bg-[#F0F5FA] border border-[#CBDCEE] flex flex-wrap items-center gap-x-5 gap-y-2 text-sm shadow-sm">
     <span class="font-bold text-pos-title"><i class="fa-solid fa-sitemap mr-1"></i>Thứ tự áp giá:</span>
     <span><span class="hs-input hs-rieng inline-block !w-auto">Giá riêng của khách</span></span>
     <i class="fa-solid fa-angle-right text-pos-muted"></i>
@@ -500,7 +880,7 @@
     <span class="ml-auto text-pos-muted">Bấm vào ô để sửa · xoá trống để kế thừa</span>
   </div>
 
-  <div class="card overflow-auto">
+  <div class="card overflow-auto border border-[#CBDCEE] shadow-sm bg-white">
     <table class="tbl text-sm min-w-[1100px]">
       <thead>
         <tr>
@@ -551,9 +931,10 @@
 
 <!-- ════════════════ MÀN 5: LỊCH SỬ & CHỐT SỔ / TỰ HỌC ════════════════ -->
 <section x-show="man === 'lichsu'" x-cloak class="flex flex-col gap-3">
-  <div class="card px-2 py-2 flex gap-1 flex-wrap">
+  <div class="card px-3 py-2 bg-[#E4EFF8] border border-[#CBDCEE] flex gap-2 flex-wrap shadow-sm">
     <template x-for="t in [['chot','fa-receipt','Chốt sổ theo khách'],['tuhoc','fa-brain','Bộ nhớ tự học'],['dan','fa-layer-group','Dàn số & Cú pháp']]" :key="t[0]">
-      <button class="px-4 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2" :class="lsTab === t[0] ? 'bg-pos-blue text-white' : 'text-pos-muted hover:bg-slate-100'" @click="lsTab = t[0]">
+      <button class="px-4 py-2.5 rounded-lg font-extrabold text-sm flex items-center gap-2 transition"
+              :class="lsTab === t[0] ? 'bg-pos-blue text-white shadow-sm' : 'text-pos-title hover:bg-white/80'" @click="lsTab = t[0]">
         <i class="fa-solid" :class="t[1]"></i><span x-text="t[2]"></span>
       </button>
     </template>
@@ -562,17 +943,17 @@
   <!-- Chốt sổ -->
   <div x-show="lsTab === 'chot'" class="flex flex-col gap-3">
     <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
-      <div class="card p-4"><div class="text-xs font-bold text-pos-muted uppercase">Khách trong ngày</div><div class="mono font-extrabold text-2xl" x-text="chotSo.length"></div></div>
-      <div class="card p-4"><div class="text-xs font-bold text-pos-muted uppercase">Tổng ghi</div><div class="mono font-extrabold text-2xl" x-text="fmt(tongNgay.ghi)"></div></div>
-      <div class="card p-4"><div class="text-xs font-bold text-pos-muted uppercase">Thực thu</div><div class="mono font-extrabold text-2xl" x-text="fmt(tongNgay.thuc)"></div></div>
-      <div class="card p-4"><div class="text-xs font-bold text-pos-muted uppercase">Tổng trúng</div><div class="mono font-extrabold text-2xl text-pos-err" x-text="fmt(tongNgay.trung)"></div></div>
-      <div class="card p-4 border-2 col-span-2 lg:col-span-1" :class="tongNgay.can >= 0 ? 'border-emerald-500 bg-emerald-50' : 'border-red-500 bg-red-50'">
+      <div class="card p-4 border border-[#CBDCEE] shadow-sm"><div class="text-xs font-bold text-pos-muted uppercase">Khách trong ngày</div><div class="mono font-extrabold text-2xl" x-text="chotSo.length"></div></div>
+      <div class="card p-4 border border-[#CBDCEE] shadow-sm"><div class="text-xs font-bold text-pos-muted uppercase">Tổng ghi</div><div class="mono font-extrabold text-2xl" x-text="fmt(tongNgay.ghi)"></div></div>
+      <div class="card p-4 border border-[#CBDCEE] shadow-sm"><div class="text-xs font-bold text-pos-muted uppercase">Thực thu</div><div class="mono font-extrabold text-2xl" x-text="fmt(tongNgay.thuc)"></div></div>
+      <div class="card p-4 border border-[#CBDCEE] shadow-sm"><div class="text-xs font-bold text-pos-muted uppercase">Tổng trúng</div><div class="mono font-extrabold text-2xl text-pos-err" x-text="fmt(tongNgay.trung)"></div></div>
+      <div class="card p-4 border-2 col-span-2 lg:col-span-1 shadow-sm" :class="tongNgay.can >= 0 ? 'border-emerald-500 bg-emerald-50' : 'border-red-500 bg-red-50'">
         <div class="text-xs font-bold uppercase" :class="tongNgay.can >= 0 ? 'text-pos-ok' : 'text-pos-err'" x-text="tongNgay.can >= 0 ? 'Lãi trong ngày' : 'Lỗ trong ngày'"></div>
         <div class="mono font-extrabold text-2xl" :class="tongNgay.can >= 0 ? 'text-pos-ok' : 'text-pos-err'" x-text="fmt(Math.abs(tongNgay.can))"></div>
       </div>
     </div>
 
-    <div class="card overflow-x-auto">
+    <div class="card overflow-x-auto border border-[#CBDCEE] shadow-sm bg-white">
       <table class="tbl">
         <thead><tr><th>Khách</th><th class="!text-right">Phiên</th><th class="!text-right">Tổng ghi</th><th class="!text-right">CK</th><th class="!text-right">Thực thu</th><th class="!text-right">Trúng</th><th class="!text-right">Cân đối</th><th class="!text-right">Phiếu chốt</th></tr></thead>
         <tbody>
@@ -602,7 +983,7 @@
           <div>
             <div class="text-xs font-bold text-pos-muted uppercase mb-1">Các phiên đã lưu</div>
             <template x-for="(p, i) in g.phien" :key="i">
-              <div class="card p-3 mb-2 flex gap-3 items-start">
+              <div class="card p-3 mb-2 flex gap-3 items-start border border-[#CBDCEE] shadow-sm">
                 <span class="mono text-sm font-bold text-pos-blue" x-text="p.gio"></span>
                 <span class="pill pill-info !text-[11px]" x-text="p.nguon"></span>
                 <span class="mono text-sm flex-1 whitespace-pre-wrap" x-text="p.text"></span>
@@ -617,11 +998,13 @@
 
   <!-- Tự học -->
   <div x-show="lsTab === 'tuhoc'" class="grid gap-3 grid-cols-[minmax(0,1fr)] lg:grid-cols-[minmax(0,1fr)_340px]">
-    <div class="card overflow-x-auto">
-      <div class="px-4 py-3 border-b border-slate-200 flex items-center gap-3">
-        <div class="font-bold text-pos-title">Từ viết tắt app đã học</div>
-        <span class="text-sm text-pos-muted"><span class="mono" x-text="tuHoc.length"></span> quy tắc</span>
-        <input class="ctl !w-60 ml-auto !min-h-[38px]" placeholder="Tìm…" x-model="timTuHoc">
+    <div class="card overflow-x-auto border border-[#CBDCEE] shadow-sm bg-white">
+      <div class="px-4 py-2.5 bg-[#E4EFF8] border-b border-[#CBDCEE] flex items-center gap-3">
+        <div class="font-extrabold text-sm text-pos-title flex items-center gap-1.5">
+          <i class="fa-solid fa-brain text-pos-learn"></i> Từ viết tắt app đã học
+        </div>
+        <span class="text-xs text-pos-muted font-bold bg-white/80 border border-[#CBDCEE] px-2 py-0.5 rounded-full"><span class="mono" x-text="tuHoc.length"></span> quy tắc</span>
+        <input class="ctl !w-60 ml-auto !min-h-[36px] bg-white text-xs" placeholder="Tìm quy tắc…" x-model="timTuHoc">
       </div>
       <table class="tbl">
         <thead><tr><th>Khách viết</th><th></th><th>App hiểu thành</th><th class="!text-right">Đã dùng</th><th>Lần cuối</th><th>Nguồn</th><th></th></tr></thead>
@@ -640,14 +1023,18 @@
         </tbody>
       </table>
     </div>
-    <div class="card p-4 h-fit space-y-3">
-      <div class="font-bold text-pos-title"><i class="fa-solid fa-plus mr-1"></i>Dạy app một từ mới</div>
-      <div><label class="text-xs font-bold text-pos-muted uppercase">Khách hay viết</label><input class="ctl mono mt-1" placeholder="vd: xjen" x-model="themGoc"></div>
-      <div><label class="text-xs font-bold text-pos-muted uppercase">App hiểu thành</label><input class="ctl mono mt-1" placeholder="vd: xien" x-model="themMoi" @keydown.enter="themQuyTac()"></div>
-      <button class="btn btn-learn w-full justify-center" @click="themQuyTac()"><i class="fa-solid fa-brain"></i>Thêm quy tắc <span class="kbd">Enter</span></button>
-      <div class="text-xs text-pos-muted bg-[--flat-panel] rounded-lg p-3 space-y-1">
-        <div class="font-bold text-pos-ink"><i class="fa-solid fa-shield-halved mr-1"></i>App tự chặn quy tắc nguy hiểm:</div>
-        <div>• Làm thay đổi con số cược hoặc tiền</div><div>• Trùng từ khoá chuẩn (de, lo, xien…)</div><div>• Làm sai các tin mẫu chuẩn (kiểm tra ngầm)</div>
+    <div class="card p-0 overflow-hidden border border-[#CBDCEE] shadow-sm bg-white h-fit">
+      <div class="px-4 py-2.5 bg-[#E4EFF8] border-b border-[#CBDCEE] font-extrabold text-sm text-pos-title flex items-center gap-2">
+        <i class="fa-solid fa-plus text-pos-blue"></i> Dạy app một từ mới
+      </div>
+      <div class="p-4 space-y-3">
+        <div><label class="text-xs font-bold text-pos-muted uppercase">Khách hay viết</label><input class="ctl mono mt-1" placeholder="vd: xjen" x-model="themGoc"></div>
+        <div><label class="text-xs font-bold text-pos-muted uppercase">App hiểu thành</label><input class="ctl mono mt-1" placeholder="vd: xien" x-model="themMoi" @keydown.enter="themQuyTac()"></div>
+        <button class="btn btn-learn w-full justify-center" @click="themQuyTac()"><i class="fa-solid fa-brain"></i>Thêm quy tắc <span class="kbd">Enter</span></button>
+        <div class="text-xs text-pos-muted bg-[--flat-panel] rounded-lg p-3 space-y-1">
+          <div class="font-bold text-pos-ink"><i class="fa-solid fa-shield-halved mr-1"></i>App tự chặn quy tắc nguy hiểm:</div>
+          <div>• Làm thay đổi con số cược hoặc tiền</div><div>• Trùng từ khoá chuẩn (de, lo, xien…)</div><div>• Làm sai các tin mẫu chuẩn (kiểm tra ngầm)</div>
+        </div>
       </div>
     </div>
   </div>
@@ -655,9 +1042,9 @@
   <!-- Dàn số -->
   <div x-show="lsTab === 'dan'" class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
     <template x-for="d in danSo" :key="d.ten">
-      <div class="card p-4" :class="!d.bat && 'opacity-60'">
-        <div class="flex items-center gap-2">
-          <div class="font-bold text-pos-title" x-text="d.ten"></div>
+      <div class="card p-0 overflow-hidden border border-[#CBDCEE] shadow-sm bg-white" :class="!d.bat && 'opacity-60'">
+        <div class="px-4 py-2.5 bg-[#E4EFF8] border-b border-[#CBDCEE] flex items-center gap-2">
+          <div class="font-extrabold text-pos-title text-sm" x-text="d.ten"></div>
           <span class="pill !text-[11px]" :class="d.nguon === 'mặc định' ? 'pill-info' : 'pill-ok'" x-text="d.nguon"></span>
           <label class="ml-auto relative inline-block w-11 h-6 cursor-pointer">
             <input type="checkbox" x-model="d.bat" class="peer sr-only">
@@ -665,9 +1052,11 @@
             <span class="absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition peer-checked:translate-x-5"></span>
           </label>
         </div>
-        <div class="text-sm text-pos-muted mt-1">Gõ: <span class="mono font-bold text-pos-ink" x-text="d.khoa"></span> · <span class="mono" x-text="d.so.length"></span> số</div>
-        <div class="flex flex-wrap gap-1 mt-3">
-          <template x-for="s in d.so" :key="s"><span class="mono font-bold text-sm bg-slate-100 rounded px-1.5 py-0.5" x-text="s"></span></template>
+        <div class="p-4">
+          <div class="text-sm text-pos-muted">Gõ: <span class="mono font-bold text-pos-ink" x-text="d.khoa"></span> · <span class="mono" x-text="d.so.length"></span> số</div>
+          <div class="flex flex-wrap gap-1 mt-3">
+            <template x-for="s in d.so" :key="s"><span class="mono font-bold text-sm bg-slate-100 rounded px-1.5 py-0.5" x-text="s"></span></template>
+          </div>
         </div>
       </div>
     </template>
@@ -741,6 +1130,289 @@
         <div class="flex justify-end gap-2"><button class="btn btn-ghost" @click="modal = null; tgBuoc = 'sdt'">Huỷ</button><button class="btn btn-primary" @click="tgTiep()" x-text="tgBuoc === '2fa' ? 'Kết nối' : 'Tiếp tục'"></button></div>
       </div>
     </template>
+  </div>
+</div>
+
+<!-- ════════════════ MODAL: CẤU HÌNH TELEGRAM & AI ════════════════ -->
+<div x-show="modal === 'tg_config'" x-cloak class="fixed inset-0 z-50 backdrop grid place-items-center p-4" @click.self="modal = null">
+  <div class="card w-full max-w-lg shadow-2xl overflow-hidden bg-white border border-[#CBDCEE]" role="dialog" aria-modal="true">
+    <div class="px-5 py-3.5 bg-[#E4EFF8] border-b border-[#CBDCEE] flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-pos-blue/15 text-pos-blue grid place-items-center text-lg">
+          <i class="fa-solid fa-gear"></i>
+        </div>
+        <div>
+          <div class="font-extrabold text-base sm:text-lg text-pos-title">Cấu Hình Telegram & AI</div>
+          <div class="text-xs text-pos-muted">Thiết lập API ID, API Hash để đồng bộ dữ liệu Telethon</div>
+        </div>
+      </div>
+      <button class="text-slate-400 hover:text-slate-600 transition" @click="modal = null">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+    </div>
+
+    <div class="p-5">
+      <div class="space-y-3.5">
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="text-xs font-bold text-pos-muted uppercase tracking-wider">API ID:</label>
+          <input class="ctl mono mt-1 font-bold" placeholder="vd: 2981726" x-model="tgConfig.api_id">
+        </div>
+        <div>
+          <label class="text-xs font-bold text-pos-muted uppercase tracking-wider">Session Name:</label>
+          <input class="ctl mono mt-1 font-bold" placeholder="bigwin_telethon" x-model="tgConfig.session_name">
+        </div>
+      </div>
+
+      <!-- API Hash (MaskedEntry) -->
+      <div>
+        <label class="text-xs font-bold text-pos-muted uppercase tracking-wider">API Hash:</label>
+        <div class="relative mt-1">
+          <input :type="tgShowMaskedHash ? 'text' : 'password'" class="ctl mono font-bold !pr-10" placeholder="API Hash từ Telegram" x-model="tgConfig.api_hash">
+          <button type="button" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-pos-blue text-sm px-1.5 py-1"
+                  @click="tgShowMaskedHash = !tgShowMaskedHash">
+            <i class="fa-solid" :class="tgShowMaskedHash ? 'fa-eye-slash' : 'fa-eye'"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Gemini API Key (MaskedEntry) -->
+      <div>
+        <label class="text-xs font-bold text-pos-muted uppercase tracking-wider">Gemini API Key (AI):</label>
+        <div class="relative mt-1">
+          <input :type="tgShowMaskedGemini ? 'text' : 'password'" class="ctl mono font-bold !pr-10" placeholder="AIzaSy..." x-model="tgConfig.gemini_api_key">
+          <button type="button" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-pos-blue text-sm px-1.5 py-1"
+                  @click="tgShowMaskedGemini = !tgShowMaskedGemini">
+            <i class="fa-solid" :class="tgShowMaskedGemini ? 'fa-eye-slash' : 'fa-eye'"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="text-xs text-pos-muted bg-[--flat-panel] rounded-xl p-3 flex items-start gap-2">
+        <i class="fa-solid fa-circle-info text-pos-blue mt-0.5 shrink-0"></i>
+        <span>Có thể để trống API ID/API Hash khi chưa dùng Telegram. Dữ liệu được lưu trữ an toàn trong cơ sở dữ liệu.</span>
+      </div>
+      </div>
+      <div class="flex justify-end gap-2 mt-5 pt-3 border-t border-slate-100">
+        <button class="btn btn-ghost !py-2 !text-xs" @click="modal = null">❌ Đóng <span class="kbd">Esc</span></button>
+        <button class="btn btn-primary !py-2 !text-xs" @click="luuTgConfig()"><i class="fa-solid fa-floppy-disk"></i> 💾 Lưu cấu hình</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ MODAL: TỔNG KẾT ĐỒNG BỘ TELEGRAM (SYNCSUMMARYDIALOG) ════════════════ -->
+<div x-show="modal === 'tg_summary'" x-cloak class="fixed inset-0 z-50 backdrop grid place-items-center p-4" @click.self="modal = null">
+  <div class="card w-full max-w-2xl shadow-2xl overflow-hidden bg-white" role="dialog" aria-modal="true">
+    <!-- Header -->
+    <div class="px-5 py-3.5 flex items-center justify-between text-white"
+         :class="tgSummaryData?.isPreview ? 'bg-pos-blue' : 'bg-pos-ok'">
+      <div>
+        <div class="font-extrabold text-lg flex items-center gap-2">
+          <i class="fa-solid" :class="tgSummaryData?.isPreview ? 'fa-magnifying-glass' : 'fa-circle-check'"></i>
+          <span x-text="tgSummaryData?.isPreview ? '🔍 KẾT QUẢ PREVIEW' : '✅ ĐỐI SOÁT HOÀN TẤT'"></span>
+        </div>
+        <div class="text-xs opacity-90 font-medium mt-0.5"
+             x-text="tgSummaryData?.isPreview ? '(Dữ liệu chưa ghi vào Database — chỉ xem trước)' : '(Dữ liệu đã được lưu chính thức vào sổ sách)'"></div>
+      </div>
+      <button class="text-white/80 hover:text-white transition" @click="modal = null">
+        <i class="fa-solid fa-xmark text-xl"></i>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="p-5 space-y-4 max-h-[75vh] scroll-y">
+      <!-- Thống kê số lượng tin -->
+      <div class="card p-3.5 bg-slate-50 border-slate-200 space-y-1.5 text-sm">
+        <div class="flex justify-between items-center">
+          <span class="text-pos-muted">• Số tin thành công:</span>
+          <b class="text-pos-ok mono text-base" x-text="tgSummaryData?.done"></b>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-pos-muted">• Số tin bỏ qua (không parse được):</span>
+          <b class="text-pos-muted mono" x-text="tgSummaryData?.skipped"></b>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-pos-muted">• Số tin gặp lỗi cú pháp cần sửa:</span>
+          <b class="text-pos-err mono" x-text="tgSummaryData?.failed"></b>
+        </div>
+      </div>
+
+      <!-- Bảng tổng hợp theo loại cược (Google Sheets Grid Style) -->
+      <div>
+        <div class="text-xs font-bold text-pos-title uppercase tracking-wider mb-2 flex items-center gap-1.5">
+          <i class="fa-solid fa-table-list text-pos-blue"></i>
+          <span>📋 TỔNG HỢP THEO LOẠI CƯỢC:</span>
+        </div>
+
+        <div class="rounded-xl border border-slate-200 overflow-hidden">
+          <table class="tbl text-xs">
+            <thead>
+              <tr>
+                <th>LOẠI</th>
+                <th class="text-right">TIỀN GHI</th>
+                <th class="text-right">CHIẾT KHẤU</th>
+                <th class="text-right">TRÚNG</th>
+                <th class="text-right">PHẢI TRẢ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="r in tgSummaryData?.loai_so || []" :key="r.loai">
+                <tr>
+                  <td><span class="bet !min-w-[50px] !text-[11px] !py-0.5" :class="badge(r.loai)" x-text="r.nhan"></span></td>
+                  <td class="num font-semibold" x-text="fmt(r.ghi)"></td>
+                  <td class="num text-pos-muted" x-text="r.ck ? '−' + fmt(r.ck) : '—'"></td>
+                  <td class="num font-bold text-pos-err" x-text="r.loai === 'LO' && r.diem_trung ? r.diem_trung + ' điểm' : fmt(r.trung)"></td>
+                  <td class="num font-bold" :class="(r.trung - r.ghi + r.ck) >= 0 ? 'text-pos-ok' : 'text-pos-err'"
+                      x-text="fmt(r.trung - r.ghi + r.ck)"></td>
+                </tr>
+              </template>
+              <tr class="bg-slate-100/80 font-bold border-t-2 border-slate-300">
+                <td class="text-pos-title uppercase font-extrabold text-[13px]">TỔNG CỘNG</td>
+                <td class="num font-extrabold text-[13px] text-pos-ink" x-text="fmt(tgSummaryData?.tong_ghi || 0)"></td>
+                <td class="num font-extrabold text-[13px] text-pos-muted" x-text="'−' + fmt(tgSummaryData?.tong_ck || 0)"></td>
+                <td class="num font-extrabold text-[13px] text-pos-err" x-text="fmt(tgSummaryData?.tong_trung || 0)"></td>
+                <td class="num font-extrabold text-[13px]" :class="(tgSummaryData?.phai_tra || 0) >= 0 ? 'text-pos-ok' : 'text-pos-err'"
+                    x-text="fmt(tgSummaryData?.phai_tra || 0)"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Cảnh báo nếu đang preview -->
+      <template x-if="tgSummaryData?.isPreview">
+        <div class="rounded-xl bg-amber-50 border border-amber-300 p-3 text-xs text-amber-900 flex items-start gap-2">
+          <i class="fa-solid fa-circle-exclamation text-pos-warn text-base mt-0.5 shrink-0"></i>
+          <div>
+            <div class="font-bold">📌 Dữ liệu CHƯA lưu vào Database.</div>
+            <div class="mt-0.5">Rà soát lại các dòng màu đỏ/vàng trên bảng Master rồi bấm <b>&quot;💾 GHI VÀO DATABASE&quot;</b> để lưu chính thức.</div>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <!-- Footer -->
+    <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex justify-end gap-2">
+      <button class="btn btn-primary !py-2 !px-5 !text-xs font-bold" @click="modal = null">
+        ✅ ĐÓNG
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ MODAL: TỔNG HỢP TOÀN BỘ TIN (GOOGLE SHEETS GRID) ════════════════ -->
+<div x-show="modal === 'tg_tonghop'" x-cloak class="fixed inset-0 z-50 backdrop grid place-items-center p-4" @click.self="modal = null">
+  <div class="card w-full max-w-3xl shadow-2xl overflow-hidden bg-white max-h-[85vh] flex flex-col border border-[#CBDCEE]" role="dialog" aria-modal="true">
+    <div class="px-5 py-3.5 border-b border-[#CBDCEE] flex items-center justify-between shrink-0 bg-[#E4EFF8]">
+      <div class="font-extrabold text-base sm:text-lg text-pos-title flex items-center gap-2">
+        <i class="fa-solid fa-chart-pie text-pos-blue"></i>
+        <span>📊 Tổng Hợp Kết Quả Toàn Bộ Tin Hợp Lệ</span>
+      </div>
+      <button class="text-slate-400 hover:text-slate-600 transition" @click="modal = null">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+    </div>
+
+    <div class="flex-1 scroll-y p-5 space-y-4">
+      <div class="text-xs text-pos-muted font-medium">
+        Tổng hợp tất cả cược từ các tin nhắn hợp lệ của khách hàng <b><span x-text="tgKhachChon?.ten"></span></b> ngày <b><span x-text="ngayHienThi"></span></b>.
+      </div>
+
+      <div class="rounded-xl border border-slate-200 overflow-hidden">
+        <table class="tbl text-xs">
+          <thead>
+            <tr>
+              <th class="w-10">#</th>
+              <th>Loại</th>
+              <th>Số</th>
+              <th class="text-right">Đánh</th>
+              <th class="text-right">Tiền ghi</th>
+              <th class="text-right">Chiết khấu</th>
+              <th class="text-right">Trúng</th>
+              <th class="text-right">Thành tiền</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="(d, i) in tgTongHopBets" :key="i">
+              <tr :class="d.trung > 0 && 'trung'">
+                <td class="text-center mono text-pos-muted" x-text="i + 1"></td>
+                <td><span class="bet !min-w-[50px] !text-[11px] !py-0.5" :class="badge(d.loai)" x-text="NHAN_LOAI[d.loai]"></span></td>
+                <td class="mono font-bold" x-text="d.so.join('-')"></td>
+                <td class="num" x-text="d.nhanTien"></td>
+                <td class="num font-semibold" x-text="fmt(d.ghi)"></td>
+                <td class="num text-pos-muted" x-text="d.ck ? '−' + fmt(d.ck) : '—'"></td>
+                <td class="num font-bold" :class="d.trung ? 'text-pos-err' : 'text-slate-300'" x-text="fmt(d.trung)"></td>
+                <td class="num font-bold" :class="d.thanh_tien >= 0 ? 'text-pos-ok' : 'text-pos-err'" x-text="fmt(d.thanh_tien)"></td>
+              </tr>
+            </template>
+            <tr x-show="!tgTongHopBets.length">
+              <td colspan="8" class="text-center text-pos-muted py-8">Không có cược hợp lệ nào để tổng hợp.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Khối tóm tắt tài chính -->
+      <div class="p-3 bg-[--flat-panel] rounded-xl border border-slate-200 flex items-center justify-between font-mono font-bold text-xs flex-wrap gap-2">
+        <span>GHI: <b class="text-pos-ink" x-text="fmt(tgTongTien.ghi)"></b></span>
+        <span>CK: <b class="text-pos-muted" x-text="fmt(tgTongTien.ck)"></b></span>
+        <span>TRÚNG: <b class="text-pos-err" x-text="fmt(tgTongTien.trung)"></b></span>
+        <span class="text-sm px-2.5 py-1 rounded bg-white border"
+              :class="tgTongTien.phai_tra >= 0 ? 'text-pos-ok border-emerald-300' : 'text-pos-err border-red-300'">
+          👉 <span x-text="tgTongTien.phai_tra >= 0 ? 'KHÁCH NỘP: ' : 'PHẢI TRẢ: '"></span>
+          <b x-text="fmt(Math.abs(tgTongTien.phai_tra)) + 'đ'"></b>
+        </span>
+      </div>
+    </div>
+
+    <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex justify-end shrink-0">
+      <button class="btn btn-ghost !py-2 !px-4 !text-xs font-bold" @click="modal = null">Đóng <span class="kbd">Esc</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ MODAL: BẠN TRÊN TELEGRAM ════════════════ -->
+<div x-show="modal === 'tg_friends'" x-cloak class="fixed inset-0 z-50 backdrop grid place-items-center p-4" @click.self="modal = null">
+  <div class="card w-full max-w-2xl shadow-2xl overflow-hidden bg-white max-h-[80vh] flex flex-col border border-[#CBDCEE]" role="dialog" aria-modal="true">
+    <div class="px-5 py-3.5 border-b border-[#CBDCEE] flex items-center justify-between shrink-0 bg-[#E4EFF8]">
+      <div class="font-extrabold text-base sm:text-lg text-pos-title flex items-center gap-2">
+        <i class="fa-solid fa-users text-pos-blue"></i>
+        <span>👥 Danh Sách Bạn Chat Trên Telegram Hôm Nay</span>
+      </div>
+      <button class="text-slate-400 hover:text-slate-600 transition" @click="modal = null">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+    </div>
+
+    <div class="flex-1 scroll-y p-4">
+      <table class="tbl text-xs">
+        <thead>
+          <tr>
+            <th class="w-24 text-center">User ID</th>
+            <th class="w-28">Username</th>
+            <th>Tên hiển thị</th>
+            <th class="w-24 text-center">Giờ gần nhất</th>
+            <th>Tin gần nhất</th>
+          </tr>
+        </thead>
+        <tbody>
+          <template x-for="u in tgBanTgList" :key="u.uid">
+            <tr>
+              <td class="text-center mono text-pos-muted" x-text="u.uid"></td>
+              <td class="mono font-bold text-pos-blue" x-text="'@' + u.username"></td>
+              <td class="font-bold text-pos-title" x-text="u.name"></td>
+              <td class="text-center mono text-pos-muted" x-text="u.time"></td>
+              <td class="truncate max-w-[200px] mono text-pos-muted" :title="u.text" x-text="u.text"></td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex justify-end shrink-0">
+      <button class="btn btn-ghost !py-2 !px-4 !text-xs font-bold" @click="modal = null">Đóng <span class="kbd">Esc</span></button>
+    </div>
   </div>
 </div>
 
