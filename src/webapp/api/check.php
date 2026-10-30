@@ -6,7 +6,10 @@ declare(strict_types=1);
  *
  * Vào : JSON {machine_id, hostname, app_version, nonce, tg_id?, tg_username?, tg_name?}
  * Ra  : JSON {payload: base64(JSON), sig: base64(Ed25519(payload_bytes))}
- *       payload = {machine_id, status: active|trial|pending|revoked, nonce, issued_at, valid_until}
+ *       payload = {machine_id, status: active|trial|pending|revoked, nonce, issued_at, valid_until,
+ *                  trial_until}  — trial_until = hạn dùng thử THẬT (first_seen + trial_ttl) khi
+ *                  status = trial, ngược lại 0. App chỉ dùng để HIỂN THỊ "còn N ngày";
+ *                  app cũ bỏ qua trường lạ nên thêm trường không phá tương thích.
  *
  * Máy chưa có trong DB → tự tạo 'pending', admin duyệt trên /admin/.
  * 'pending' trong `trial_ttl` đầu tiên (tính từ first_seen) được trả là 'trial' = vẫn dùng được.
@@ -124,6 +127,7 @@ try {
         'nonce'       => $nonce,
         'issued_at'   => $now,
         'valid_until' => $validUntil,
+        'trial_until' => $status === 'trial' ? het_han_dung_thu((int)$row['first_seen_ts']) : 0,
     ], JSON_UNESCAPED_SLASHES);
     $sig = sodium_crypto_sign_detached($payload, $sk);
     sodium_memzero($sk);

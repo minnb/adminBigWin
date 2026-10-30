@@ -1,0 +1,4309 @@
+{
+ "data": {
+  "quy_tac": [
+   {
+    "goc": "cu",
+    "moi": "tr",
+    "ok": true
+   },
+   {
+    "goc": "dem",
+    "moi": "d",
+    "ok": true
+   },
+   {
+    "goc": "lit",
+    "moi": "00k",
+    "ok": false
+   },
+   {
+    "goc": "de",
+    "moi": "lo",
+    "ok": false
+   },
+   {
+    "goc": "x",
+    "moi": "y",
+    "ok": false
+   },
+   {
+    "goc": "12",
+    "moi": "13",
+    "ok": false
+   },
+   {
+    "goc": "a",
+    "moi": "b",
+    "ok": false
+   },
+   {
+    "goc": "xienquay",
+    "moi": "xq",
+    "ok": true
+   },
+   {
+    "goc": "kep lech",
+    "moi": "kl",
+    "ok": true
+   },
+   {
+    "goc": "abc",
+    "moi": "abc",
+    "ok": false
+   },
+   {
+    "goc": "  ",
+    "moi": "x",
+    "ok": false
+   },
+   {
+    "goc": "2 lit",
+    "moi": "200k",
+    "ok": false
+   },
+   {
+    "goc": "1chai",
+    "moi": "1tr",
+    "ok": true
+   },
+   {
+    "goc": "đê",
+    "moi": "de",
+    "ok": true
+   },
+   {
+    "goc": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "moi": "y",
+    "ok": false
+   },
+   {
+    "goc": "lô",
+    "moi": "lo",
+    "ok": true
+   },
+   {
+    "goc": "chuc",
+    "moi": "0k",
+    "ok": false
+   }
+  ],
+  "tin": [
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "lk,9nl4x2,xđk36kđ3",
+       "lk,9nl4 x 2,xđk36kđ3",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "lk,9nl4 x 2,xđk36kđ3",
+    "tin_goc": "  ,,lk,9nl4x2,xđk36kđ3"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "12x10k",
+       "12 x 10k",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "12 x 10k",
+    "tin_goc": " 12x10k"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "x5k",
+       "x 5k",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "34 x 5k",
+    "tin_goc": " 34 x5k"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "34x20k",
+       "34 x 20k",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "34 x 20k",
+    "tin_goc": " 34x20k"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "phải đúng 1 span đỏ trùm cụm, có",
+    "tin_goc": " phải đúng 1 span đỏ trùm cụm, có "
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "số từ 3 dòng",
+    "tin_goc": " số từ 3 dòng"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "x 10k",
+    "tin_goc": " x 10k"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "x 34",
+    "tin_goc": " x 34"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "x10",
+    "tin_goc": " x10"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "x10k",
+    "tin_goc": " x10k"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "x10n",
+    "tin_goc": " x10n"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "12x10k\" — CẤM",
+       "12 x 10k\" - cấm",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "\"chia lẻ 12 x 10k\" - cấm đọc `lẻ` thành dàn số rồi đẻ 59 cược de.",
+    "tin_goc": "\"chia lẻ 12x10k\" — CẤM đọc `lẻ` thành dàn số rồi đẻ 59 cược DE."
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "tại — không",
+       "tại - không",
+       true
+      ],
+      [
+       "dính.\n\n        Chỉ",
+       "dính. chỉ",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "'12.345' là hai số (12 và 345) theo cú pháp hiện tại - không được dính. chỉ xoá dấu phân cách khi phía sau đúng dạng 3 chữ số + đơn vị tiền.",
+    "tin_goc": "'12.345' là HAI số (12 và 345) theo cú pháp hiện tại — không được dính.\n\n        Chỉ xoá dấu phân cách khi phía sau đúng dạng 3 chữ số + đơn vị tiền.\n        "
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "'3 con' không được biến thành '3cangon'.",
+    "tin_goc": "'3 con' KHÔNG được biến thành '3cangon'."
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "34x20d",
+       "34 x 20d",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "'34 x 20d' bị tính nhầm thành de 20k:",
+    "tin_goc": "'34x20d' bị tính nhầm thành DE 20k: "
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "12x10k",
+       "12 x 10k",
+       true
+      ],
+      [
+       "34' — số",
+       "34' - số",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "'de 12 x 10k 34' - số trơ không kèm tiền.",
+    "tin_goc": "'de 12x10k 34' — số trơ không kèm tiền."
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "12x10k",
+       "12 x 10k",
+       true
+      ],
+      [
+       "lệ.\n\n        Số",
+       "lệ. số",
+       false
+      ],
+      [
+       "Để\n        mức",
+       "để mức",
+       false
+      ],
+      [
+       "số.\n        Vàng",
+       "số. vàng",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "'de 12 x 10k 34': số 34 thiếu tiền không được giết cược 12 hợp lệ. số trơ nằm ngoài cụm bet nên không làm sai cược nào đã parse được. để mức error thì cả tin bị chặn ghi db chỉ vì khách gõ thừa/bỏ dở 1 con số. vàng = vẫn ghi, nhưng nổi lên để user hỏi lại khách.",
+    "tin_goc": "'de 12x10k 34': số 34 thiếu tiền KHÔNG được giết cược 12 hợp lệ.\n\n        Số trơ nằm NGOÀI cụm bet nên không làm sai cược nào đã parse được. Để\n        mức ERROR thì cả tin bị chặn ghi DB chỉ vì khách gõ thừa/bỏ dở 1 con số.\n        Vàng = vẫn ghi, nhưng nổi lên để user hỏi lại khách.\n        "
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "12x10k lo",
+       "12 x 10k, lo",
+       true
+      ],
+      [
+       "20n xien",
+       "20n, xien",
+       true
+      ],
+      [
+       "2",
+       "",
+       false
+      ],
+      [
+       "12,34x50k' — 3",
+       "12,34 x 50k' - 3",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "'de 12 x 10k, lo 34 x 20n, xien 12,34 x 50k' - 3 loại, 3 đơn vị tiền.",
+    "tin_goc": "'de 12x10k lo 34 x 20n xien 2 12,34x50k' — 3 loại, 3 đơn vị tiền."
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "12x10",
+       "12 x 10",
+       true
+      ],
+      [
+       "klo",
+       "k, lo",
+       true
+      ],
+      [
+       "34x20d",
+       "34 x 20d",
+       true
+      ],
+      [
+       "DE.\n\n        ĐỔI",
+       "de. đổi",
+       false
+      ],
+      [
+       "2026-08-18",
+       "2026 - 08 - 18",
+       false
+      ],
+      [
+       "test_2` — đã",
+       "test_2` - đã",
+       true
+      ],
+      [
+       "user):\n        trước",
+       "user): trước",
+       false
+      ],
+      [
+       "lo`\n        nên",
+       "lo` nên",
+       false
+      ],
+      [
+       "và\n        LO",
+       "và lo",
+       false
+      ],
+      [
+       "giả.\n\n        Bất",
+       "giả. bất",
+       false
+      ],
+      [
+       "vệ:\n        `34x20d",
+       "vệ: `34 x 20d",
+       true
+      ],
+      [
+       "20.000đ",
+       "20000d",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "'de 12 x 10k, lo 34 x 20d': 'klo' không được gộp vào tiền rồi âm thầm tính de. đổi kỳ vọng 2026 - 08 - 18 (cùng lượt gỡ `xfail` của `test_2` - đã báo user): trước đây tin này bắt buộc báo đỏ, vì parser chưa tách nổi `k` + `lo` nên thà đỏ còn hơn tính nhầm. nay `_pattern` tách đúng thành de 12 và lo 34, tức là đọc đúng ý khách -> bắt đỏ nữa là báo động giả. bất biến tiền thì giữ nguyên không đổi, đó mới là thứ test này bảo vệ: `34 x 20d` là lo 20 điểm, tuyệt đối không được thành de 20000d.",
+    "tin_goc": "'de 12x10klo 34x20d': 'klo' KHÔNG được gộp vào tiền rồi âm thầm tính DE.\n\n        ĐỔI KỲ VỌNG 2026-08-18 (cùng lượt gỡ `xfail` của `test_2` — đã báo user):\n        trước đây tin này bắt buộc BÁO ĐỎ, vì parser chưa tách nổi `k` + `lo`\n        nên thà đỏ còn hơn tính nhầm. Nay `_PATTERN` tách đúng thành DE 12 và\n        LO 34, tức là đọc ĐÚNG ý khách -> bắt đỏ nữa là báo động giả.\n\n        Bất biến TIỀN thì giữ nguyên không đổi, đó mới là thứ test này bảo vệ:\n        `34x20d` là LO 20 điểm, TUYỆT ĐỐI không được thành DE 20.000đ.\n        "
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "x10k",
+       "x 10k",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "'de 3 x 10k' phải parse là số 03, không phải chia:",
+    "tin_goc": "'de 3 x10k' phải parse là số 03, không phải chia: "
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "10k' — khách",
+       "10k' - khách",
+       true
+      ]
+     ],
+     "du_sach": true
+    },
+    "tin_da_sua": "'de 45 x 10k' - khách quên dấu nhân.",
+    "tin_goc": "'de 45 10k' — khách quên dấu nhân."
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "de12x10",
+       "de 12 x 10",
+       true
+      ],
+      [
+       "klo",
+       "k, lo",
+       true
+      ],
+      [
+       "34x20d' — không",
+       "34 x 20d' - không",
+       true
+      ],
+      [
+       "nào.\n\n        Từng",
+       "nào. từng",
+       false
+      ],
+      [
+       "ngày\n        2026-08-18",
+       "ngày 2026 - 08 - 18",
+       true
+      ],
+      [
+       "cần\n        tokenizer — chi",
+       "cần tokenizer - chi",
+       true
+      ],
+      [
+       "nên\n        markup",
+       "nên markup",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "'de 12 x 10k, lo 34 x 20d' - không có khoảng trắng nào. từng là `xfail(strict=true)` với lý do \"cần tokenizer riêng\". gỡ ngày 2026 - 08 - 18: nới đúng 3 lookaround của `_pattern` là đủ, không cần tokenizer - chi tiết ở comment cạnh `_pattern`. lookaround rộng 0 nên markup vẫn ghép ra đúng tin gốc.",
+    "tin_goc": "'de12x10klo34x20d' — không có khoảng trắng nào.\n\n        Từng là `xfail(strict=True)` với lý do \"cần tokenizer riêng\". Gỡ ngày\n        2026-08-18: nới ĐÚNG 3 lookaround của `_PATTERN` là đủ, không cần\n        tokenizer — chi tiết ở comment cạnh `_PATTERN`. Lookaround rộng 0 nên\n        markup vẫn ghép ra đúng tin gốc.\n        "
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "lo12' — 'o",
+       "lo 12' - 'o",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "'lo 12' - 'o' đứng ngay trước chữ số nhưng có chữ cái phía trước.",
+    "tin_goc": "'lo12' — 'o' đứng ngay trước chữ số nhưng có chữ cái phía trước."
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "10.000đ",
+       "10000d",
+       false
+      ],
+      [
+       "10 triệu",
+       "10000k",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "'x 10000' là 10000d hay 10000k? đoán chiều nào cũng có ca sai 1000 lần.",
+    "tin_goc": "'x 10000' là 10.000đ hay 10 triệu? Đoán chiều nào cũng có ca sai 1000 lần."
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "(?<!\\w)lx[234](?!\\w)",
+    "tin_goc": "(?<!\\w)lx[234](?!\\w)"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "de|đề",
+       "de|de",
+       true
+      ],
+      [
+       "lo|lô",
+       "lo|lo",
+       true
+      ],
+      [
+       "xien|xiên",
+       "xien|xien",
+       true
+      ],
+      [
+       "c",
+       "cang",
+       false
+      ],
+      [
+       "bộ",
+       "bo",
+       true
+      ],
+      [
+       "tong|tổng",
+       "tong|tong",
+       true
+      ],
+      [
+       "cham|chạm",
+       "cham|cham",
+       true
+      ],
+      [
+       "dau|đầu",
+       "dau|dau",
+       true
+      ],
+      [
+       "kl",
+       "05 50 16 61 27 72 38 83 49 94",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "(?i)\\b(de|de|lo|lo|xien|xien|xq|3cang|bo|bo|tong|tong|chia|cham|cham|dau|dau|dit|đít|kep|kép|sk|05 50 16 61 27 72 38 83 49 94|chẵn|lẻ)",
+    "tin_goc": "(?i)\\b(de|đề|lo|lô|xien|xiên|xq|3c|bo|bộ|tong|tổng|chia|cham|chạm|dau|đầu|dit|đít|kep|kép|sk|kl|chẵn|lẻ)"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": true
+    },
+    "tin_da_sua": "lo 34 x 5k",
+    "tin_goc": ", lo 34 x 5k"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": ".25n",
+    "tin_goc": ".25N"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": ".2f",
+    "tin_goc": ".2f"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "/6000 (mốc trước khi đổi: 40)",
+    "tin_goc": "/6000 (mốc trước khi đổi: 40)"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "0",
+    "tin_goc": "0,"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "0.5",
+    "tin_goc": "0.5"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "00",
+    "tin_goc": "00"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "00 - 05",
+    "tin_goc": "00 - 05"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "00 - 50",
+    "tin_goc": "00 - 50"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "00 11 22 33 44 55 66 77 88 99",
+    "tin_goc": "00 11 22 33 44 55 66 77 88 99"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "000k",
+    "tin_goc": "000k"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "01",
+    "tin_goc": "01"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "0123456789 ,.-'xkndđ",
+       "0123456789,.-'xkndđ",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "0123456789,.-'xkndđ",
+    "tin_goc": "0123456789 ,.-'xkndđ"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "02",
+    "tin_goc": "02"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "02468",
+    "tin_goc": "02468"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "02d",
+    "tin_goc": "02d"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "03",
+    "tin_goc": "03"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "04d",
+    "tin_goc": "04d"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "05",
+    "tin_goc": "05"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "05 50 16 61 27 72 38 83 49 94",
+    "tin_goc": "05 50 16 61 27 72 38 83 49 94"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "05/10 de 12 x 10k",
+    "tin_goc": "05/10 de 12 x 10k"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "05d",
+    "tin_goc": "05d"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "06",
+    "tin_goc": "06"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "060",
+    "tin_goc": "060"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "07",
+    "tin_goc": "07"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "08",
+    "tin_goc": "08"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "09",
+    "tin_goc": "09"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "1 - . '",
+    "tin_goc": "1 - . ' "
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "1 củ",
+       "1000k",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "1000k",
+    "tin_goc": "1 củ"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "1 củ rưỡi",
+       "1500k",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "1500k",
+    "tin_goc": "1 củ rưỡi"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "chỗ — quét",
+       "chỗ - quét",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "1 ký tự khớp ở quá nhiều chỗ - quét mù cả tin nhắn (`k` -> `n`).",
+    "tin_goc": "1 ký tự khớp ở quá nhiều chỗ — quét mù cả tin nhắn (`k` -> `n`)."
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "1 lít",
+       "100k",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "100k",
+    "tin_goc": "1 lít"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "1 lít",
+       "100k",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "100k",
+    "tin_goc": "1 lít "
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "1 lít rưỡi",
+       "150k",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "150k",
+    "tin_goc": "1 lít rưỡi"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "1,000",
+    "tin_goc": "1,000"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "1,2,3,4,5",
+    "tin_goc": "1,2,3,4,5"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "1,2trieu",
+       "1200k",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "1200k",
+    "tin_goc": "1,2trieu"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "1,5 trieu",
+       "1500k",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "1500k",
+    "tin_goc": "1,5 trieu"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "1,5 triệu",
+       "1500k",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "1500k",
+    "tin_goc": "1,5 triệu"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "1.",
+    "tin_goc": "1."
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "10k\n2",
+       "10k 2",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "1. de 12 x 10k 2. lo 34 x 5",
+    "tin_goc": "1. de 12 x 10k\n2. lo 34 x 5"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "1.2",
+    "tin_goc": "1.2"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "10",
+    "tin_goc": "10"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "đầu",
+       "dau",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "10 lượt pipeline cho mỗi cặp lọt 4 cổng dau là quá đắt để tính lại.",
+    "tin_goc": "10 lượt pipeline cho mỗi cặp lọt 4 cổng đầu là quá đắt để tính lại."
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "23.000đ",
+       "23000d",
+       false
+      ],
+      [
+       "ghi — gần",
+       "ghi - gần",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "10.001 điểm x 23000d = 230 triệu tiền ghi - gần như chắc chắn gõ thừa số.",
+    "tin_goc": "10.001 điểm x 23.000đ = 230 triệu tiền ghi — gần như chắc chắn gõ thừa số."
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "10.100",
+    "tin_goc": "10.100"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "100k",
+    "tin_goc": "100k"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "10k",
+    "tin_goc": "10k"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "10kl",
+    "tin_goc": "10kl"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "11",
+    "tin_goc": "11"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "12",
+    "tin_goc": "12"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "12",
+    "tin_goc": "12 "
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "12 34",
+    "tin_goc": "12 34"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "12 34 56",
+    "tin_goc": "12 34 56"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "12",
+    "tin_goc": "12,"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "12,1234,56",
+    "tin_goc": "12,1234,56"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "12,13",
+    "tin_goc": "12,13"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "12,34",
+    "tin_goc": "12,34"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "12,34,56",
+    "tin_goc": "12,34,56"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "12,34,56,78",
+    "tin_goc": "12,34,56,78"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "12-34.56'78",
+       "12 - 34.56'78",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "12 - 34.56'78",
+    "tin_goc": "12-34.56'78"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "12.500",
+       "12500",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "12500k",
+    "tin_goc": "12.500k"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "1200",
+    "tin_goc": "1200"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "1200k",
+    "tin_goc": "1200k"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "123",
+    "tin_goc": "123"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "1234",
+    "tin_goc": "1234"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "1234567890",
+    "tin_goc": "1234567890 "
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "12345678901234567890",
+    "tin_goc": "12345678901234567890"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "12x10k",
+       "12 x 10k",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "12 x 10k",
+    "tin_goc": "12x10k"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "12x10k de",
+       "12 x 10k, de",
+       true
+      ],
+      [
+       "34x20k",
+       "34 x 20k",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "12 x 10k, de 34 x 20k",
+    "tin_goc": "12x10k de 34x20k"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "13579",
+    "tin_goc": "13579"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "1500",
+    "tin_goc": "1500"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "1500k",
+    "tin_goc": "1500k"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "150k",
+    "tin_goc": "150k"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "16",
+    "tin_goc": "16"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "18",
+    "tin_goc": "18"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "1;2",
+       "1 2",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "1 2",
+    "tin_goc": "1;2 "
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "1n",
+    "tin_goc": "1n"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "2  xu",
+       "2 xu",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "2 xu",
+    "tin_goc": "2  xu"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "2 củ",
+       "2000k",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "2000k",
+    "tin_goc": "2 củ"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "2 củ rưỡi",
+       "2500k",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "2500k",
+    "tin_goc": "2 củ rưỡi"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "2 lít",
+       "200k",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "200k",
+    "tin_goc": "2 lít"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "2 xu",
+    "tin_goc": "2 xu"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "20",
+    "tin_goc": "20"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "2000k",
+    "tin_goc": "2000k"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "200k",
+    "tin_goc": "200k"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "200k 2 xu",
+    "tin_goc": "200k 2 xu"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "21",
+    "tin_goc": "21"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "21 43",
+    "tin_goc": "21 43"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "22",
+    "tin_goc": "22"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "23",
+    "tin_goc": "23"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "23,34,45",
+    "tin_goc": "23,34,45"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "23,45",
+    "tin_goc": "23,45"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "2500k",
+    "tin_goc": "2500k"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "27",
+    "tin_goc": "27"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "29",
+    "tin_goc": "29"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "3 bất biến sống-chết của markup, kiểm cùng lúc.",
+    "tin_goc": "3 bất biến sống-chết của markup, kiểm cùng lúc."
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "cg",
+       "cang",
+       true
+      ],
+      [
+       "123x10k",
+       "123 x 10k",
+       true
+      ]
+     ],
+     "du_sach": true
+    },
+    "tin_da_sua": "3cang 123 x 10k",
+    "tin_goc": "3 cg 123x10k"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "càng",
+       "cang",
+       true
+      ]
+     ],
+     "du_sach": true
+    },
+    "tin_da_sua": "3cang 123 x 50k",
+    "tin_goc": "3 càng 123 x 50k"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "30",
+    "tin_goc": "30"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "300",
+    "tin_goc": "300"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "32",
+    "tin_goc": "32"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "33",
+    "tin_goc": "33"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "34",
+    "tin_goc": "34"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "bộ",
+       "bo",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "34 bị bung bo:",
+    "tin_goc": "34 bị bung bộ: "
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "100đ",
+       "100d",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "34 x 100d",
+    "tin_goc": "34+100đ"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "34,56",
+    "tin_goc": "34,56"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "34x20",
+       "34 x 20",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "34 x 20",
+    "tin_goc": "34x20"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "36",
+    "tin_goc": "36"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "38",
+    "tin_goc": "38"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "39",
+    "tin_goc": "39"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "C",
+       "cang",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "3cang",
+    "tin_goc": "3C"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "C",
+       "cang",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "3cang so_2_cuoi phải là 123",
+    "tin_goc": "3C so_2_cuoi phải là 123"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "C",
+       "cang",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "3cang/xien/xq trước đây tạo dict thiếu khoá 'hop_le' -> mặc định coi là đúng.",
+    "tin_goc": "3C/XIEN/XQ trước đây tạo dict THIẾU khoá 'hop_le' -> mặc định coi là đúng."
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "C",
+       "cang",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "3cang:",
+    "tin_goc": "3C: "
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "3cang",
+    "tin_goc": "3Cang"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "c",
+       "cang",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "3cang",
+    "tin_goc": "3c"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "c",
+       "cang",
+       false
+      ],
+      [
+       "đá",
+       "xien",
+       true
+      ]
+     ],
+     "du_sach": true
+    },
+    "tin_da_sua": "3cang 123 x 50k, xien 12 13 x 10k",
+    "tin_goc": "3c 123 50k đá 12 13 10k"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "c",
+       "cang",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "3cang 123 x 1000",
+    "tin_goc": "3c 123 x 1000"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "c",
+       "cang",
+       false
+      ]
+     ],
+     "du_sach": true
+    },
+    "tin_da_sua": "3cang 123 x 20",
+    "tin_goc": "3c 123 x 20"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "c",
+       "cang",
+       false
+      ]
+     ],
+     "du_sach": true
+    },
+    "tin_da_sua": "3cang 123 x 50k",
+    "tin_goc": "3c 123 x 50k"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "c",
+       "cang",
+       false
+      ],
+      [
+       "123,1234x10k",
+       "123,1234 x 10k",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "3cang 123,1234 x 10k",
+    "tin_goc": "3c 123,1234x10k"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "c",
+       "cang",
+       false
+      ],
+      [
+       "123,1234x10k de",
+       "123,1234 x 10k, de",
+       true
+      ],
+      [
+       "12,999x10k",
+       "12,999 x 10k",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "3cang 123,1234 x 10k, de 12,999 x 10k",
+    "tin_goc": "3c 123,1234x10k de 12,999x10k"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "c",
+       "cang",
+       false
+      ]
+     ],
+     "du_sach": true
+    },
+    "tin_da_sua": "3cang 123 x 5k",
+    "tin_goc": "3c 123.5k"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "c",
+       "cang",
+       false
+      ],
+      [
+       "12345x10k",
+       "12345 x 10k",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "3cang 12345 x 10k",
+    "tin_goc": "3c 12345x10k"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "c",
+       "cang",
+       false
+      ],
+      [
+       "123x10k",
+       "123 x 10k",
+       true
+      ]
+     ],
+     "du_sach": true
+    },
+    "tin_da_sua": "3cang 123 x 10k",
+    "tin_goc": "3c 123x10k"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "c",
+       "cang",
+       false
+      ],
+      [
+       "x10k",
+       "x 10k",
+       true
+      ]
+     ],
+     "du_sach": true
+    },
+    "tin_da_sua": "3cang cham 5 x 10k",
+    "tin_goc": "3c cham 5 x10k"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "c",
+       "cang",
+       false
+      ],
+      [
+       "x10k",
+       "x 10k",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "3cang chẵn x 10k",
+    "tin_goc": "3c chẵn x10k"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "c",
+       "cang",
+       false
+      ],
+      [
+       "x10k",
+       "x 10k",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "3cang kep x 10k",
+    "tin_goc": "3c kep x10k"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "3cang",
+    "tin_goc": "3cang"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "3cang 123",
+    "tin_goc": "3cang 123"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "3cang 123 450",
+    "tin_goc": "3cang 123 450"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": true
+    },
+    "tin_da_sua": "3cang 123 x 50k",
+    "tin_goc": "3cang 123 x 50k"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": true
+    },
+    "tin_da_sua": "3cang 123 x 50k, xien 12 13 x 10k",
+    "tin_goc": "3cang 123 x 50k, xien 12 13 x 10k"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": true
+    },
+    "tin_da_sua": "3cang 123 x 5k",
+    "tin_goc": "3cang 123 x 5k"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "3cang 321",
+    "tin_goc": "3cang 321"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": true
+    },
+    "tin_da_sua": "3cang 354 x 10k",
+    "tin_goc": "3cang 354 x 10k"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "cg",
+       "cang",
+       true
+      ]
+     ],
+     "du_sach": true
+    },
+    "tin_da_sua": "3cang 123 x 50k",
+    "tin_goc": "3cg 123 x 50k"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "42,43",
+    "tin_goc": "42,43"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "43",
+    "tin_goc": "43"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "44",
+    "tin_goc": "44"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "45",
+    "tin_goc": "45"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "46",
+    "tin_goc": "46"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "48",
+    "tin_goc": "48"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "49",
+    "tin_goc": "49"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "50",
+    "tin_goc": "50"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "51",
+    "tin_goc": "51"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "l1x583",
+       "l1 x 583",
+       true
+      ],
+      [
+       "8đ",
+       "8d",
+       true
+      ],
+      [
+       "0",
+       "00",
+       false
+      ],
+      [
+       "o",
+       "",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "535 l1 x 583 x 8d,0,n00,o",
+    "tin_goc": "535 l1x583 8đ,0,n0o,o"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "54",
+    "tin_goc": "54"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "56",
+    "tin_goc": "56"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "56,78",
+    "tin_goc": "56,78"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "56789",
+    "tin_goc": "56789"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "57",
+    "tin_goc": "57"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "58",
+    "tin_goc": "58"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "59",
+    "tin_goc": "59"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "60",
+    "tin_goc": "60"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "61",
+    "tin_goc": "61"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "63",
+    "tin_goc": "63"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "64",
+    "tin_goc": "64"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "65",
+    "tin_goc": "65"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "đầu",
+       "dau",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "65 số trong 1 cụm: trước đây lưu 60 số, 5 số dau chỉ cảnh báo vàng.",
+    "tin_goc": "65 số trong 1 cụm: trước đây lưu 60 số, 5 số đầu chỉ cảnh báo vàng."
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "66",
+    "tin_goc": "66"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "67",
+    "tin_goc": "67"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "68",
+    "tin_goc": "68"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "70",
+    "tin_goc": "70"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "72",
+    "tin_goc": "72"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "75",
+    "tin_goc": "75"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "76",
+    "tin_goc": "76"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "77",
+    "tin_goc": "77"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "78",
+    "tin_goc": "78"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "79",
+    "tin_goc": "79"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "80",
+    "tin_goc": "80"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "81",
+    "tin_goc": "81"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "83",
+    "tin_goc": "83"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "84",
+    "tin_goc": "84"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "85",
+    "tin_goc": "85"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "86",
+    "tin_goc": "86"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "87",
+    "tin_goc": "87"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "87 x 5n, de 33 x 100",
+    "tin_goc": "87 x 5n, de 33 x 100"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "87x5",
+       "87 x 5",
+       true
+      ],
+      [
+       "nđề",
+       "n, de",
+       true
+      ],
+      [
+       "33x100",
+       "33 x 100",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "87 x 5n, de 33 x 100",
+    "tin_goc": "87x5nđề 33x100"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "88",
+    "tin_goc": "88"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "89",
+    "tin_goc": "89"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "90",
+    "tin_goc": "90"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "92",
+    "tin_goc": "92"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "93",
+    "tin_goc": "93"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "94",
+    "tin_goc": "94"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "95",
+    "tin_goc": "95"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "97",
+    "tin_goc": "97"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "98",
+    "tin_goc": "98"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "98765",
+    "tin_goc": "98765"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "99",
+    "tin_goc": "99"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "9;",
+    "tin_goc": "9;"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "9k",
+    "tin_goc": "9k"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "2026-10-15",
+       "2026 - 10 - 15",
+       false
+      ],
+      [
+       "đề",
+       "de",
+       true
+      ],
+      [
+       "làm\n    ĐƠN",
+       "làm đơn",
+       false
+      ],
+      [
+       "5đ",
+       "5d",
+       true
+      ],
+      [
+       "LÔ",
+       "lo",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "blocker /task-review 2026 - 10 - 15: chữ `đ`/`d` của `de`/`dề` bị regex tiền nuốt làm đơn vị (\"5d\"), phần \"ề\" còn lại lọt qua như chữ xã giao -> cụm sau mang nhầm loại lo.",
+    "tin_goc": "BLOCKER /task-review 2026-10-15: chữ `đ`/`d` của `đề`/`dề` bị regex tiền nuốt làm\n    ĐƠN VỊ (\"5đ\"), phần \"ề\" còn lại lọt qua như chữ xã giao -> cụm sau mang nhầm loại LÔ."
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "đầu",
+       "dau",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "backward compat: de d 3 vẫn cho 10 số dau.",
+    "tin_goc": "Backward compat: de d 3 vẫn cho 10 số đầu."
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "kl",
+       "05 50 16 61 27 72 38 83 49 94",
+       false
+      ],
+      [
+       "kl",
+       "05 50 16 61 27 72 38 83 49 94",
+       false
+      ],
+      [
+       "làm\n        lệch",
+       "làm lệch",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "bung số phải tương đương 100% với cách parser tự hiểu '05 50 16 61 27 72 38 83 49 94'. parser vốn đọc được '05 50 16 61 27 72 38 83 49 94'; bung sẵn chỉ để user nhìn rõ, không được làm lệch tập số.",
+    "tin_goc": "Bung số phải TƯƠNG ĐƯƠNG 100% với cách parser tự hiểu 'kl'.\n\n        Parser vốn đọc được 'kl'; bung sẵn chỉ để user nhìn rõ, không được làm\n        lệch tập số.\n        "
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "kl",
+       "05 50 16 61 27 72 38 83 49 94",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "bản đã dọn > 1500 ký tự (05 50 16 61 27 72 38 83 49 94 bung 10 số) từng rơi nhánh dự phòng -> mất vàng.",
+    "tin_goc": "Bản đã dọn > 1500 ký tự (kl bung 10 số) từng rơi nhánh dự phòng -> mất vàng."
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "tin — KHÔNG",
+       "tin - không",
+       true
+      ],
+      [
+       "số.\n\n        Engine",
+       "số. engine",
+       false
+      ],
+      [
+       "kb",
+       "00 11 22 33 44 55 66 77 88 99",
+       false
+      ],
+      [
+       "trần.\n        Engine",
+       "trần. engine",
+       false
+      ],
+      [
+       "kb",
+       "00 11 22 33 44 55 66 77 88 99",
+       false
+      ],
+      [
+       "x3",
+       "x 3",
+       true
+      ],
+      [
+       "kb",
+       "00 11 22 33 44 55 66 77 88 99",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "bất biến: hoặc đủ mọi cược, hoặc đỏ cả tin - không bao giờ lưu thiếu số. engine `moi` (đang chạy thật) không bung `00 11 22 33 44 55 66 77 88 99` nên mọi mẫu đều vừa trần. engine `cu` bung `00 11 22 33 44 55 66 77 88 99` thành 10 số (dài x 3) -> tin 4.096 ký tự toàn `00 11 22 33 44 55 66 77 88 99` vượt trần -> phải đỏ, 0 cược.",
+    "tin_goc": "BẤT BIẾN: hoặc ĐỦ mọi cược, hoặc ĐỎ cả tin — KHÔNG BAO GIỜ lưu thiếu số.\n\n        Engine `moi` (đang chạy thật) không bung `kb` nên mọi mẫu đều vừa trần.\n        Engine `cu` bung `kb` thành 10 số (dài x3) -> tin 4.096 ký tự toàn `kb`\n        vượt trần -> phải ĐỎ, 0 cược.\n        "
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "rưỡi",
+       "",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "bất biến cũ không được đổi: \"lít\" mà chạy trước thì \"1.5 lít\" chết.",
+    "tin_goc": "Bất biến cũ KHÔNG được đổi: \"lít\" mà chạy trước thì \"1 lít rưỡi\" chết."
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "nào.\n\n        So",
+       "nào. so",
+       false
+      ],
+      [
+       "tien_vnd` — vì",
+       "tien_vnd` - vì",
+       true
+      ],
+      [
+       "là\n        việc",
+       "là việc",
+       false
+      ],
+      [
+       "1.000",
+       "1000",
+       false
+      ],
+      [
+       "1đ",
+       "1d",
+       true
+      ],
+      [
+       "dấu '.'\n        là",
+       "dấu '.' là",
+       false
+      ],
+      [
+       "1000đ",
+       "1000d",
+       true
+      ],
+      [
+       "tiền\n        sau",
+       "tiền sau",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "bất biến cốt lõi: làm sạch không được làm mất dòng cược nào. so theo `(so, loai_so)` chứ không kèm `tien_vnd` - vì sửa tiền chính là việc cleaner phải làm (vd \"1000k\" vốn bị parser đọc thành 1d do dấu '.' là ký tự ngăn số; clean xong mới ra 1000d đúng ý khách). giá trị tiền sau khi quy đổi đã có test riêng ở `testtienglongtien`.",
+    "tin_goc": "Bất biến cốt lõi: làm sạch KHÔNG được làm MẤT dòng cược nào.\n\n        So theo `(so, loai_so)` chứ không kèm `tien_vnd` — vì sửa tiền chính là\n        việc cleaner phải làm (VD \"1.000k\" vốn bị parser đọc thành 1đ do dấu '.'\n        là ký tự ngăn số; clean xong mới ra 1000đ đúng ý khách). Giá trị tiền\n        sau khi quy đổi đã có test riêng ở `TestTiengLongTien`.\n        "
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "2.000đ",
+       "2000d",
+       false
+      ],
+      [
+       "2.000.000đ",
+       "2000000d",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "bẫy tiền nặng nhất: nfd làm `củ` không khớp -> 2000d thay vì 2000000d.",
+    "tin_goc": "BẪY TIỀN NẶNG NHẤT: NFD làm `củ` không khớp -> 2.000đ thay vì 2.000.000đ."
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "x '.\n\n        \"de",
+       "x '. \"de",
+       false
+      ],
+      [
+       "12+34",
+       "12 34",
+       false
+      ],
+      [
+       "là\n        DE",
+       "là de",
+       false
+      ],
+      [
+       "34.000đ",
+       "34000d",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "bẫy tiền: '+' giữa hai số cược không được đổi thành ' x '. \"de 12 34 x 10k\" mà đổi mù sẽ thành \"de 12 x 34 x 10k\" -> parser đọc là de số 12 với tiền 34000d. chỉ đổi khi vế phải chắc chắn là cụm tiền.",
+    "tin_goc": "BẪY TIỀN: '+' giữa hai số cược KHÔNG được đổi thành ' x '.\n\n        \"de 12+34 x 10k\" mà đổi mù sẽ thành \"de 12 x 34 x 10k\" -> parser đọc là\n        DE số 12 với tiền 34.000đ. Chỉ đổi khi vế phải chắc chắn là cụm tiền.\n        "
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "lần.\n\n    `0,5d",
+       "lần. `0.5d",
+       true
+      ],
+      [
+       "1.000",
+       "1000",
+       false
+      ],
+      [
+       "số.\n    Phân",
+       "số. phân",
+       false
+      ],
+      [
+       "là\n    hàng",
+       "là hàng",
+       false
+      ],
+      [
+       "1-2",
+       "1 - 2",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "bẫy tiền nghiêm trọng nhất: xoá dấu thập phân = sai tiền cả trăm lần. `0.5d` mà bị xoá dấu thành `05d` là biến 0,5 điểm thành 5 điểm. ngược lại `1000k` không xoá dấu thì parser đọc `.` là ký tự ngăn số -> thành hai số. phân biệt bằng số chữ số đứng sau dấu: đúng nhóm 3 chữ số + đơn vị tiền là hàng nghìn, 1 - 2 chữ số là thập phân.",
+    "tin_goc": "Bẫy tiền nghiêm trọng nhất: xoá dấu thập phân = sai tiền cả trăm lần.\n\n    `0,5d` mà bị xoá dấu thành `05d` là biến 0,5 điểm thành 5 điểm. Ngược lại\n    `1.000k` KHÔNG xoá dấu thì parser đọc `.` là ký tự ngăn số -> thành hai số.\n    Phân biệt bằng SỐ CHỮ SỐ đứng sau dấu: đúng nhóm 3 chữ số + đơn vị tiền là\n    hàng nghìn, 1-2 chữ số là thập phân.\n    "
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "bừa.\n\n    Ý",
+       "bừa. ý",
+       false
+      ],
+      [
+       "2.500đ",
+       "2500d",
+       false
+      ],
+      [
+       "mù\n    thành",
+       "mù thành",
+       false
+      ],
+      [
+       "5.000đ",
+       "5000d",
+       false
+      ],
+      [
+       "sai\n    cả",
+       "sai cả",
+       false
+      ],
+      [
+       "5.000đ",
+       "5000d",
+       false
+      ],
+      [
+       "2.500đ",
+       "2500d",
+       false
+      ],
+      [
+       "trước\n    nó",
+       "trước nó",
+       false
+      ],
+      [
+       "bịa\n    thêm",
+       "bịa thêm",
+       false
+      ],
+      [
+       "lên\n    thì",
+       "lên thì",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "bẫy tiền: \"12 2.5k\" mơ hồ giữa 2 cách đọc, không được im lặng đoán bừa. ý định thật của khách gõ \"de 12 2.5k\" gần như chắc chắn là \"cược 12, tiền 2500d\" (thập phân gắn liền đơn vị). trước fix, `_insert_missing_x` tách mù thành \"de 12 2 x 5k\" -> parser đọc ra 2 dòng cược (12 và 02) x 5000d - sai cả số (bịa thêm 02) lẫn tiền (5000d thay vì 2500d). phân biệt bằng số chữ số đứng trước dấu chấm: đúng 1 chữ số và ngay trước nó đã có một số cược khác + khoảng trắng -> không đủ bằng chứng để bịa thêm số cược thứ hai, giữ nguyên để parser tự cảnh báo. đủ 2 chữ số trở lên thì vẫn là số cược thứ hai hợp lệ như thiết kế cũ (không hồi quy).",
+    "tin_goc": "Bẫy tiền: \"12 2.5k\" mơ hồ giữa 2 cách đọc, không được im lặng đoán bừa.\n\n    Ý định thật của khách gõ \"de 12 2.5k\" gần như chắc chắn là \"cược 12, tiền\n    2.500đ\" (thập phân gắn liền đơn vị). Trước fix, `_insert_missing_x` tách mù\n    thành \"de 12 2 x 5k\" -> parser đọc ra 2 dòng cược (12 VÀ 02) x 5.000đ — sai\n    cả số (bịa thêm 02) lẫn tiền (5.000đ thay vì 2.500đ).\n\n    Phân biệt bằng SỐ CHỮ SỐ đứng trước dấu chấm: đúng 1 chữ số VÀ ngay trước\n    nó đã có một số cược khác + khoảng trắng -> không đủ bằng chứng để bịa\n    thêm số cược thứ hai, giữ nguyên để parser tự cảnh báo. Đủ 2 chữ số trở lên\n    thì vẫn là số cược thứ hai hợp lệ như thiết kế cũ (không hồi quy).\n    "
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "cược.\n\n        Trước",
+       "cược. trước",
+       false
+      ],
+      [
+       "mất\n        trắng",
+       "mất trắng",
+       false
+      ],
+      [
+       "01-04",
+       "01 - 04",
+       false
+      ],
+      [
+       "không\n        nhận",
+       "không nhận",
+       false
+      ],
+      [
+       "quả\n        \"sạch",
+       "quả \"sạch",
+       false
+      ],
+      [
+       "số.\n\n        Chốt",
+       "số. chốt",
+       false
+      ],
+      [
+       "báo\n        vàng",
+       "báo vàng",
+       false
+      ],
+      [
+       "đó\n        sẽ",
+       "đó sẽ",
+       false
+      ],
+      [
+       "01-04",
+       "01 - 04",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "bằng chứng e2e: \"từ 00 đến 05\" không được lặng lẽ trở thành 2 cược. trước fix: parser đọc ra đúng 2 dòng (00, 05) coi như thành công, mất trắng 01 - 04 mà không một cảnh báo nào. sau fix: cụm \"tu\"/\"den\" không nhận diện được -> tin bị chặn ghi db, không được âm thầm trả về kết quả \"sạch\" chỉ với 2 số. chốt bằng `can_save` chứ không phải `has_error or has_warning`: cảnh báo vàng vẫn cho `can_save=true` (tin vào thẳng sổ tiền), nên assert lỏng đó sẽ pass ngay cả khi 4 số 01 - 04 tiếp tục bốc hơi vào db.",
+    "tin_goc": "Bằng chứng E2E: \"từ 00 đến 05\" không được lặng lẽ trở thành 2 cược.\n\n        Trước fix: parser đọc ra đúng 2 dòng (00, 05) coi như THÀNH CÔNG, mất\n        trắng 01-04 mà không một cảnh báo nào. Sau fix: cụm \"tu\"/\"den\" không\n        nhận diện được -> tin BỊ CHẶN GHI DB, không được âm thầm trả về kết quả\n        \"sạch\" chỉ với 2 số.\n\n        Chốt bằng `can_save` chứ KHÔNG phải `has_error or has_warning`: cảnh báo\n        vàng vẫn cho `can_save=True` (tin vào thẳng sổ tiền), nên assert lỏng đó\n        sẽ pass ngay cả khi 4 số 01-04 tiếp tục bốc hơi vào DB.\n        "
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "hơi.\n\n        `ERR_UNKNOWN_FORMAT",
+       "hơi. `err_unknown_format",
+       false
+      ],
+      [
+       "True — tin",
+       "true - tin",
+       true
+      ],
+      [
+       "sổ\n        tiền",
+       "sổ tiền",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "ca nguy hiểm nhất: trước đây chỉ ra `lo 63`, chín số kia bốc hơi. `err_unknown_format` là warn nên `can_save` vẫn true - tin vào thẳng sổ tiền với 1/10 cược, không ai bị chặn.",
+    "tin_goc": "Ca NGUY HIỂM NHẤT: trước đây chỉ ra `LO 63`, chín số kia bốc hơi.\n\n        `ERR_UNKNOWN_FORMAT` là WARN nên `can_save` vẫn True — tin vào thẳng sổ\n        tiền với 1/10 cược, không ai bị chặn.\n        "
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "2s — bằng",
+       "2s - bằng",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "chuỗi bệnh hoạn phải xong dưới 2s - bằng chứng cpu không bị đốt.",
+    "tin_goc": "Chuỗi bệnh hoạn phải xong dưới 2s — bằng chứng CPU không bị đốt."
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "Chạm",
+       "cham",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "cham 2,9 phải có 36 số, nhưng có",
+    "tin_goc": "Chạm 2,9 phải có 36 số, nhưng có "
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "Chạm",
+       "cham",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "cham 5 phải có 19 số, nhưng có",
+    "tin_goc": "Chạm 5 phải có 19 số, nhưng có "
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "lần — pipeline",
+       "lần - pipeline",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "chạy 2 lần phải ra y hệt 1 lần - pipeline không được tự nhân bản dấu.",
+    "tin_goc": "Chạy 2 lần phải ra y hệt 1 lần — pipeline không được tự nhân bản dấu."
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "chạy trên luồng chính mỗi lần bấm 1 dòng: bản đối chiếu từng ký tự mất 0,69s/1490 ký tự.",
+    "tin_goc": "Chạy trên luồng chính mỗi lần bấm 1 dòng: bản đối chiếu từng ký tự mất 0,69s/1490 ký tự."
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "2026-10-08",
+       "2026 - 10 - 08",
+       false
+      ],
+      [
+       "bộ/tổng",
+       "bo/tong",
+       true
+      ],
+      [
+       "10-18",
+       "10 - 18",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "chốt 2026 - 10 - 08: engine cũ bỏ qua bo/tong/chia và ghi 10 - 18 cược de âm thầm.",
+    "tin_goc": "Chốt 2026-10-08: engine cũ bỏ qua bộ/tổng/chia và ghi 10-18 cược DE âm thầm."
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "normalize_money_slang`.\n\n        Đảo",
+       "normalize_money_slang`. đảo",
+       false
+      ],
+      [
+       "tiếng\n        lóng",
+       "tiếng lóng",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "chốt ràng buộc thứ tự: luật `;` phải chạy sau `_normalize_money_slang`. đảo thứ tự thì `;` biến mất trước, lookahead `[,;.!?]` của bước tiếng lóng hết mốc hết câu và `2 chuc` không còn thành `20k`.",
+    "tin_goc": "Chốt ràng buộc thứ tự: luật `;` phải chạy SAU `_normalize_money_slang`.\n\n        Đảo thứ tự thì `;` biến mất trước, lookahead `[,;.!?]` của bước tiếng\n        lóng hết mốc hết câu và `2 chuc` không còn thành `20k`.\n        "
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "chốt định nghĩa trước khi chốt hành vi: 50 + 50 = đủ 100 số, không đè nhau.",
+    "tin_goc": "Chốt định nghĩa trước khi chốt hành vi: 50 + 50 = đủ 100 số, không đè nhau."
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "chữ 'o' trong lo/bo/tong tuyệt đối không được thành số 0.",
+    "tin_goc": "Chữ 'o' trong lo/bo/tong tuyệt đối không được thành số 0."
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "có nhiều hơn 1 toán tử nhân:",
+    "tin_goc": "Có nhiều hơn 1 toán tử nhân: "
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "THẦM.\n\n        `ui/app.py::_doi_soat_tin_nhan_cho_khach_no_ui",
+       "thầm. `ui/app.py::_doi_soat_tin_nhan_cho_khach_no_ui",
+       false
+      ],
+      [
+       "bằng\n        `report[\"can_save",
+       "bằng `report[\"can_save",
+       false
+      ],
+      [
+       "thì\n        parser",
+       "thì parser",
+       false
+      ],
+      [
+       "phần**\n        số",
+       "phần** số",
+       false
+      ],
+      [
+       "INSERT — phần",
+       "insert - phần",
+       true
+      ],
+      [
+       "công.\n\n        Case",
+       "công. case",
+       false
+      ],
+      [
+       "tới\n        `MAX_INPUT_LEN",
+       "tới `max_input_len",
+       false
+      ],
+      [
+       "chuỗi\n        tụt",
+       "chuỗi tụt",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "cắt cụt tin quá dài = biến lỗi đỏ thành bản ghi một phần âm thầm. `ui/app.py::_doi_soat_tin_nhan_cho_khach_no_ui()` chỉ chặn ghi db bằng `report[\"can_save\"]`. nếu cleaner cắt tin 9000 ký tự xuống dưới trần thì parser hết cớ `err_input_too_long`, `can_save` bật true và **một phần** số cược được insert - phần còn lại bốc hơi, dòng vẫn hiện ✅ thành công. case \"nhiều khoảng trắng thừa\" là lý do không được dùng mẹo cắt tới `max_input_len + 1`: bước `_normalize_base` gộp `\\s+` có thể kéo chuỗi tụt lại dưới trần, hở đúng lỗ vừa bịt.",
+    "tin_goc": "Cắt cụt tin quá dài = biến lỗi ĐỎ thành bản ghi một phần ÂM THẦM.\n\n        `ui/app.py::_doi_soat_tin_nhan_cho_khach_no_ui()` chỉ chặn ghi DB bằng\n        `report[\"can_save\"]`. Nếu cleaner cắt tin 9000 ký tự xuống dưới trần thì\n        parser hết cớ `ERR_INPUT_TOO_LONG`, `can_save` bật True và **một phần**\n        số cược được INSERT — phần còn lại bốc hơi, dòng vẫn hiện ✅ thành công.\n\n        Case \"nhiều khoảng trắng thừa\" là lý do KHÔNG được dùng mẹo cắt tới\n        `MAX_INPUT_LEN + 1`: bước `_normalize_base` gộp `\\s+` có thể kéo chuỗi\n        tụt lại dưới trần, hở đúng lỗ vừa bịt.\n        "
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "cổng công khai phải thật sự chạy hàng rào 5, không chỉ khai báo nó.",
+    "tin_goc": "Cổng công khai phải THẬT SỰ chạy hàng rào 5, không chỉ khai báo nó."
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "de 10 = 10000 vnđ",
+    "tin_goc": "DE 10 = 10000 VNĐ"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "de 121 phải tách thành 2 số, nhưng có",
+    "tin_goc": "DE 121 phải tách thành 2 số, nhưng có "
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "de 3-chữ:",
+    "tin_goc": "DE 3-chữ: "
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "X40K",
+       "x 40k",
+       true
+      ]
+     ],
+     "du_sach": true
+    },
+    "tin_da_sua": "de chan x 40k",
+    "tin_goc": "DE Chan X40K"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "de tiền phải là 10000",
+    "tin_goc": "DE tiền phải là 10000"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": true
+    },
+    "tin_da_sua": "de 12 34 x 10k, lo 45 54 x 5d",
+    "tin_goc": "De 12 34 x 10k, lo 45 54 x 5d\n"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "181.545.787.363. x15",
+       "181.545.787.363 x 15",
+       true
+      ]
+     ],
+     "du_sach": true
+    },
+    "tin_da_sua": "de 181.545.787.363 x 15",
+    "tin_goc": "De 181.545.787.363. x15"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "484,393x30  010x100 \n de",
+       "484,393 x 30 010 x 100 de",
+       true
+      ],
+      [
+       "989x50",
+       "989 x 50",
+       true
+      ],
+      [
+       "919,969x30n.07,79x100 \nDe",
+       "919,969 x 30n.07,79 x 100 de",
+       true
+      ],
+      [
+       "070,797x150k",
+       "070,797 x 150k",
+       true
+      ],
+      [
+       "03,09x100n.010x100n02.12x80n.03.272x100n.60.61.51.565.66x60n",
+       "03,09 x 100n.010 x 100n, 02.12 x 80n.03.272 x 100n.60.61.51.565.66 x 60n",
+       false
+      ],
+      [
+       "Đầu",
+       "dau",
+       true
+      ],
+      [
+       "0x140",
+       "0 x 140",
+       true
+      ]
+     ],
+     "du_sach": true
+    },
+    "tin_da_sua": "de 484,393 x 30 010 x 100 de 989 x 50. 919,969 x 30n.07,79 x 100 de 070,797 x 150k 03,09 x 100n.010 x 100n, 02.12 x 80n.03.272 x 100n.60.61.51.565.66 x 60n . dau 0 x 140.",
+    "tin_goc": "De 484,393x30  010x100 \n de 989x50. 919,969x30n.07,79x100 \nDe 070,797x150k 03,09x100n.010x100n02.12x80n.03.272x100n.60.61.51.565.66x60n . Đầu 0x140."
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "x40k",
+       "x 40k",
+       true
+      ]
+     ],
+     "du_sach": true
+    },
+    "tin_da_sua": "de chẵn x 40k",
+    "tin_goc": "De CHẴN x40k"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "181.545.787.363. x15",
+       "181.545.787.363 x 15",
+       true
+      ],
+      [
+       "ĐÚNG — luật",
+       "đúng - luật",
+       true
+      ]
+     ],
+     "du_sach": true
+    },
+    "tin_da_sua": "dòng `de 181.545.787.363 x 15` vốn đã đúng - luật mới cấm đụng vào.",
+    "tin_goc": "Dòng `De 181.545.787.363. x15` VỐN ĐÃ ĐÚNG — luật mới cấm đụng vào."
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "lô",
+       "lo",
+       true
+      ],
+      [
+       "thật).\n\nMục",
+       "thật). mục",
+       false
+      ],
+      [
+       "path.\nCác",
+       "path. các",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "edge-case / adversarial tests cho messageparser (qa audit lo 30 tin thật). mục tiêu: phát hiện lỗ hổng gây sai tiền hoặc treo cpu, không phải test happy path. các test ở đây cố tình \"phá hoại\": state leakage, redos, tràn kiểu số, cú pháp dính liền.",
+    "tin_goc": "Edge-case / adversarial tests cho MessageParser (QA audit lô 30 tin thật).\n\nMục tiêu: phát hiện lỗ hổng gây SAI TIỀN hoặc TREO CPU, không phải test happy path.\nCác test ở đây cố tình \"phá hoại\": state leakage, ReDoS, tràn kiểu số, cú pháp dính liền.\n"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "g1",
+    "tin_goc": "G1"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "current_loai.\n\n        Nếu",
+       "current_loai. nếu",
+       false
+      ],
+      [
+       "sau\n        thừa",
+       "sau thừa",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "ghi nhận hành vi hiện tại: newline không reset current_loai. nếu 1 'tin nhắn' thực chất là 30 tin bị nối bằng '\\n' thì tin sau thừa hưởng loại cược của tin trước -> sai tiền.",
+    "tin_goc": "Ghi nhận hành vi hiện tại: newline KHÔNG reset current_loai.\n\n        Nếu 1 'tin nhắn' thực chất là 30 tin bị nối bằng '\\n' thì tin sau\n        thừa hưởng loại cược của tin trước -> sai tiền.\n        "
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "gốc.\n\n        UI",
+       "gốc. ui",
+       false
+      ],
+      [
+       "câu.\n        Đặc",
+       "câu. đặc",
+       false
+      ],
+      [
+       "sanitize()` — nó",
+       "sanitize()` - nó",
+       true
+      ],
+      [
+       "hình\n        thành",
+       "hình thành",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "ghép mọi đoạn markup phải ra đúng từng ký tự tin nhắn gốc. ui tô màu theo thứ tự các đoạn này; lệch 1 ký tự là highlight lệch cả câu. đặc biệt quan trọng sau khi thêm `_sanitize()` - nó đổi ký tự vô hình thành khoảng trắng nhưng không được để lọt bản đã đổi ra ngoài markup.",
+    "tin_goc": "Ghép mọi đoạn markup phải ra ĐÚNG TỪNG KÝ TỰ tin nhắn gốc.\n\n        UI tô màu theo thứ tự các đoạn này; lệch 1 ký tự là highlight lệch cả câu.\n        Đặc biệt quan trọng sau khi thêm `_sanitize()` — nó đổi ký tự vô hình\n        thành khoảng trắng nhưng KHÔNG được để lọt bản đã đổi ra ngoài markup.\n        "
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "2 — Engine",
+       "2 - engine",
+       true
+      ],
+      [
+       "tra).\n\nBa",
+       "tra). ba",
+       false
+      ],
+      [
+       "kết:\n  1",
+       "kết: 1",
+       false
+      ],
+      [
+       "định  -> kết",
+       "định -> kết",
+       false
+      ],
+      [
+       "suite\n     (trừ",
+       "suite (trừ",
+       false
+      ],
+      [
+       "KHAC_BIET_DA_CHOT`).\n  2",
+       "khac_biet_da_chot`). 2",
+       false
+      ],
+      [
+       "ngang.\n  3",
+       "ngang. 3",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "giai đoạn 2 - engine mới `core/rule_parser.py` (bung số bằng bảng tra). ba cam kết: 1. bảng tra = mặc định -> kết quả trùng engine cũ trên mọi tin mẫu có trong suite (trừ danh sách khác biệt đã chốt `khac_biet_da_chot`). 2. sửa bảng tra -> kết quả đổi theo bảng, không còn công thức cứng nào chen ngang. 3. markup ghép lại đúng từng ký tự tin gốc (ui đọc lại markup để ghi db).",
+    "tin_goc": "Giai đoạn 2 — Engine MỚI `core/rule_parser.py` (bung số bằng bảng tra).\n\nBa cam kết:\n  1. Bảng tra = mặc định  -> kết quả TRÙNG engine cũ trên mọi tin mẫu có trong suite\n     (trừ danh sách khác biệt đã chốt `KHAC_BIET_DA_CHOT`).\n  2. Sửa bảng tra -> kết quả đổi THEO bảng, không còn công thức cứng nào chen ngang.\n  3. Markup ghép lại đúng từng ký tự tin gốc (UI đọc lại markup để ghi DB).\n"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "số.\n\n        `nháy",
+       "số. `nháy",
+       false
+      ],
+      [
+       "lô",
+       "lo",
+       true
+      ],
+      [
+       "động\n        20-23k",
+       "động 20 - 23k",
+       true
+      ],
+      [
+       "của\n        parser",
+       "của parser",
+       false
+      ],
+      [
+       "2.000đ",
+       "2000d",
+       false
+      ],
+      [
+       "2.000.000đ",
+       "2000000d",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "hàng rào: `xu`/`điểm`/`nháy`/`xị` không được có hệ số. `nháy` = số lần lo về, không phải tiền. `điểm` là đơn vị giá biến động 20 - 23k. `xu`/`xị` khác nhau theo vùng. nặng hơn cả: `_parse_tien()` của parser vốn đã x 1000 theo `loai_so`, nên \"2 xu\" đang ra đúng 2000d - gán thêm hệ số 1000 là biến nó thành 2000000d.",
+    "tin_goc": "HÀNG RÀO: `xu`/`điểm`/`nháy`/`xị` KHÔNG được có hệ số.\n\n        `nháy` = số lần lô về, KHÔNG phải tiền. `điểm` là đơn vị giá biến động\n        20-23k. `xu`/`xị` khác nhau theo vùng. Nặng hơn cả: `_parse_tien()` của\n        parser vốn đã ×1000 theo `loai_so`, nên \"2 xu\" ĐANG ra đúng 2.000đ —\n        gán thêm hệ số 1000 là biến nó thành 2.000.000đ.\n        "
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "hàng rào chống bịa cược: 50 bản ghi tiền thật sinh từ một chữ trong câu chat.",
+    "tin_goc": "Hàng rào chống BỊA CƯỢC: 50 bản ghi tiền thật sinh từ một chữ trong câu chat."
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "Unicode — cả",
+       "unicode - cả",
+       true
+      ],
+      [
+       "hợp.\n\n        Hai",
+       "hợp. hai",
+       false
+      ],
+      [
+       "lệch\n        dạng",
+       "lệch dạng",
+       false
+      ],
+      [
+       "tự\n        bọc",
+       "tự bọc",
+       false
+      ],
+      [
+       "chèn\n        thêm",
+       "chèn thêm",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "hàng rào chống quy tắc tự bọc phải mù dạng unicode - cả 4 tổ hợp. hai vế được nhập ở hai chỗ khác nhau trên ui nên hoàn toàn có thể lệch dạng. lệch mà không quy về cùng nfc thì pattern không khớp -> quy tắc tự bọc lọt vào `bo_nho_sua_tin` -> `clean()` hết idempotent, mỗi lượt chèn thêm một lần. đo thật khi còn hở: sau 3 lượt sinh cược ma `lo 02`.",
+    "tin_goc": "Hàng rào chống quy tắc tự bọc phải mù dạng Unicode — cả 4 tổ hợp.\n\n        Hai vế được nhập ở hai chỗ khác nhau trên UI nên hoàn toàn có thể lệch\n        dạng. Lệch mà không quy về cùng NFC thì pattern không khớp -> quy tắc tự\n        bọc lọt vào `bo_nho_sua_tin` -> `clean()` hết idempotent, mỗi lượt chèn\n        thêm một lần. Đo thật khi còn hở: sau 3 lượt sinh cược ma `LO 02`.\n        "
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "tiền.\n\n        Nới",
+       "tiền. nới",
+       false
+      ],
+      [
+       "khách — thà",
+       "khách - thà",
+       true
+      ],
+      [
+       "user\n        sửa",
+       "user sửa",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "hàng rào của lần nới lỏng trên: chỉ keyword thật mới được dính tiền. nới quá tay ở đây là đoán bừa số tiền của khách - thà báo đỏ để user sửa còn hơn tự suy diễn `10k5` thành `10k`.",
+    "tin_goc": "Hàng rào của lần nới lỏng trên: chỉ keyword THẬT mới được dính tiền.\n\n        Nới quá tay ở đây là đoán bừa số tiền của khách — thà báo đỏ để user\n        sửa còn hơn tự suy diễn `10k5` thành `10k`.\n        "
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "BIẾT — pin",
+       "biết - pin",
+       true
+      ],
+      [
+       "SỬA.\n\n        \"hen",
+       "sửa. \"hen",
+       false
+      ],
+      [
+       "ma\n        DE",
+       "ma de",
+       false
+      ],
+      [
+       "10.000đ",
+       "10000d",
+       false
+      ],
+      [
+       "cụm\n        số",
+       "cụm số",
+       false
+      ],
+      [
+       "loại\n        cược",
+       "loại cược",
+       false
+      ],
+      [
+       "một\n        lỗi",
+       "một lỗi",
+       false
+      ],
+      [
+       "THIẾU\n        cược",
+       "thiếu cược",
+       false
+      ],
+      [
+       "harm\".\n\n        Test",
+       "harm\". test",
+       false
+      ],
+      [
+       "khi\n        đổi",
+       "khi đổi",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "hạn chế đã biết - pin hành vi hiện tại, cố ý không sửa. \"hen 8 x 10k nhe\" bị `_insert_missing_x` chèn `x` -> sinh thêm một cược ma de 08 x 10000d. cách sửa duy nhất khả dĩ (\"chỉ chèn `x` khi giữa từ khoá gần nhất và cụm số không có chữ cái lạ\") sẽ giết cược thật: parser cố ý cho kế thừa loại cược qua từ nối, \"de 12 x 10k va 34 x 5k\" là tin thật và phải ăn. đổi một lỗi thừa cược (user nhìn thấy ngay trên bảng đối soát) lấy một lỗi thiếu cược (im lặng, mất tiền) là đi ngược \"do no harm\". test này đỏ = ai đó vừa \"sửa\" hạn chế trên. đọc hết đoạn này trước khi đổi kỳ vọng.",
+    "tin_goc": "HẠN CHẾ ĐÃ BIẾT — pin hành vi hiện tại, CỐ Ý KHÔNG SỬA.\n\n        \"hen 8 10k nhe\" bị `_insert_missing_x` chèn `x` -> sinh thêm một cược ma\n        DE 08 x 10.000đ.\n\n        Cách sửa duy nhất khả dĩ (\"chỉ chèn `x` khi giữa từ khoá gần nhất và cụm\n        số không có chữ cái lạ\") sẽ GIẾT CƯỢC THẬT: parser cố ý cho kế thừa loại\n        cược qua từ nối, \"de 12 x 10k va 34 5k\" là tin thật và phải ăn. Đổi một\n        lỗi THỪA cược (user nhìn thấy ngay trên bảng đối soát) lấy một lỗi THIẾU\n        cược (im lặng, mất tiền) là đi ngược \"do no harm\".\n\n        Test này đỏ = ai đó vừa \"sửa\" hạn chế trên. Đọc hết đoạn này trước khi\n        đổi kỳ vọng.\n        "
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "2026-08-26",
+       "2026 - 08 - 26",
+       false
+      ],
+      [
+       "là\n        THAM",
+       "là tham",
+       false
+      ],
+      [
+       "chặn — hai\n        nhánh",
+       "chặn - hai nhánh",
+       true
+      ],
+      [
+       "DE\",\"LO\")`:\n\n          `bo",
+       "de\",\"lo\")`: `bo",
+       false
+      ],
+      [
+       "x10k`   -> `\"le\".zfill(2",
+       "x 10k` -> `\"le\".zfill(2",
+       true
+      ],
+      [
+       "ném\n                            ValueError",
+       "ném valueerror",
+       false
+      ],
+      [
+       "lỗi).\n          `tong",
+       "lỗi). `tong",
+       false
+      ],
+      [
+       "x10k",
+       "x 10k",
+       true
+      ],
+      [
+       "vòng\n                            validate",
+       "vòng validate",
+       false
+      ],
+      [
+       "so='le'`\n                            xuống",
+       "so='le'` xuống",
+       false
+      ],
+      [
+       "can_save=True`.\n\n        Nay",
+       "can_save=true`. nay",
+       false
+      ],
+      [
+       "crash.\n\n        NGOÀI",
+       "crash. ngoài",
+       false
+      ],
+      [
+       "kl",
+       "05 50 16 61 27 72 38 83 49 94",
+       false
+      ],
+      [
+       "như\n        trước",
+       "như trước",
+       false
+      ],
+      [
+       "kl",
+       "05 50 16 61 27 72 38 83 49 94",
+       false
+      ],
+      [
+       "vế\n        này",
+       "vế này",
+       false
+      ],
+      [
+       "đổi — CẤM",
+       "đổi - cấm",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "hố cũ (phát hiện 2026 - 08 - 26, 164/8000 chuỗi fuzz): bo/tong coi token là tham số số học, nhưng dàn `chẵn`/`lẻ` rơi xuống đó không bị chặn - hai nhánh dàn chẵn/lẻ phía trên chốt `current_loai in (\"de\",\"lo\")`: `bo lẻ x 10k` -> `\"le\".zfill(2)` vẫn dài 2 -> `int(\"l\")` ném valueerror, sập luồng đối soát (crash, không phải lỗi). `tong lẻ x 10k` -> `int(\"le\")` bị `except` nuốt, token dài 2 lọt vòng validate và được coi hợp lệ -> ghi cược `so='le'` xuống db tiền thật với `can_save=true`. nay phải là err_invalid_number, chặn ghi db, không crash. ngoài phạm vi: `bo sk`/`bo 05 50 16 61 27 72 38 83 49 94`/`bo kép` vẫn bung dàn thành cược de như trước (nhánh `kep`/`sk`/`05 50 16 61 27 72 38 83 49 94` không có chốt loại cược và đứng trước vế này). đó là quyết định cũ, chưa ai yêu cầu đổi - cấm sửa kèm ở đây.",
+    "tin_goc": "HỐ CŨ (phát hiện 2026-08-26, 164/8000 chuỗi fuzz): BO/TONG coi token là\n        THAM SỐ SỐ HỌC, nhưng dàn `chẵn`/`lẻ` rơi xuống đó không bị chặn — hai\n        nhánh dàn chẵn/lẻ phía trên chốt `current_loai in (\"DE\",\"LO\")`:\n\n          `bo lẻ x10k`   -> `\"le\".zfill(2)` vẫn dài 2 -> `int(\"l\")` ném\n                            ValueError, SẬP luồng đối soát (crash, không phải lỗi).\n          `tong lẻ x10k` -> `int(\"le\")` bị `except` nuốt, token dài 2 lọt vòng\n                            validate và được coi HỢP LỆ -> ghi cược `so='le'`\n                            xuống DB tiền thật với `can_save=True`.\n\n        Nay phải là ERR_INVALID_NUMBER, chặn ghi DB, không crash.\n\n        NGOÀI PHẠM VI: `bo sk`/`bo kl`/`bo kép` vẫn bung dàn thành cược DE như\n        trước (nhánh `kep`/`sk`/`kl` KHÔNG có chốt loại cược và đứng TRƯỚC vế\n        này). Đó là quyết định cũ, chưa ai yêu cầu đổi — CẤM sửa kèm ở đây.\n        "
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "2026-08-18).\n\n        `l",
+       "2026 - 08 - 18). `l",
+       true
+      ],
+      [
+       "tin\n        nhắn",
+       "tin nhắn",
+       false
+      ],
+      [
+       "ma — đo",
+       "ma - đo",
+       true
+      ],
+      [
+       "sinh\n        cược",
+       "sinh cược",
+       false
+      ],
+      [
+       "l(?![A-Za-z0-9Đđ",
+       "l(?![a-za-z0 - 9đđ",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "hồi quy của chính lần nới lỏng dính liền (2026 - 08 - 18). `l` là alias 1 ký tự của `lo`. nới cho nó dính như `de`/`lo` thì tin nhắn rác đẻ ra cược lo ma - đo bằng fuzz: 6/4000 chuỗi ngẫu nhiên sinh cược từ hư không. nên `l` giữ riêng hàng rào chặt `l(?![a-za-z0 - 9đđ])`.",
+    "tin_goc": "HỒI QUY của chính lần nới lỏng dính liền (2026-08-18).\n\n        `l` là alias 1 ký tự của `lo`. Nới cho nó dính như `de`/`lo` thì tin\n        nhắn RÁC đẻ ra cược LO ma — đo bằng fuzz: 6/4000 chuỗi ngẫu nhiên sinh\n        cược từ hư không. Nên `l` giữ riêng hàng rào chặt `l(?![A-Za-z0-9Đđ])`.\n        "
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "nhắn.\n\n        ERR_MISSING_X",
+       "nhắn. err_missing_x",
+       false
+      ],
+      [
+       "tin,\n        kể",
+       "tin, kể",
+       false
+      ],
+      [
+       "CHỈ\n        được",
+       "chỉ được",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "hồi quy: '8 30' từng khớp err_missing_x -> chặn ghi db cả tin nhắn. err_missing_x ở mức error nên một false positive là mất trắng cả tin, kể cả khi cược trong tin hoàn toàn hợp lệ. hai nhóm số cạnh nhau chỉ được coi là thiếu dấu nhân khi nhóm sau có hậu tố tiền (k/n/d/đ).",
+    "tin_goc": "HỒI QUY: '8 30' từng khớp ERR_MISSING_X -> chặn ghi DB cả tin nhắn.\n\n        ERR_MISSING_X ở mức ERROR nên một false positive là mất trắng cả tin,\n        kể cả khi cược trong tin hoàn toàn hợp lệ. Hai nhóm số cạnh nhau CHỈ\n        được coi là thiếu dấu nhân khi nhóm sau có hậu tố tiền (k/n/d/đ).\n        "
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "2.\n\n        Khách",
+       "2. khách",
+       false
+      ],
+      [
+       "12x10k",
+       "12 x 10k",
+       true
+      ],
+      [
+       "34x20k",
+       "34 x 20k",
+       true
+      ],
+      [
+       "thường — chữ",
+       "thường - chữ",
+       true
+      ],
+      [
+       "thuần\n        KHÔNG",
+       "thuần không",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "hồi quy: luật 'rác -> xoá loại cược' từng nuốt mất cược thứ 2. khách nhắn 'de 12 x 10k và 34 x 20k' là chuyện bình thường - chữ thuần không được coi là cụm bet hỏng.",
+    "tin_goc": "HỒI QUY: luật 'rác -> xoá loại cược' từng nuốt mất cược thứ 2.\n\n        Khách nhắn 'de 12x10k và 34x20k' là chuyện bình thường — chữ thuần\n        KHÔNG được coi là cụm bet hỏng.\n        "
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "khách dùng dấu chấm `.` trước số tiền (như .50n, .10k) -> tự động chuyển thành ' x '.",
+    "tin_goc": "Khách dùng dấu chấm `.` trước số tiền (như .50n, .10k) -> tự động chuyển thành ' x '."
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "số.\n\n        `_sanitize",
+       "số. `_sanitize",
+       false
+      ],
+      [
+       "trượt\n        nếu",
+       "trượt nếu",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "khách gõ có dấu / không dấu / hoa thường / nfd đều phải ra 50 số. `_sanitize()` không chuẩn hoá nfc, nên dạng nfd (dấu tổ hợp rời) sẽ trượt nếu regex thiếu lớp `[̀-ͯ]*`.",
+    "tin_goc": "Khách gõ có dấu / không dấu / hoa thường / NFD đều phải ra 50 số.\n\n        `_sanitize()` KHÔNG chuẩn hoá NFC, nên dạng NFD (dấu tổ hợp rời) sẽ trượt\n        nếu regex thiếu lớp `[̀-ͯ]*`.\n        "
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "GHI — khâu",
+       "ghi - khâu",
+       true
+      ],
+      [
+       "bọc.\n\n        Từ",
+       "bọc. từ",
+       false
+      ],
+      [
+       "nó\n        dựng",
+       "nó dựng",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "không chỉ khâu ghi - khâu kiểm duyệt cũng phải được bọc. từ khi có hàng rào 5, `quy_tac_hop_le` không còn thuần tính toán: nó dựng cleaner, chạy pipeline và print. có i/o là có đường ném.",
+    "tin_goc": "Không chỉ khâu GHI — khâu kiểm duyệt cũng phải được bọc.\n\n        Từ khi có hàng rào 5, `quy_tac_hop_le` không còn thuần tính toán: nó\n        dựng cleaner, chạy pipeline và print. Có I/O là có đường ném.\n        "
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "không được có số hợp lệ khi chia 0:",
+    "tin_goc": "Không được có số hợp lệ khi chia 0: "
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "kép phải cho 10 số, nhưng có",
+    "tin_goc": "Kép phải cho 10 số, nhưng có "
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "kép phải có 10 số, nhưng có",
+    "tin_goc": "Kép phải có 10 số, nhưng có "
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "x10",
+       "x 10",
+       true
+      ]
+     ],
+     "du_sach": true
+    },
+    "tin_da_sua": "l: 12 x 10",
+    "tin_goc": "L: 12 x10"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "20đ",
+       "20d",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "lo 20n phải là 20d (lo giữ nguyên đơn vị)",
+    "tin_goc": "LO 20n phải là 20đ (LO giữ nguyên đơn vị)"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "x1000",
+       "x 1000",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "lo 50d = 50 vnđ (không x 1000)",
+    "tin_goc": "LO 50d = 50 VNĐ (không x1000)"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "lo giữ nguyên đơn vị điểm, cấm x 1000",
+    "tin_goc": "LO giữ nguyên đơn vị Điểm, CẤM ×1000"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "lo giữ đơn vị điểm, cấm x 1000 cho giống de",
+    "tin_goc": "LO giữ đơn vị Điểm, CẤM ×1000 cho giống DE"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "x1000",
+       "x 1000",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "lo là điểm, cấm x 1000",
+    "tin_goc": "LO là ĐIỂM, CẤM x1000"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "lo là điểm, cấm x 1000",
+    "tin_goc": "LO là ĐIỂM, CẤM ×1000"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "lo là điểm, không x 1000 -> luật \"≥1000 không đơn vị\" không áp.",
+    "tin_goc": "LO là ĐIỂM, không ×1000 -> luật \"≥1000 không đơn vị\" KHÔNG áp."
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "lo tiền phải là 50",
+    "tin_goc": "LO tiền phải là 50"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "LX",
+       "xien",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "xien 2",
+    "tin_goc": "LX2"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "LX2",
+       "xien",
+       false
+      ]
+     ],
+     "du_sach": true
+    },
+    "tin_da_sua": "xien 12 34 x 50k",
+    "tin_goc": "LX2 12 34 X 50K"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "LX",
+       "xien",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "xien 3",
+    "tin_goc": "LX3"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "LX",
+       "xien",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "xien 3 so sai:",
+    "tin_goc": "LX3 so sai: "
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "LX",
+       "xien",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "xien 4",
+    "tin_goc": "LX4"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": true
+    },
+    "tin_da_sua": "lo 353,252,55,66,88,393 x 50n",
+    "tin_goc": "Lo 353,252,55,66,88,393.50n"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "39;77;57;11;75;08;80;78;36;63",
+       "39 77 57 11 75 08 80 78 36 63",
+       false
+      ],
+      [
+       "x20",
+       "x 20",
+       true
+      ]
+     ],
+     "du_sach": true
+    },
+    "tin_da_sua": "lo 39 77 57 11 75 08 80 78 36 63 x 20",
+    "tin_goc": "Lo 39;77;57;11;75;08;80;78;36;63 x20"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "39;77;57;11;75;08;80;78;36;63",
+       "39 77 57 11 75 08 80 78 36 63",
+       false
+      ],
+      [
+       "x20\nDe",
+       "x 20 de",
+       true
+      ],
+      [
+       "252,020x100\nDe",
+       "252,020 x 100 de",
+       true
+      ],
+      [
+       "x40k\nDe",
+       "x 40k, de",
+       true
+      ],
+      [
+       "x30k\nDe",
+       "x 30k, de",
+       true
+      ],
+      [
+       "181.545.787.363. x15 \nDe",
+       "181.545.787.363 x 15 de",
+       true
+      ],
+      [
+       "x20k De",
+       "x 20k, de",
+       true
+      ],
+      [
+       "dau6x22n",
+       "dau6 x 22n",
+       true
+      ],
+      [
+       "00.010x22n",
+       "00.010 x 22n",
+       true
+      ]
+     ],
+     "du_sach": true
+    },
+    "tin_da_sua": "lo 39 77 57 11 75 08 80 78 36 63 x 20 de 252,020 x 100 de 32 x 40k, de 090.191.121 x 30k, de 181.545.787.363 x 15 de 23 x 20k, de dau6 x 22n 00.010 x 22n",
+    "tin_goc": "Lo 39;77;57;11;75;08;80;78;36;63 x20\nDe 252,020x100\nDe 32 x40k\nDe 090.191.121 x30k\nDe 181.545.787.363. x15 \nDe 23 x20k De dau6x22n 00.010x22n"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "0,60}` — chuỗi",
+       "0,60}` - chuỗi",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "lookahead có trần `{0,60}` - chuỗi rác dài phải xong dưới 2s.",
+    "tin_goc": "Lookahead có trần `{0,60}` — chuỗi rác dài phải xong dưới 2s."
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "C",
+       "cang",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "loại phải là 3cang",
+    "tin_goc": "Loại phải là 3C"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "LX",
+       "xien",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "loại phải là xien 2",
+    "tin_goc": "Loại phải là LX2"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "LX",
+       "xien",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "loại phải là xien 2/3/4",
+    "tin_goc": "Loại phải là LX2/3/4"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "bộ/tổng",
+       "bo/tong",
+       true
+      ],
+      [
+       "kl",
+       "05 50 16 61 27 72 38 83 49 94",
+       false
+      ],
+      [
+       "chốt\n        2026-10-08",
+       "chốt 2026 - 10 - 08",
+       true
+      ],
+      [
+       "lưu\n        thì",
+       "lưu thì",
+       false
+      ],
+      [
+       "lỗi\n        (`3",
+       "lỗi (`3",
+       false
+      ],
+      [
+       "c",
+       "cang",
+       false
+      ],
+      [
+       "1) — không",
+       "1) - không",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "lệch quyết định lưu chỉ được phép do (a) bo/tong/chia + kép/sk/05 50 16 61 27 72 38 83 49 94 (chốt 2026 - 10 - 08). bỏ các mảnh đó đi thì `can_save` phải trùng, và khi cùng cho lưu thì bản ghi phải trùng. khi cả hai cùng chặn, được lệch phần hiển thị lỗi (`3cang chẵn chẵn`: cũ 2 dòng lỗi, mới 1) - không bản ghi nào xuống db.",
+    "tin_goc": "Lệch quyết định LƯU chỉ được phép do (A) bộ/tổng/chia + kép/sk/kl (chốt\n        2026-10-08). Bỏ các mảnh đó đi thì `can_save` phải trùng, và khi cùng cho lưu\n        thì bản ghi phải trùng. Khi CẢ HAI cùng chặn, được lệch phần hiển thị lỗi\n        (`3c chẵn chẵn`: cũ 2 dòng lỗi, mới 1) — không bản ghi nào xuống DB."
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "engine\n    trước",
+       "engine trước",
+       false
+      ],
+      [
+       "bộ",
+       "bo",
+       true
+      ],
+      [
+       "x10k",
+       "x 10k",
+       true
+      ],
+      [
+       "99).\n    Lớp",
+       "99). lớp",
+       false
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "lỗi 2 (task-review): 2 dàn khác nhau cùng giữ 1 tham số họ / 1 khoá tĩnh -> engine trước đây ghi đè câm lặng (`bo 2` thay bo 02 -> `de bo 02 x 10k` ra de 99). lớp phòng thứ 2 sau `kiem_tra_dan` (db ghi tay / dữ liệu cũ): mơ hồ -> chặn đỏ.",
+    "tin_goc": "Lỗi 2 (task-review): 2 dàn KHÁC NHAU cùng giữ 1 tham số họ / 1 khoá tĩnh -> engine\n    trước đây ghi đè câm lặng (`bo 2` thay bộ 02 -> `de bo 02 x10k` ra DE 99).\n    Lớp phòng thứ 2 sau `kiem_tra_dan` (DB ghi tay / dữ liệu cũ): mơ hồ -> CHẶN ĐỎ."
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "msg123",
+    "tin_goc": "MSG123"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "lô",
+       "lo",
+       true
+      ],
+      [
+       "đầu",
+       "dau",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "mô phỏng lo 30 tin dán liền: chỉ tin dau có keyword.",
+    "tin_goc": "Mô phỏng lô 30 tin dán liền: chỉ tin đầu có keyword."
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "mặt trái của test trên: hàm cha bắt buộc còn giữ cả 2 lời gọi.",
+    "tin_goc": "Mặt trái của test trên: hàm cha BẮT BUỘC còn giữ cả 2 lời gọi."
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "cu",
+       "tr",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "de 12 x 10tr",
+    "tin_goc": "de 12 x 10 cu"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "dem",
+       "d",
+       true
+      ]
+     ],
+     "du_sach": true
+    },
+    "tin_da_sua": "lo 23 x5d",
+    "tin_goc": "lo 23 x5 dem"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "đề",
+       "de",
+       true
+      ],
+      [
+       "2 lit",
+       "200k",
+       false
+      ]
+     ],
+     "du_sach": true
+    },
+    "tin_da_sua": "de 45 x 200k",
+    "tin_goc": "đề 45 x 2 lit"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "xienquay",
+       "xq",
+       true
+      ]
+     ],
+     "du_sach": false
+    },
+    "tin_da_sua": "xq 12 34",
+    "tin_goc": "xienquay 12 34"
+   },
+   {
+    "ok": {
+     "cac_cap": [
+      [
+       "12",
+       "13",
+       false
+      ]
+     ],
+     "du_sach": true
+    },
+    "tin_da_sua": "de 13 x 10k",
+    "tin_goc": "de 12 x 10k"
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": true
+    },
+    "tin_da_sua": "de 12 x 10k",
+    "tin_goc": ""
+   },
+   {
+    "ok": {
+     "cac_cap": [],
+     "du_sach": false
+    },
+    "tin_da_sua": "",
+    "tin_goc": "de 12 x 10k"
+   }
+  ],
+  "tin_chuan_kiem_chung": [
+   "de 12 x 10k",
+   "lo 34 x 5k",
+   "de 12 34 x 20k, lo 56 x 10n",
+   "3cang 123 x 5k",
+   "xien 12 13 x 10k",
+   "xq 12 34 x 5k",
+   "lo 00 - 05 x 5k",
+   "de 12 x 1 lit",
+   "lo 45 x 2 cu",
+   "de 12 x 10k\nlo 34 x 5k\n3cang 567 x 2k",
+   "de bo 12 x 10k",
+   "de tong 5 x 20k",
+   "de dau 3 x 15k",
+   "de dit 7 x 15k",
+   "de cham 2 x 10k",
+   "de chia 3 x 10k"
+  ]
+ },
+ "meta": {
+  "bigwin_commit": "3c5fab3-dirty",
+  "python": "3.13.12",
+  "so_tin_corpus": 1319
+ }
+}
