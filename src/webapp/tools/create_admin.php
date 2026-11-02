@@ -1,24 +1,52 @@
 <?php
 declare(strict_types=1);
 
-// Tạo / đổi mật khẩu admin: php tools/create_admin.php <username> <password>
+// Tạo / đặt lại tài khoản đăng nhập web (bảng users):
+//   php tools/create_admin.php <username> <password> [--role=admin|user] [--phai-doi-mat-khau]
+// Mặc định --role=admin. Chạy lại cùng username = đặt lại mật khẩu, quyền và cờ buộc đổi mật khẩu.
+// Admin được ghi thêm vào bảng admins cũ để /admin (admin/_auth.php) vẫn đăng nhập được — bỏ ở P03.
 
 if (PHP_SAPI !== 'cli') {
     http_response_code(404);
     exit;
 }
 
-require __DIR__ . '/../lib/bootstrap.php';
+require __DIR__ . '/../lib/auth.php';
 
-[$_, $user, $pass] = array_pad($argv, 3, '');
-if ($user === '' || strlen($pass) < 8) {
-    fwrite(STDERR, "Dung: php tools/create_admin.php <username> <password (>=8 ky tu)>\n");
+$viTri = [];
+$role = 'admin';
+$phaiDoi = 0;
+$loi = '';
+foreach (array_slice($argv, 1) as $ts) {
+    if (str_starts_with($ts, '--role=')) {
+        $role = substr($ts, 7);
+    } elseif ($ts === '--phai-doi-mat-khau') {
+        $phaiDoi = 1;
+    } elseif (str_starts_with($ts, '--')) {
+        $loi = "Co khong ho tro: $ts\n";
+    } else {
+        $viTri[] = $ts;
+    }
+}
+[$user, $pass] = array_pad($viTri, 2, '');
+if ($loi !== '' || count($viTri) > 2 || $user === '' || mb_strlen($pass) < MAT_KHAU_TOI_THIEU || !in_array($role, ['admin', 'user'], true)) {
+    fwrite(STDERR, $loi . "Dung: php tools/create_admin.php <username> <password (>=" . MAT_KHAU_TOI_THIEU . " ky tu)> [--role=admin|user] [--phai-doi-mat-khau]\n");
     exit(1);
 }
 
-db()->prepare(
-    'INSERT INTO admins (username, password_hash, created_at) VALUES (?, ?, NOW())
-     ON DUPLICATE KEY UPDATE password_hash = VALUES(password_hash)'
-)->execute([$user, password_hash($pass, PASSWORD_DEFAULT)]);
+$hash = bam_mat_khau($pass);
+$pdo = db();
+$pdo->beginTransaction();
+$pdo->prepare(
+    'INSERT INTO users (username, password_hash, role, phai_doi_mat_khau, created_at) VALUES (?, ?, ?, ?, NOW())
+     ON DUPLICATE KEY UPDATE password_hash = VALUES(password_hash), role = VALUES(role), phai_doi_mat_khau = VALUES(phai_doi_mat_khau)'
+)->execute([$user, $hash, $role, $phaiDoi]);
+if ($role === 'admin') {
+    $pdo->prepare(
+        'INSERT INTO admins (username, password_hash, created_at) VALUES (?, ?, NOW())
+         ON DUPLICATE KEY UPDATE password_hash = VALUES(password_hash)'
+    )->execute([$user, $hash]);
+}
+$pdo->commit();
 
-echo "OK: admin '$user'\n";
+echo "OK: $role '$user'" . ($phaiDoi ? ' (buoc doi mat khau lan dang nhap dau)' : '') . "\n";

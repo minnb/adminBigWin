@@ -66,6 +66,55 @@ CREATE TABLE IF NOT EXISTS admins (
   UNIQUE KEY uq_username (username)
 ) ENGINE=InnoDB;
 
+-- Web BigWIN — danh tính & RBAC + hạ tầng bảo mật (P01 S1.1) — giống migrations/2026-11-02_users_rbac_bao_mat.sql.
+-- users: đăng nhập chung (đại lý role=user, quản trị role=admin); không xoá — chỉ locked.
+CREATE TABLE IF NOT EXISTS users (
+  id                 INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  username           VARCHAR(50)  NOT NULL,
+  password_hash      VARCHAR(255) NOT NULL,
+  role               ENUM('user','admin')     NOT NULL DEFAULT 'user',
+  trang_thai         ENUM('active','locked')  NOT NULL DEFAULT 'active',
+  ten_hien_thi       VARCHAR(100) NOT NULL DEFAULT '',
+  phai_doi_mat_khau  TINYINT(1)   NOT NULL DEFAULT 0,
+  created_at         DATETIME     NOT NULL,
+  last_login_at      DATETIME     NULL,
+  created_by         INT UNSIGNED NULL,
+  UNIQUE KEY uq_username (username),
+  KEY idx_role_trang_thai (role, trang_thai),
+  CONSTRAINT fk_users_created_by FOREIGN KEY (created_by) REFERENCES users (id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+-- Đếm đăng nhập web sai theo username + IP (khoá tăng dần).
+CREATE TABLE IF NOT EXISTS user_login_fails (
+  id          BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  ip          VARCHAR(45) NOT NULL,
+  username    VARCHAR(50) NOT NULL DEFAULT '',
+  created_at  DATETIME    NOT NULL,
+  KEY idx_ip_time (ip, created_at),
+  KEY idx_user_time (username, created_at)
+) ENGINE=InnoDB;
+
+-- Sổ phiên đăng nhập — thu hồi ngay khi khoá tài khoản / đổi mật khẩu / "đăng xuất mọi nơi".
+CREATE TABLE IF NOT EXISTS phien_dang_nhap (
+  id_hash        CHAR(64)     NOT NULL PRIMARY KEY,
+  user_id        INT UNSIGNED NOT NULL,
+  ip             VARCHAR(45)  NOT NULL,
+  ua_hash        CHAR(64)     NOT NULL,
+  tao_luc        DATETIME     NOT NULL,
+  hoat_dong_luc  DATETIME     NOT NULL,
+  thu_hoi_luc    DATETIME     NULL,
+  KEY idx_user_thu_hoi (user_id, thu_hoi_luc),
+  CONSTRAINT fk_phien_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- Bộ đếm rate limit (dùng khi máy chủ không có APCu).
+CREATE TABLE IF NOT EXISTS gioi_han_tan_suat (
+  khoa    VARCHAR(120) NOT NULL PRIMARY KEY,
+  so_lan  INT UNSIGNED NOT NULL,
+  het_luc DATETIME     NOT NULL,
+  KEY idx_het_luc (het_luc)
+) ENGINE=InnoDB;
+
 -- Cloud backup (BACKUP_DU_LIEU_CLOUD.md §7.1) — giống migrations/2026-10-16_cloud_backup.sql
 CREATE TABLE IF NOT EXISTS backup_versions (
   id            BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,

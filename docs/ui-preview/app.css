@@ -83,6 +83,8 @@ html, body {
 .btn-ghost { background: #fff; color: var(--flat-title); border: 1px solid var(--flat-border-strong); }
 .btn-ghost:hover { background: var(--flat-primary-soft); }
 .btn-learn { background: var(--flat-learn); color: #fff; }
+.btn-danger { background: var(--flat-danger); color: #fff; }
+.btn-danger:hover { filter: brightness(.95); }
 .btn-learn:hover { background: #59359A; }
 .btn[disabled] { opacity: .5; cursor: not-allowed; }
 
@@ -233,3 +235,50 @@ kbd, .kbd { font-family: var(--font-mono); font-size: 11.5px; font-weight: 700; 
 }
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+/* ── Định nghĩa cú pháp cược ── */
+.lbl { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .02em; color: var(--flat-muted); }
+.chip-loc { white-space: nowrap; padding: .35rem .7rem; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--flat-title); border: 1px solid transparent; }
+.chip-loc b { font-family: var(--font-mono); font-size: 11.5px; color: var(--flat-muted); margin-left: .15rem; }
+.chip-loc:hover { background: #fff; border-color: var(--flat-border); }
+.chip-loc.on { background: var(--flat-primary); color: #fff; }
+.chip-loc.on b { color: rgba(255,255,255,.8); }
+.tbl tbody tr.row-on td { background: var(--flat-primary-soft) !important; box-shadow: inset 0 1px 0 #9CC3EA, inset 0 -1px 0 #9CC3EA; }
+.tbl tbody tr.row-on td:first-child { box-shadow: inset 4px 0 0 var(--flat-primary), inset 0 1px 0 #9CC3EA, inset 0 -1px 0 #9CC3EA; }
+.tg-opt { display: flex; align-items: center; justify-content: center; gap: .5rem; padding: .7rem .5rem; border-radius: 10px; border: 1.5px solid var(--flat-border-strong); background: #fff; font-weight: 800; font-size: 15px; color: var(--flat-muted); cursor: pointer; user-select: none; text-align: center; }
+.tg-opt:focus-within { outline: 3px solid #8EC5FF; outline-offset: 2px; }
+.tg-opt.on-de { border-color: #E3A3A3; background: #FDE8E8; color: #9B1C1C; }
+.tg-opt.on-lo { border-color: #93CDA8; background: #E6F4EA; color: #0C5E31; }
+.tg-opt.on-bat { border-color: var(--flat-primary); background: var(--flat-primary-soft); color: var(--flat-primary); }
+.o-so { font-family: var(--font-mono); font-size: 14px; font-weight: 700; padding: .45rem 0; border-radius: 6px; background: #F1F5F9; color: #64748B; transition: background .1s; }
+.o-so:hover { background: #DBEAFE; color: var(--flat-title); }
+.o-so.on { background: var(--flat-primary); color: #fff; }
+
+/* ── Bảng tổng hợp theo loại cược (component dùng chung · ui/core/report_grid.py) ── */
+.btk { width: 100%; border-collapse: collapse; font-size: 14.5px; font-variant-numeric: tabular-nums; border: 1px solid #B9CBDD; }
+.btk th { background: #DCE8F6; color: var(--flat-title); font-size: 12px; font-weight: 800; letter-spacing: .03em; padding: .5rem .6rem; border: 1px solid #B9CBDD; text-align: center; white-space: nowrap; }
+.btk td { padding: .45rem .6rem; border: 1px solid #D5E0EB; text-align: right; font-family: var(--font-mono); white-space: nowrap; background: #fff; }
+.btk td.c { text-align: center; font-family: inherit; }
+.btk td.b { font-weight: 800; }
+.btk small { font-size: 11px; color: var(--flat-muted); font-family: inherit; font-weight: 600; }
+.btk .btk-tien { background: #FFF8E1; }
+.btk th.btk-tien { background: #F7E7B4; }
+.btk .btk-co { color: var(--flat-success); font-weight: 800; }
+.btk .btk-am { color: var(--flat-danger-strong); }
+.btk .btk-mo { color: #94A3B8; }
+.btk tr.btk-tong td { background: #EEF2F7; font-weight: 800; border-top: 2px solid #94A9C0; }
+.btk tr.btk-tong td.btk-tien { background: #F7E7B4; }
+.btk tr.btk-tong td.btk-tt { font-size: 1.05em; }
+.btk-gon { font-size: 12.5px; }
+.btk-gon th { font-size: 11px; padding: .35rem .4rem; }
+.btk-gon td { padding: .3rem .45rem; }
+.btk-trung { margin-top: .5rem; padding: .5rem .7rem; border-radius: 10px; background: var(--flat-success-bg); border: 1px solid #A7D7B8; color: #0C5E31; font-size: 13px; display: flex; flex-wrap: wrap; gap: .25rem .5rem; align-items: center; }
+.btk-trung i { color: #6FAF86; font-style: normal; }
+.btk-kl { margin-top: .5rem; padding: .6rem .9rem; border-radius: 10px; display: flex; align-items: center; justify-content: space-between; gap: .75rem; flex-wrap: wrap; font-weight: 800; letter-spacing: .02em; border: 2px solid; }
+.btk-kl b { font-size: 1.35em; }
+.btk-kl small { font-weight: 600; letter-spacing: 0; }
+.btk-kl-ok { background: var(--flat-success-bg); color: var(--flat-success); border-color: #5FB37F; }
+.btk-kl-err { background: var(--flat-danger-bg); color: var(--flat-danger-strong); border-color: #E58A8A; }
+.btk-kl-cho { background: var(--flat-warning-bg); color: var(--flat-warning); border-color: #EBC46A; }
+.btk-rong { padding: 2.5rem 1rem; text-align: center; color: var(--flat-muted); }
+.btk-wrap { overflow-x: auto; max-width: 100%; }

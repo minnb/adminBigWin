@@ -12,7 +12,28 @@ if (PHP_SAPI !== 'cli') {
 
 const BW_TESTS_DIR = __DIR__ . '/../tests';
 
+// cfg()/db() của mã thật chạy trên DB test (db_test_*) — đặt TRƯỚC khi nạp bất kỳ test nào. Thiếu db_test_* →
+// mọi test chạm cfg()/db() báo lỗi (FAIL), không tự bỏ qua. BIGWIN_CONFIG_FILE truyền từ ngoài (CI) = cấu hình gốc
+// thay config.php; runner luôn phủ nó bằng tests/_cau_hinh.php (lớp phủ db_test_*).
+$cauHinhTest = realpath(BW_TESTS_DIR . '/_cau_hinh.php');
+$cauHinhGoc = getenv('BIGWIN_CONFIG_FILE');
+if (is_string($cauHinhGoc) && $cauHinhGoc !== '' && realpath($cauHinhGoc) !== $cauHinhTest) {
+    putenv("BIGWIN_TEST_CONFIG_GOC=$cauHinhGoc");
+}
+putenv("BIGWIN_CONFIG_FILE=$cauHinhTest");
+
 final class BwAssertionFailed extends RuntimeException {}
+
+/** Chạy hàm, trả thông điệp lỗi nếu ném, null nếu không (để assert "phải báo lỗi"). */
+function bw_test_bat_loi(callable $fn): ?string
+{
+    try {
+        $fn();
+    } catch (Throwable $e) {
+        return $e->getMessage();
+    }
+    return null;
+}
 
 /** So sánh nghiêm ngặt (===), lỗi thì in diff dòng-theo-dòng. */
 function assert_same(mixed $expected, mixed $actual, string $msg = ''): void
@@ -74,6 +95,9 @@ function bw_diff(string $a, string $b): string
 }
 
 set_error_handler(static function (int $no, string $str, string $file, int $line): bool {
+    if (!(error_reporting() & $no)) {
+        return false; // lỗi bị chặn có chủ đích bằng @ (vd thăm dò cổng/tệp) — không tính là lỗi test
+    }
     throw new ErrorException($str, 0, $no, $file, $line);
 });
 

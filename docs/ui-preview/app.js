@@ -11,9 +11,15 @@ const KHOA_GHI = { DE: 'he_so_ghi_de', LO: 'he_so_ghi_lo', '3C': 'he_so_ghi_3c',
 const KHOA_CK = { DE: 'ti_le_chiet_khau_de', LO: 'ti_le_chiet_khau_lo', '3C': 'ti_le_chiet_khau_3c', LX2: 'ti_le_chiet_khau_lx2', LX3: 'ti_le_chiet_khau_lx3', LX4: 'ti_le_chiet_khau_lx4' };
 const SO_HOC_SAN = new Set(['lít', 'lit', 'chục', 'chuc', 'củ', 'cu']);
 
-const fmt = (n) => Math.trunc(n).toLocaleString('vi-VN');
+const SO_VN = new Intl.NumberFormat('vi-VN');
+const GIA_VN = new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 2 });
+const fmt = (n) => SO_VN.format(Math.trunc(n));
 const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const z2 = (n) => String(n).padStart(2, '0');
+const ngayVN = (d = new Date()) => `${z2(d.getDate())}/${z2(d.getMonth() + 1)}/${d.getFullYear()}`;
+const idMoi = (ds) => Math.max(0, ...ds.map((x) => x.id)) + 1;
+/** Regex khớp nguyên cụm (không dính chữ/số hai bên) — dùng cho quy tắc tự học và từ khoá dàn. */
+const reKhoa = (k) => new RegExp(`${BIEN}${k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}${HET}`, 'giu');
 
 function toHop(arr, k) {
   const out = [];
@@ -51,8 +57,7 @@ function phanTich(raw, tuHoc) {
   // Từ khoá có dấu + bộ nhớ tự học (theo từ)
   for (const r of tuHoc) {
     if (SO_HOC_SAN.has(r.goc.toLowerCase())) continue;
-    const re = new RegExp(`${BIEN}${r.goc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}${HET}`, 'giu');
-    thay(re, () => r.moi);
+    thay(reKhoa(r.goc), () => r.moi);
   }
   thay(new RegExp(`${BIEN}(?:đề|đê)${HET}`, 'giu'), () => 'de', 'none');
   thay(new RegExp(`${BIEN}lô${HET}`, 'giu'), () => 'lo', 'none');
@@ -158,6 +163,125 @@ function veHighlight(raw, marks) {
   return html + esc(raw.slice(pos)) + '\n';
 }
 
+// ═════════ Bảng tổng hợp theo loại cược — component DÙNG CHUNG ═════════
+// Port Database.tong_hop_doi_soat_bang_bieu + ui/core/report_grid.ve_bang_bao_cao.
+// Quy ước dấu DUY NHẤT toàn app: THÀNH TIỀN = TIỀN (ghi) − TRÚNG − CK; ≥ 0 → PHẢI THU KHÁCH, < 0 → PHẢI TRẢ KHÁCH.
+const THU_TU_BANG = ['DE', 'LO', 'LX2', 'LX3', 'LX4', '3C'];
+const NHAN_BANG = Object.fromEntries(Object.entries(NHAN_LOAI).map(([k, v]) => [k, v.toLocaleUpperCase('vi')]));
+
+/** dong = kết quả tinhDong() → { rows, tong, soTrung }. Chỉ gom số, không tự tính lại tiền. */
+function bangTongHop(dong) {
+  const g = {};
+  for (const d of dong || []) {
+    const x = (g[d.loai] ||= { danh: 0, tien: 0, trung: 0, diemTrung: 0, ck: 0, soTrung: [] });
+    x.danh += d.tien; x.tien += d.ghi; x.ck += d.ck; x.trung += d.trung;
+    if (d.trung > 0 && d.soLan > 0) {
+      if (d.loai === 'LO') x.diemTrung += d.tien * d.soLan; // LÔ đánh theo ĐIỂM → ô TRÚNG hiện điểm
+      x.soTrung.push({ loai: NHAN_BANG[d.loai] || d.loai, so: d.so.join('-'), nhay: d.soLan, tienThang: d.trung });
+    }
+  }
+  const keys = [...THU_TU_BANG.filter((k) => g[k]), ...Object.keys(g).filter((k) => !THU_TU_BANG.includes(k))];
+  const rows = keys.map((k, i) => ({ stt: i + 1, loaiKey: k, loai: NHAN_BANG[k] || k, ...g[k], thanhTien: g[k].tien - g[k].trung - g[k].ck }));
+  const tong = rows.reduce((a, r) => ({ tien: a.tien + r.tien, trung: a.trung + r.trung, ck: a.ck + r.ck }), { tien: 0, trung: 0, ck: 0 });
+  tong.thanhTien = tong.tien - tong.trung - tong.ck;
+  return { rows, tong, soTrung: rows.flatMap((r) => r.soTrung) };
+}
+const ketLuanTien = (tt) => (tt >= 0 ? { nhan: 'PHẢI THU KHÁCH', cls: 'ok' } : { nhan: 'PHẢI TRẢ KHÁCH', cls: 'err' });
+
+/** HTML lưới 7 cột + dòng "Số trúng" + kết luận. o: { chuaKQ, gon, anKetLuan, rong } */
+function veBangTongHop(bt, o = {}) {
+  if (!bt.rows.length) return `<div class="btk-rong">${esc(o.rong || 'Chưa có cược hợp lệ')}</div>`;
+  const so = (n, rongKhiKhong) => (rongKhiKhong && !n ? '' : fmt(n));
+  const oTrung = (r) => {
+    if (o.chuaKQ) return '<span class="btk-mo">—</span>';
+    const co = r.trung > 0;
+    const txt = r.loaiKey === 'LO' ? (r.diemTrung ? `${fmt(r.diemTrung)} điểm` : '0') : fmt(r.trung);
+    return `<span class="${co ? 'btk-co' : ''}">${txt}</span>`;
+  };
+  const tt = (n) => `<span class="${n < 0 ? 'btk-am' : ''}">${fmt(n)}</span>`;
+  let h = `<div class="btk-wrap"><table class="btk${o.gon ? ' btk-gon' : ''}"><thead><tr><th>STT</th><th>Loại</th><th>ĐÁNH</th><th class="btk-tien">TIỀN</th><th>TRÚNG</th><th>CK</th><th>THÀNH TIỀN</th></tr></thead><tbody>`;
+  for (const r of bt.rows) {
+    h += `<tr><td class="c">${r.stt}</td><td class="c b">${r.loai}</td><td>${fmt(r.danh)}${r.loaiKey === 'LO' ? '<small> điểm</small>' : ''}</td>`
+      + `<td class="btk-tien b">${fmt(r.tien)}</td><td>${oTrung(r)}</td><td>${so(r.ck, true)}</td><td class="b">${tt(r.thanhTien)}</td></tr>`;
+  }
+  const t = bt.tong;
+  h += `<tr class="btk-tong"><td class="c">${bt.rows.length + 1}</td><td class="c">TỔNG CỘNG</td><td></td><td class="btk-tien">${fmt(t.tien)}</td>`
+    + `<td>${o.chuaKQ ? '<span class="btk-mo">—</span>' : `<span class="${t.trung ? 'btk-co' : ''}">${fmt(t.trung)}</span>`}</td><td>${so(t.ck, true)}</td><td class="btk-tt">${tt(t.thanhTien)}</td></tr></tbody></table></div>`;
+  if (bt.soTrung.length) {
+    h += `<div class="btk-trung"><b><i class="fa-solid fa-trophy"></i> Số trúng:</b> ${bt.soTrung
+      .map((s) => `<span>${s.loai} <b class="mono">${s.so}</b>${s.nhay > 1 ? ` (${s.nhay}n)` : ''} = ${fmt(s.tienThang)}</span>`).join('<i>·</i>')}</div>`;
+  }
+  if (!o.anKetLuan) {
+    const kl = ketLuanTien(t.thanhTien);
+    h += `<div class="btk-kl btk-kl-${o.chuaKQ ? 'cho' : kl.cls}"><span>${kl.nhan}${o.chuaKQ ? ' <small>(tạm tính — chưa có KQXS, mọi số đang tính là trượt)</small>' : ''}</span><b class="mono">${fmt(Math.abs(t.thanhTien))}đ</b></div>`;
+  }
+  return h;
+}
+
+// ═════════ Định nghĩa cú pháp cược (giả lập core/quan_ly_dan_so.py) ═════════
+const NHOM_CP = [['dan', 'Dàn'], ['user', 'Của tôi'], ['bo', 'Bộ'], ['tong', 'Tổng'], ['chia', 'Chia'], ['cham', 'Chạm'], ['dau', 'Đầu'], ['dit', 'Đít']];
+const HO_CHI_DE = ['bo', 'tong', 'chia']; // ql.HO_CHI_DE — chỉ áp ĐỀ (ERR_LO_DAN_DE)
+const KHOA_CHUAN = ['de', 'lo', 'xien', 'xq', '3c', 'x', 'k', 'd', 'n'];
+const boDau = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/gi, 'd').toLowerCase();
+
+// Bảng dàn → [{ re, d }] (cụm dài nhất trước) — biên dịch 1 lần cho mỗi phiên bản bảng (lưu dàn = mảng mới)
+const _khoaBang = new WeakMap();
+function khoaDaBienDich(bang) {
+  let ds = _khoaBang.get(bang);
+  if (!ds) {
+    ds = bang.filter((d) => d.bat).flatMap((d) => [...new Set(d.khoa.map(boDau))].map((k) => ({ k, d })))
+      .sort((x, y) => y.k.length - x.k.length).map(({ k, d }) => ({ re: reKhoa(k), d }));
+    _khoaBang.set(bang, ds);
+  }
+  return ds;
+}
+// Chuỗi tìm kiếm đã bỏ dấu của mỗi dàn (tên + từ khoá) — tính 1 lần cho mỗi đối tượng dàn
+const _chuoiTim = new WeakMap();
+const chuoiTimDan = (d) => {
+  let c = _chuoiTim.get(d);
+  if (c === undefined) { c = boDau([d.ten, ...d.khoa].join('\n')); _chuoiTim.set(d, c); }
+  return c;
+};
+
+/** Engine duy nhất (bảng dàn số): thay từ khoá dàn (cụm dài nhất khớp trước) bằng danh sách số, rồi parse. */
+function phanTichMoi(raw, tuHoc, bang) {
+  // Dò từ khoá trên bản bỏ dấu (cùng độ dài ký tự với tin NFC) nhưng thay trên tin gốc,
+  // để quy tắc tự học có dấu (vd “điểm”) vẫn khớp.
+  let s = raw.normalize('NFC');
+  let b = boDau(s);
+  const thayDoan = (re, fn) => {
+    const ds = [...b.matchAll(re)].reverse();
+    for (const m of ds) {
+      const moi = fn(m[0], m.index, b);
+      s = s.slice(0, m.index) + moi + s.slice(m.index + m[0].length);
+      b = b.slice(0, m.index) + boDau(moi) + b.slice(m.index + m[0].length);
+    }
+  };
+  for (const { re, d } of khoaDaBienDich(bang)) {
+    thayDoan(re, (m, off, all) => {
+      const truoc = all.slice(0, off).match(/^.*(?<![\p{L}\d])(de|lo|xien|xq|3c)(?![\p{L}\d])[^\n]*$/su);
+      const loai = truoc?.[1] === 'lo' ? 'LO' : 'DE';
+      return d.ap.includes(loai) ? d.so.join(' ') : `⛔${m.replace(/\s+/g, '_')}`;
+    });
+  }
+  // Không còn công thức cứng bo/chạm/tổng/kép — chưa có dàn khớp ⇒ lỗi
+  thayDoan(/(?<![\p{L}\d_⛔])(bo|cham|tong|kep)(?:\s+\d+)?(?![\p{L}\d])/gu, (m) => `⛔${m.replace(/\s+/g, '_')}`);
+  return phanTich(s, tuHoc);
+}
+
+function tomTatKQ(r) {
+  if (r.loi.length) return { text: `Lỗi: ${r.loi[0].text.replace(/⛔/g, '').replace(/_/g, ' ')}${r.loi.length > 1 ? ` (+${r.loi.length - 1})` : ''}`, so: [], loi: true, key: `ERR:${r.loi.map((l) => l.text).join('|')}` };
+  const nhom = {};
+  for (const b of r.bets) (nhom[b.loai] ||= { n: 0, tien: b.nhanTien }).n++;
+  const text = Object.entries(nhom).map(([l, g]) => `${NHAN_LOAI[l]} ${g.n} số × ${g.tien}`).join(' · ') || 'Không có cược';
+  const key = r.bets.map((b) => `${b.loai}:${b.so.join('-')}`).sort().join('|');
+  return { text, so: [...new Set(r.bets.map((b) => b.so.join('-')))], loi: false, key };
+}
+
+const CP_RONG = () => ({ id: null, ten: '', nhom: 'user', de: true, lo: true, bat: true, khoaText: '', soText: '' });
+const KH_RONG = () => ({ id: null, ten: '', zalo: '', tele_id: '', telegram: '' });
+const _soCache = { text: null, v: null }; // cpSoForm: chỉ tách lại khi ô số đổi (lưới 100 ô đọc liên tục)
+
 function bw() {
   return {
     // ── trạng thái chung ──
@@ -190,6 +314,7 @@ function bw() {
     dangPhanTich: false,
     _timer: null,
     luuTrung: null,
+    nhapXem: 'tong',           // 'tong' = bảng tổng hợp theo loại (desktop) · 'chi' = từng cược
 
     // ── telegram (chuẩn theo telegram_forms.py) ──
     tgKetNoi: true,
@@ -232,9 +357,26 @@ function bw() {
     themGoc: '',
     themMoi: '',
 
+    // ── định nghĩa cú pháp cược (rules_forms.py CuPhapCuocDialog) ──
+    cpTab: 'dan',
+    cpLocNhom: '',
+    cpTim: '',
+    cpForm: CP_RONG(),
+    cpLoiForm: [],
+    cpXacNhan: null,            // { tieuDe, icon, ds, bangMoi, chonId, nut, nguy, thongBao }
+    cpGoKP: '',
+    NHOM_CP,
+    SO_DAN_GOC: M.SO_DAN_GOC,
+
     MAU: M.MAU_TIN,
     COT: M.COT_HE_SO,
-    cotPhang: M.COT_HE_SO.flatMap((g) => g.cot.map(([k, nhan], i) => ({ k, nhan, dau: i === 0 }))),
+    // ── khách hàng & bảng giá ──
+    khNhomHien: { thuong: true, ghi: false, ck: true }, // bật/tắt nhóm cột trên lưới (21 cột quá rộng)
+    khForm: KH_RONG(),
+    khLoi: {},
+    khDrawerId: null,
+    khXoa: null,                // { kh, phien, tinTg, giaRieng, tongGhi }
+    khGoXoa: '',
     NHAN_LOAI,
 
     init() {
@@ -242,8 +384,25 @@ function bw() {
       tick(); setInterval(tick, 1000);
       // Deep link để review: #telegram, #kqxs, #khach, #lichsu, #tuhoc, #admin, #mau3 …
       const h = location.hash.slice(1);
-      if (['nhap', 'telegram', 'kqxs', 'khach', 'lichsu'].includes(h)) this.man = h;
-      if (h === 'tuhoc' || h === 'dan') { this.man = 'lichsu'; this.lsTab = h; }
+      if (['nhap', 'telegram', 'kqxs', 'khach', 'lichsu', 'cuphap'].includes(h)) this.man = h;
+      if (h === 'tuhoc') { this.man = 'lichsu'; this.lsTab = h; }
+      if (h === 'dan' || h === 'quytac') { this.man = 'cuphap'; this.cpTab = h; }
+      this.cpChonDan(this.danSo[0]);
+      // Review modal: #anhhuong (sửa dàn Sát kép), #khoiphuc
+      if (['anhhuong', 'khoiphuc'].includes(h)) {
+        this.man = 'cuphap';
+        if (h === 'anhhuong') { this.cpChonDan(this.danSo[2]); this.cpForm.soText = '01 10 12 21 23 32 34 43 45 54 09 90'; this.cpLuu(); }
+        if (h === 'khoiphuc') this.modal = 'cp_khoi_phuc';
+      }
+      // Review khách hàng: #khachmoi (form thêm), #hoso (drawer khách 1), #xoakhach (xác nhận xoá khách 1)
+      if (['khachmoi', 'hoso', 'xoakhach'].includes(h)) {
+        this.man = 'khach';
+        this.$nextTick(() => {
+          if (h === 'khachmoi') this.moFormKhach(null);
+          if (h === 'hoso') this.moDrawerKhach(this.khach[0]);
+          if (h === 'xoakhach') this.moXoaKhach(this.khach[0]);
+        });
+      }
       if (h === 'admin') { this.role = 'admin'; this.man = 'admin'; }
       if (/^mau[1-4]$/.test(h)) this.tin = M.MAU_TIN[+h[3] - 1].text;
       if (h === 'lichsu') this.lsMo = 5;
@@ -255,12 +414,13 @@ function bw() {
     // ═════════ phím tắt ═════════
     phim(e) {
       const dangGo = ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName);
-      if (e.key === 'Escape') { this.modal = null; this.help = false; this.moKhach = false; return; }
+      if (e.key === 'Escape') { if (!this.modal && !this.help) this.khDrawerId = null; this.modal = null; this.help = false; this.moKhach = false; return; }
       if (e.ctrlKey && e.key === 'Enter' && this.man === 'nhap') { e.preventDefault(); this.luu(); return; }
       if (e.altKey && (e.key === 'r' || e.key === 'R')) { e.preventDefault(); this.capNhatKQ(); return; }
-      if (e.altKey && /^[1-6]$/.test(e.key)) {
+      if (e.ctrlKey && (e.key === 's' || e.key === 'S') && this.man === 'cuphap' && this.cpTab === 'dan') { e.preventDefault(); this.cpLuu(); return; }
+      if (e.altKey && /^[1-7]$/.test(e.key)) {
         e.preventDefault();
-        const ds = ['nhap', 'telegram', 'kqxs', 'khach', 'lichsu', 'admin'];
+        const ds = ['nhap', 'telegram', 'kqxs', 'khach', 'lichsu', 'cuphap', 'admin'];
         const dich = ds[+e.key - 1];
         if (dich !== 'admin' || this.role === 'admin') this.man = dich;
         return;
@@ -325,18 +485,35 @@ function bw() {
     heSoDaiLy(k) { return this.daiLy[k] ?? M.HE_SO_MAC_DINH[k]; },
     heSo(kh, k) { return kh?.he_so?.[k] ?? this.heSoDaiLy(k); },
     nguonHeSo(kh, k) { return kh?.he_so?.[k] !== undefined ? 'khach' : (this.daiLy[k] !== undefined ? 'daily' : 'heThong'); },
-    setHeSo(kh, k, v) {
-      const val = v === '' ? undefined : Number(String(v).replace(',', '.'));
-      if (kh) { if (val === undefined || Number.isNaN(val)) delete kh.he_so[k]; else kh.he_so[k] = val; }
-      else if (val === undefined || Number.isNaN(val)) delete this.daiLy[k]; else this.daiLy[k] = val;
-      this.phanTichNgay();
+    setHeSo(kh, k, v, el) {
+      const raw = String(v).trim().replace(/\./g, '').replace(',', '.');
+      const val = raw === '' ? undefined : Number(raw);
+      // Giá sai thì báo lỗi & trả ô về giá cũ — không âm thầm xoá (desktop: float('') báo lỗi)
+      if (val !== undefined && (!Number.isFinite(val) || val < 0 || (k.startsWith('ti_le') && val > 100))) {
+        this.bao(`Giá “${v}” không hợp lệ — ${k.startsWith('ti_le') ? 'chiết khấu phải từ 0 đến 100%' : 'phải là số ≥ 0'}`, 'err', 'fa-triangle-exclamation');
+        if (el) el.value = this.fmtGia(kh ? kh.he_so[k] : this.daiLy[k]);
+        return;
+      }
+      if (kh) { if (val === undefined) delete kh.he_so[k]; else kh.he_so[k] = val; }
+      else if (val === undefined) delete this.daiLy[k]; else this.daiLy[k] = val;
+      if (el && val !== undefined) el.value = this.fmtGia(val);
+    },
+    fmtGia(v) { return v === undefined || v === null ? '' : GIA_VN.format(v); },
+    get cotNhomHien() { return this.COT.filter((g) => this.khNhomHien[g.ma]); },
+    get cotPhangHien() { return this.cotNhomHien.flatMap((g) => g.cot.map(([k, nhan], i) => ({ k, nhan, dau: i === 0 }))); },
+    soGiaRieng(kh) { return Object.keys(kh.he_so).length; },
+    xoaGiaRieng(kh) {
+      const n = this.soGiaRieng(kh);
+      kh.he_so = {};
+      this.bao(`Đã bỏ ${n} giá riêng của ${kh.ten} — dùng lại giá mặc định của đại lý`, 'warn', 'fa-rotate-left');
     },
 
     // ═════════ khách hàng ═════════
     get khachChon() { return this.khach.find((k) => k.id === this.khachId) || null; },
+    get khachHoatDong() { return this.khach.filter((k) => !k.deleted_at); }, // khách đã ẩn (xoá mềm) không còn trong danh sách chọn
     get khachLoc() {
       const q = this.timKhach.trim().toLowerCase();
-      return this.khach.filter((k) => !q || k.ten.toLowerCase().includes(q) || k.telegram.toLowerCase().includes(q));
+      return this.khachHoatDong.filter((k) => !q || k.ten.toLowerCase().includes(q) || k.telegram.toLowerCase().includes(q));
     },
     tenKhach(id) { return this.khach.find((k) => k.id === id)?.ten || '—'; },
     chonKhach(k) { this.khachId = k.id; this.timKhach = ''; this.moKhach = false; this.phanTichNgay(); },
@@ -345,13 +522,67 @@ function bw() {
       if (e.key === 'ArrowUp') { e.preventDefault(); this.khachIdx = Math.max(this.khachIdx - 1, 0); }
       if (e.key === 'Enter') { e.preventDefault(); const k = this.khachLoc[this.khachIdx]; if (k) { this.chonKhach(k); this.$refs.oTin.focus(); } }
     },
-    themKhachNhanh() {
-      const ten = prompt('Tên khách mới:');
-      if (!ten) return;
-      const id = Math.max(...this.khach.map((k) => k.id)) + 1;
-      this.khach.push({ id, ten: ten.trim(), zalo: '', telegram: '', he_so: {} });
+    // Hồ sơ khách: Tên bắt buộc & không trùng (không phân biệt hoa thường) · Telegram ID là số (customer_forms.py:355,461)
+    moFormKhach(kh) {
+      this.khLoi = {};
+      this.khForm = kh ? { id: kh.id, ten: kh.ten, zalo: kh.zalo, tele_id: kh.tele_id ?? '', telegram: kh.telegram }
+        : KH_RONG();
+      if (!kh) { this.modal = 'kh_form'; this.$nextTick(() => this.$refs.khTen?.focus()); }
+    },
+    kiemKhach(f) {
+      const loi = {};
+      const ten = f.ten.trim().replace(/\s+/g, ' ');
+      if (!ten) loi.ten = 'Tên khách không được để trống';
+      // chỉ so với khách đang hoạt động — khách đã ẩn không giữ chỗ tên (≡ cột sinh ten_khach_hoat_dong)
+      else if (this.khachHoatDong.some((k) => k.id !== f.id && k.ten.trim().toLowerCase() === ten.toLowerCase())) loi.ten = `Đã có khách tên “${ten}”`;
+      const tid = String(f.tele_id ?? '').trim();
+      if (tid && !/^-?\d{4,15}$/.test(tid)) loi.tele_id = 'Telegram ID phải là dãy số (vd 5012345678)';
+      else if (tid) {
+        const trung = this.khachHoatDong.find((k) => k.id !== f.id && String(k.tele_id ?? '') === tid);
+        if (trung) loi.tele_id = `Telegram ID này đã gắn cho “${trung.ten}”`;
+      }
+      const tg = f.telegram.trim();
+      if (tg && !/^@?[A-Za-z][A-Za-z0-9_]{3,31}$/.test(tg)) loi.telegram = 'Username chỉ gồm chữ, số, “_” (5–32 ký tự)';
+      return { loi, ten, tid, tg: tg && !tg.startsWith('@') ? `@${tg}` : tg };
+    },
+    luuKhach() {
+      const { loi, ten, tid, tg } = this.kiemKhach(this.khForm);
+      this.khLoi = loi;
+      if (Object.keys(loi).length) return;
+      const f = this.khForm;
+      if (f.id) {
+        Object.assign(this.khach.find((k) => k.id === f.id), { ten, zalo: f.zalo.trim(), tele_id: tid ? Number(tid) : null, telegram: tg });
+        this.bao(`Đã lưu hồ sơ “${ten}”`, 'ok', 'fa-floppy-disk');
+        return;
+      }
+      const id = idMoi(this.khach);
+      this.khach.push({ id, ngay_tao: ngayVN(), ten, zalo: f.zalo.trim(), tele_id: tid ? Number(tid) : null, telegram: tg, he_so: {} });
       this.khachId = id;
-      this.bao(`Đã thêm khách “${ten.trim()}” — dùng giá mặc định của đại lý`, 'ok', 'fa-user-plus');
+      this.modal = null;
+      if (this.man === 'khach') this.moDrawerKhach(this.khach.find((k) => k.id === id)); // thêm từ màn Nhập tin thì ở lại màn đó
+      this.bao(`Đã thêm khách “${ten}” — đang dùng giá mặc định của đại lý`, 'ok', 'fa-user-plus');
+    },
+    get khDrawer() { return this.khach.find((k) => k.id === this.khDrawerId) || null; },
+    moDrawerKhach(kh) { this.khDrawerId = kh.id; this.moFormKhach(kh); },
+    // Xoá khách: kéo theo lịch sử đối soát + tin Telegram đã đồng bộ + giá riêng
+    moXoaKhach(kh) {
+      const phien = this.daLuu.filter((p) => p.khach_id === kh.id);
+      const dong = phien.flatMap((p) => p.bets.map((b) => this.tinhDong(b, kh)));
+      this.khXoa = { kh, phien: phien.length, tinTg: this.tg.filter((t) => t.khach_id === kh.id).length,
+        giaRieng: this.soGiaRieng(kh), tongGhi: this.tong(dong).ghi };
+      this.khGoXoa = '';
+      this.modal = 'kh_xoa';
+    },
+    xoaKhach() {
+      const { kh, phien } = this.khXoa;
+      if (this.khGoXoa.trim().toLowerCase() !== kh.ten.trim().toLowerCase()) return;
+      // Xoá mềm (O1): chỉ ẩn khách — phiên đối soát & tin Telegram cũ giữ nguyên, vẫn vào báo cáo ngày cũ
+      kh.deleted_at = ngayVN();
+      if (this.khachId === kh.id) this.khachId = this.khachHoatDong[0]?.id ?? null;
+      if (Number(this.tgKhachId) === kh.id) this.tgKhachId = this.khachCoTelegram[0]?.id ?? null;
+      if (this.khDrawerId === kh.id) this.khDrawerId = null;
+      this.modal = null; this.khXoa = null;
+      this.bao(`Đã ẩn khách “${kh.ten}”${phien ? ` — ${phien} phiên đối soát cũ vẫn được giữ trong lịch sử` : ''}`, 'warn', 'fa-user-slash');
     },
     goiYHeSo(kh) {
       const ck = this.heSo(kh, 'ti_le_chiet_khau_de');
@@ -409,7 +640,7 @@ function bw() {
     tong(ds) {
       const t = ds.reduce((a, d) => ({ ghi: a.ghi + d.ghi, ck: a.ck + d.ck, trung: a.trung + d.trung }), { ghi: 0, ck: 0, trung: 0 });
       t.thuc = t.ghi - t.ck;
-      t.can = t.thuc - t.trung;
+      t.can = t.thuc - t.trung;  // = THÀNH TIỀN = ghi − trúng − CK (≥ 0: phải thu khách)
       return t;
     },
     get kpi() { return this.tong(this.dong); },
@@ -431,7 +662,7 @@ function bw() {
       const gio = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
       this.daLuu.push({ khach_id: this.khachId, gio, nguon: 'Nhập tay', text: this.tin, bets: this.kq.bets.map(({ loai, so, tien }) => ({ loai, so, tien })) });
       const t = this.kpi;
-      this.bao(`Đã lưu ${this.kq.bets.length} dòng cược cho ${this.khachChon.ten} · ${t.can >= 0 ? 'Khách nộp' : 'Chủ trả'} ${fmt(Math.abs(t.can))}đ`, 'ok', 'fa-floppy-disk');
+      this.bao(`Đã lưu ${this.kq.bets.length} dòng cược cho ${this.khachChon.ten} · ${ketLuanTien(t.can).nhan} ${fmt(Math.abs(t.can))}đ`, 'ok', 'fa-floppy-disk');
     },
     ghiDe() {
       this.daLuu = this.daLuu.filter((p) => p !== this.luuTrung);
@@ -445,10 +676,10 @@ function bw() {
 
     // ═════════ telegram (chuẩn theo telegram_forms.py) ═════════
     get khachCoTelegram() {
-      return this.khach.filter((k) => k.telegram && k.telegram.trim() !== '');
+      return this.khachHoatDong.filter((k) => k.tele_id); // desktop: chỉ khách có id_telegram
     },
     get tgKhachChon() {
-      return this.khach.find((k) => k.id === Number(this.tgKhachId)) || this.khachCoTelegram[0] || this.khach[0];
+      return this.khachCoTelegram.find((k) => k.id === Number(this.tgKhachId)) || this.khachCoTelegram[0] || null;
     },
     doiKhachTg() {
       if (this.tgDangDongBo) return;
@@ -497,11 +728,7 @@ function bw() {
         const dsMoi = [];
         for (const t of tinNguon) {
           const phan = phanTich(t.text, this.tuHoc);
-          const bets = phan.bets.map((b) => {
-            const d = this.tinhDong(b, kh);
-            d.thanh_tien = d.trung - d.ghi + d.ck;
-            return d;
-          });
+          const bets = phan.bets.map((b) => this.tinhDong(b, kh));
           const totals = this.tong(bets);
           const isErr = !phan.canSave;
           const isWarn = phan.dich && phan.dich.length > 0;
@@ -523,7 +750,6 @@ function bw() {
             tien_ghi: totals.ghi,
             tien_ck: totals.ck,
             tien_trung: totals.trung,
-            phai_tra: totals.trung - totals.ghi + totals.ck,
             errors: phan.loi || [],
             he_thong_dich: phan.dich || [],
             bets: bets,
@@ -552,11 +778,7 @@ function bw() {
       if (!this.tgTinChon) return;
       const kh = this.tgKhachChon;
       const phan = phanTich(this.tgDockText, this.tuHoc);
-      const bets = phan.bets.map((b) => {
-        const d = this.tinhDong(b, kh);
-        d.thanh_tien = d.trung - d.ghi + d.ck;
-        return d;
-      });
+      const bets = phan.bets.map((b) => this.tinhDong(b, kh));
       this.tgDockKetQua = phan;
       this.tgDockChiTiet = bets;
     },
@@ -568,7 +790,7 @@ function bw() {
         this.bao(`Parse thử: Tin còn ${phan.loi.length} lỗi cú pháp cần sửa`, 'err', 'fa-circle-xmark');
       } else {
         const totals = this.tong(this.tgDockChiTiet);
-        this.bao(`Parse thử thành công: ${this.tgDockChiTiet.length} cược · Ghi ${fmt(totals.ghi)}đ · ${totals.can >= 0 ? 'Khách nộp' : 'Chủ trả'} ${fmt(Math.abs(totals.can))}đ`, 'ok', 'fa-circle-check');
+        this.bao(`Parse thử thành công: ${this.tgDockChiTiet.length} cược · Ghi ${fmt(totals.ghi)}đ · ${ketLuanTien(totals.can).nhan} ${fmt(Math.abs(totals.can))}đ`, 'ok', 'fa-circle-check');
       }
     },
     luuDockThayDoi() {
@@ -605,7 +827,6 @@ function bw() {
       t.tien_ghi = totals.ghi;
       t.tien_ck = totals.ck;
       t.tien_trung = totals.trung;
-      t.phai_tra = totals.trung - totals.ghi + totals.ck;
 
       this.tgPreviewDaSanSang = this.tgDanhSach.some((x) => x.status !== 'error');
       this.bao(`Đã cập nhật tin #${t.stt} (msg ${t.message_id}) -> ${t.status_label}.${ghiChuHoc}`, 'ok', 'fa-floppy-disk');
@@ -676,13 +897,12 @@ function bw() {
     get tgCanChuY() {
       return this.tgDem.warn + this.tgDem.err;
     },
+    get tgDockBangHtml() {
+      return veBangTongHop(bangTongHop(this.tgDockChiTiet), { gon: true, chuaKQ: !this.kqNgay, rong: 'Chưa có cược hợp lệ nào.' });
+    },
     get tgTongTien() {
-      const okRows = this.tgWritableRows;
-      const ghi = okRows.reduce((s, t) => s + (t.tien_ghi || 0), 0);
-      const ck = okRows.reduce((s, t) => s + (t.tien_ck || 0), 0);
-      const trung = okRows.reduce((s, t) => s + (t.tien_trung || 0), 0);
-      const phai_tra = trung - ghi + ck;
-      return { ghi, ck, trung, phai_tra };
+      const t = this.tong(this.tgWritableRows.flatMap((x) => x.bets || []));
+      return { ghi: t.ghi, ck: t.ck, trung: t.trung, thanh_tien: t.can }; // ≥ 0: phải thu khách
     },
     xacNhanGhiDB() {
       const okRows = this.tgWritableRows;
@@ -715,35 +935,7 @@ function bw() {
     },
     moSyncSummaryDialog(isPreview = false) {
       const okRows = this.tgWritableRows;
-      const allBets = okRows.flatMap((t) => t.bets || []);
-      const loaiSoMap = {};
-      for (const b of allBets) {
-        const k = b.loai;
-        if (!loaiSoMap[k]) loaiSoMap[k] = { loai: k, nhan: NHAN_LOAI[k] || k, ghi: 0, ck: 0, trung: 0, diem_trung: 0 };
-        loaiSoMap[k].ghi += b.ghi || 0;
-        loaiSoMap[k].ck += b.ck || 0;
-        loaiSoMap[k].trung += b.trung || 0;
-        if (k === 'LO' && b.soLan) loaiSoMap[k].diem_trung += (b.tien * b.soLan);
-      }
-      const ORDER = ['DE', 'LO', '3C', 'LX2', 'LX3', 'LX4'];
-      const loaiSoList = [];
-      ORDER.forEach((ls) => { if (loaiSoMap[ls]) loaiSoList.push(loaiSoMap[ls]); });
-      Object.keys(loaiSoMap).forEach((ls) => { if (!ORDER.includes(ls)) loaiSoList.push(loaiSoMap[ls]); });
-
-      const tt = this.tgTongTien;
-      this.tgSummaryData = {
-        isPreview,
-        tenKhach: this.tgKhachChon?.ten,
-        ngay: this.ngayHienThi,
-        done: okRows.length,
-        skipped: 0,
-        failed: this.tgDem.err,
-        tong_ghi: tt.ghi,
-        tong_ck: tt.ck,
-        tong_trung: tt.trung,
-        phai_tra: tt.phai_tra,
-        loai_so: loaiSoList,
-      };
+      this.tgSummaryData = { isPreview, done: okRows.length, skipped: 0, failed: this.tgDem.err, dong: okRows.flatMap((t) => t.bets || []) };
       this.modal = 'tg_summary';
     },
     moTongHopToanBo() {
@@ -794,17 +986,10 @@ function bw() {
     },
     get tongNgay() { return this.tong(this.chotSo.flatMap((g) => g.dong)); },
     phieuChot(g) {
-      const theo = {};
-      g.dong.forEach((d) => {
-        const n = d.loai.startsWith('LX') ? 'Xiên' : NHAN_LOAI[d.loai];
-        const x = (theo[n] ||= { danh: 0, ghi: 0, ck: 0, trung: 0, lo: d.loai === 'LO', so: [] });
-        x.danh += d.tien; x.ghi += d.ghi; x.ck += d.ck; x.trung += d.trung;
-        if (d.trung > 0) x.so.push(`${d.so.join('-')}${d.soLan > 1 ? ` (${d.soLan} nháy)` : ''}`);
-      });
       const L = [`📋 PHIẾU CHỐT ${this.ngayHienThi}`, `👤 ${g.kh.ten}`, '──────────────'];
-      for (const [n, x] of Object.entries(theo)) {
-        L.push(`${n}: ${x.lo ? `${fmt(x.danh)} điểm` : fmt(x.danh)} → ghi ${fmt(x.ghi)}${x.ck ? ` · CK −${fmt(x.ck)}` : ''}`);
-        if (x.trung) L.push(`   ✅ Trúng ${x.so.join(', ')}: ${fmt(x.trung)}`);
+      for (const r of bangTongHop(g.dong).rows) {
+        L.push(`${NHAN_LOAI[r.loaiKey]}: ${r.loaiKey === 'LO' ? `${fmt(r.danh)} điểm` : fmt(r.danh)} → ghi ${fmt(r.tien)}${r.ck ? ` · CK −${fmt(r.ck)}` : ''}`);
+        if (r.trung) L.push(`   ✅ Trúng ${r.soTrung.map((x) => `${x.so}${x.nhay > 1 ? ` (${x.nhay} nháy)` : ''}`).join(', ')}: ${fmt(r.trung)}`);
       }
       L.push('──────────────');
       L.push(`Tổng ghi: ${fmt(g.t.ghi)}`);
@@ -841,8 +1026,127 @@ function bw() {
     },
     xoaQuyTac(r) { this.tuHoc = this.tuHoc.filter((x) => x !== r); this.bao(`Đã xoá quy tắc “${r.goc}”`, 'warn', 'fa-trash'); this.phanTichNgay(); },
 
+    // ═════════ định nghĩa cú pháp cược ═════════
+    nhanNhom(n) { return NHOM_CP.find((x) => x[0] === n)?.[1] || n; },
+    get cpDemNhom() { const d = {}; for (const x of this.danSo) d[x.nhom] = (d[x.nhom] || 0) + 1; return d; },
+    get cpBangLoc() {
+      const q = boDau(this.cpTim.trim());
+      return this.danSo.filter((d) => (!this.cpLocNhom || d.nhom === this.cpLocNhom)
+        && (!q || chuoiTimDan(d).includes(q) || d.so.includes(z2(q))));
+    },
+    get cpDanChon() { return this.danSo.find((d) => d.id === this.cpForm.id) || null; },
+    get cpChiDe() { return HO_CHI_DE.includes(this.cpForm.nhom); },
+    cpChonDan(d) {
+      this.cpLoiForm = [];
+      this.cpForm = { id: d.id, ten: d.ten, nhom: d.nhom, de: d.ap.includes('DE'), lo: d.ap.includes('LO'), bat: d.bat, khoaText: d.khoa.join('\n'), soText: d.so.join(' ') };
+    },
+    cpDanMoi() {
+      this.cpLoiForm = [];
+      this.cpForm = CP_RONG();
+      this.$nextTick(() => this.$refs.cpTen?.focus());
+    },
+    cpApLuatNhom() { if (this.cpChiDe) { this.cpForm.de = true; this.cpForm.lo = false; } },
+    tachSo(text) {
+      const so = []; const loi = [];
+      for (const t of text.split(/[\s,.;\-]+/).filter(Boolean)) {
+        if (/^\d{1,2}$/.test(t)) so.push(t.padStart(2, '0')); else loi.push(`“${t}” không phải số 2 chữ số`);
+      }
+      return { so, loi };
+    },
+    get cpSoForm() {
+      const text = this.cpForm.soText;
+      if (_soCache.text !== text) {
+        const v = this.tachSo(text);
+        _soCache.text = text;
+        _soCache.v = { ...v, set: new Set(v.so) };
+      }
+      return _soCache.v;
+    },
+    get cpSoTrung() { return this.cpSoForm.so.length - this.cpSoForm.set.size; },
+    cpCoSo(x) { return this.cpSoForm.set.has(x); },
+    cpBatTatSo(x) {
+      const set = new Set(this.cpSoForm.so);
+      if (set.has(x)) set.delete(x); else set.add(x);
+      this.cpForm.soText = [...set].sort().join(' ');
+    },
+    cpLocTrung() {
+      const { so, loi } = this.cpSoForm;
+      const sach = [...new Set(so)].sort();
+      this.cpForm.soText = sach.join(' ');
+      this.bao(`Đã lọc trùng & sắp xếp ${sach.length} số${loi.length ? ` · bỏ qua: ${loi[0]}` : ''}`, loi.length ? 'warn' : 'ok', 'fa-broom');
+    },
+    cpDocForm() {
+      const f = this.cpForm; const loi = [];
+      const khoa = [...new Set(f.khoaText.split('\n').map((k) => k.trim().toLowerCase()).filter(Boolean))];
+      const { so, loi: loiSo } = this.cpSoForm;
+      if (!f.ten.trim()) loi.push('Chưa đặt tên dàn');
+      if (!f.de && !f.lo) loi.push('Phải áp cho ít nhất ĐỀ hoặc LÔ');
+      if (!khoa.length) loi.push('Cần ít nhất 1 từ khoá để app nhận diện');
+      if (!so.length) loi.push('Danh sách số đang trống');
+      loi.push(...loiSo);
+      for (const k of khoa) {
+        if (KHOA_CHUAN.includes(boDau(k))) loi.push(`Từ khoá “${k}” trùng từ khoá chuẩn của app`);
+        if (/^\d+$/.test(k)) loi.push(`Từ khoá “${k}” chỉ gồm số — sẽ nhầm với số cược`);
+        const dung = this.danSo.find((d) => d.id !== f.id && d.bat && d.khoa.some((x) => boDau(x) === boDau(k)));
+        if (dung) loi.push(`Từ khoá “${k}” đang thuộc dàn “${dung.ten}”`);
+      }
+      const goc = this.danSo.find((d) => d.id === f.id);
+      const dan = { id: f.id ?? idMoi(this.danSo), ten: f.ten.trim(), nhom: f.nhom,
+        ap: [f.de && 'DE', f.lo && 'LO'].filter(Boolean), khoa, so: [...new Set(so)].sort(), nguon: goc?.nguon === 'goc' ? 'sua' : (goc?.nguon || 'user'), bat: f.bat };
+      return { dan, loi };
+    },
+    /** ql.anh_huong: chạy tin chuẩn + tin thật gần nhất qua bảng cũ & bảng mới, trả các tin đổi tiền. */
+    anhHuong(bangCu, bangMoi) {
+      const tinThat = [...this.daLuu.map((x) => x.text), ...this.tg.map((x) => x.text)];
+      const ds = [...M.TIN_CHUAN_CP.map((t) => [t, false]), ...[...new Set(tinThat)].map((t) => [t, true])];
+      const out = [];
+      for (const [tin, that] of ds) {
+        const a = tomTatKQ(phanTichMoi(tin, this.tuHoc, bangCu));
+        const b = tomTatKQ(phanTichMoi(tin, this.tuHoc, bangMoi));
+        if (a.key === b.key) continue;
+        const coA = new Set(a.so); const coB = new Set(b.so);
+        out.push({ tin, that, truoc: a, sau: b, them: b.so.filter((x) => !coA.has(x)), bot: a.so.filter((x) => !coB.has(x)) });
+      }
+      return out;
+    },
+    cpLuu() {
+      const { dan, loi } = this.cpDocForm();
+      this.cpLoiForm = loi;
+      if (loi.length) { this.bao(`Dàn chưa hợp lệ — ${loi.length} lỗi`, 'err', 'fa-triangle-exclamation'); return; }
+      const bangMoi = this.danSo.some((d) => d.id === dan.id) ? this.danSo.map((d) => (d.id === dan.id ? dan : d)) : [...this.danSo, dan];
+      this.cpXacNhan = { tieuDe: this.cpForm.id ? `Lưu dàn “${dan.ten}”` : `Tạo dàn mới “${dan.ten}”`, icon: 'fa-floppy-disk',
+        ds: this.anhHuong(this.danSo, bangMoi), bangMoi, chonId: dan.id, nut: 'Xác nhận lưu', nguy: false,
+        thongBao: `Đã lưu dàn “${dan.ten}” (${dan.so.length} số) — áp dụng ngay cho tin tiếp theo` };
+      this.modal = 'cp_anh_huong';
+    },
+    cpXoa() {
+      const d = this.cpDanChon;
+      if (!d) { this.bao('Chọn một dàn trong bảng trước', 'warn', 'fa-hand-pointer'); return; }
+      const bangMoi = this.danSo.filter((x) => x.id !== d.id);
+      this.cpXacNhan = { tieuDe: `Xoá dàn “${d.ten}”`, icon: 'fa-trash', ds: this.anhHuong(this.danSo, bangMoi), bangMoi, chonId: bangMoi[0]?.id,
+        nut: 'Xoá dàn', nguy: true, thongBao: `Đã xoá dàn “${d.ten}”` };
+      this.modal = 'cp_anh_huong';
+    },
+    cpGhi() {
+      const x = this.cpXacNhan;
+      this.danSo = x.bangMoi;
+      const d = this.danSo.find((v) => v.id === x.chonId);
+      if (d) this.cpChonDan(d); else this.cpDanMoi();
+      this.modal = null; this.cpXacNhan = null;
+      this.bao(x.thongBao, 'ok', 'fa-circle-check');
+    },
+    cpKhoiPhuc() {
+      this.danSo = JSON.parse(JSON.stringify(M.DAN_SO.filter((d) => d.nguon === 'goc')));
+      this.cpChonDan(this.danSo[0]); this.cpLocNhom = ''; this.modal = null;
+      this.bao(`Đã khôi phục ${M.SO_DAN_GOC} dàn mặc định — mọi dàn tự thêm/sửa đã bị xoá`, 'warn', 'fa-rotate-left');
+    },
+
     // ═════════ tiện ích hiển thị ═════════
     fmt,
+    z2,
+    bangTongHop,
+    veBangTongHop,
+    ketLuanTien,
     badge(loai) { return { DE: 'b-de', LO: 'b-lo', '3C': 'b-3c', LX2: 'b-xien', LX3: 'b-xien', LX4: 'b-xien' }[loai]; },
     soHienThi(so) { return this.chi2So ? so.slice(-2) : so; },
   };

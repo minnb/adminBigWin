@@ -30,7 +30,8 @@ App desktop BigWIN (Python) nằm ở `D:\Projects\bigwin` — chỉ tham khảo
 | `admin-security.md` | `src/webapp/admin/**` | `require_login()`, prepared statement, `h()` |
 | `core-php.md` | `src/webapp/**/*.php` | PHP thuần, `__DIR__`, `cfg()`, quy ước đặt tên |
 | `bigwin-core.md` | `src/webapp/lib/bigwin/**` | Lõi port từ Python: PURE, `bw_re`, offset ký tự, ép kiểu tiền |
-| `tenant-isolation.md` | `src/webapp/app/**`, `lib/bigwin/repo/**` | `$userId` từ session, chống IDOR, bảng dùng chung |
+| `security-core.md` | `src/webapp/app/**`, `lib/security/**`, `lib/auth.php`, `login.php`, `logout.php` | Phiên/CSRF/tiêu đề/rate limit chỉ qua `lib/security/`, gateway `ajax_khoi_dong()` |
+| `tenant-isolation.md` | `src/webapp/app/**`, `lib/bigwin/repo/**`, `lib/bigwin/*Service.php` | `TenantContext` + `TenantRepo` tự chèn `user_id`, xoá mềm & tiền bất biến, bảng dùng chung, test IDOR |
 
 Kế hoạch chuyển đổi Desktop → Web: `WEB_MIGRATION_PLAN.md`. Test: `php src/webapp/tools/test.php [lọc]` (fixture sinh bởi `D:\Projects\bigwin\scripts\export_golden.py`).
 

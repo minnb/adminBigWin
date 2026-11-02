@@ -5,6 +5,12 @@ return [
     'db_user' => 'root',
     'db_pass' => '',
 
+    // DB RIÊNG cho bộ test (php tools/test.php) — bị XOÁ & DỰNG LẠI mỗi lần chạy test.
+    // Tên DB BẮT BUỘC kết thúc "_test" (harness từ chối tên khác). Không cần trên production.
+    'db_test_dsn'  => 'mysql:host=127.0.0.1;dbname=bigwin_test;charset=utf8mb4',
+    'db_test_user' => 'root',
+    'db_test_pass' => '',
+
     // Khoá bí mật Ed25519 — BẮT BUỘC nằm NGOÀI thư mục web (htdocs/public_html).
     // Sinh bằng: php tools/keygen.php
     'secret_key_file' => 'C:/xampp/bigwin_keys/license_secret.key',
@@ -28,6 +34,12 @@ return [
     // Khoá công khai nhúng trong app (core/license_service.py::LICENSE_PUBLIC_KEY_B64). Trang admin so với
     // khoá ký ở trên — lệch (lỡ sinh khoá mới) thì cảnh báo ngay, vì mọi app sẽ từ chối server.
     'app_public_key' => 'gUaiauzt/UejLDWom4yjz/VJc7lJGe9FdymVxKXNc+E=',
+
+    // Web BigWIN (lib/security): ép cookie phiên `bigwin_web` có Secure kể cả khi PHP không thấy HTTPS
+    // (vd sau reverse proxy). Trên HTTPS thường luôn có Secure, không cần bật.
+    'cookie_secure' => false,
+    // true = CSP chặt (không unsafe-inline/eval). Chỉ bật khi đã dùng CSS Tailwind build sẵn + Alpine CSP build (S9.3).
+    'csp_chat' => false,
 
     // true = trang lỗi hiện nguyên văn lỗi PHP/MySQL cả khi CHƯA đăng nhập (trang đăng nhập là công khai).
     // Chỉ bật tạm lúc cài đặt, xong TẮT. Admin đã đăng nhập luôn thấy chi tiết.

@@ -39,22 +39,29 @@ window.BW_MOCK = (() => {
   };
 
   // Các cột hiển thị trên lưới bảng giá (nhóm → khoá)
+  // 21 khoá giá = 3 nhóm × 7 loại cược (core/database.py DEFAULT_HE_SO · customer_forms.py CauHinhDialog)
   const COT_HE_SO = [
-    { nhom: 'Trả thưởng (×)', cot: [
-      ['he_so_de', 'Đề'], ['he_so_lo', 'Lô /điểm'], ['he_so_3c', '3 Càng'],
+    { ma: 'thuong', nhom: 'Trả thưởng (×)', icon: 'fa-trophy', goiY: 'Trúng 1 thì trả bao nhiêu lần tiền cược', cot: [
+      ['he_so_de', 'Đề'], ['he_so_lo', 'Lô /điểm'], ['he_so_3c', '3 Càng'], ['he_so_xq2', 'Xiên quay'],
       ['he_so_lx2', 'Xiên 2'], ['he_so_lx3', 'Xiên 3'], ['he_so_lx4', 'Xiên 4'],
     ] },
-    { nhom: 'Giá ghi', cot: [['he_so_ghi_lo', 'Lô /điểm'], ['he_so_ghi_de', 'Đề'], ['he_so_ghi_3c', '3 Càng']] },
-    { nhom: 'Chiết khấu (%)', cot: [['ti_le_chiet_khau_de', 'Đề'], ['ti_le_chiet_khau_lo', 'Lô'], ['ti_le_chiet_khau_lx2', 'Xiên']] },
+    { ma: 'ghi', nhom: 'Giá ghi (VNĐ)', icon: 'fa-money-bill-wave', goiY: 'Quy đổi 1 đơn vị cược ra tiền ghi sổ', cot: [
+      ['he_so_ghi_de', 'Đề'], ['he_so_ghi_lo', 'Lô /điểm'], ['he_so_ghi_3c', '3 Càng'], ['he_so_ghi_xq', 'Xiên quay'],
+      ['he_so_ghi_lx2', 'Xiên 2'], ['he_so_ghi_lx3', 'Xiên 3'], ['he_so_ghi_lx4', 'Xiên 4'],
+    ] },
+    { ma: 'ck', nhom: 'Chiết khấu (%)', icon: 'fa-tag', goiY: '% trừ trên tiền cược gốc', cot: [
+      ['ti_le_chiet_khau_de', 'Đề'], ['ti_le_chiet_khau_lo', 'Lô'], ['ti_le_chiet_khau_3c', '3 Càng'], ['ti_le_chiet_khau_xq', 'Xiên quay'],
+      ['ti_le_chiet_khau_lx2', 'Xiên 2'], ['ti_le_chiet_khau_lx3', 'Xiên 3'], ['ti_le_chiet_khau_lx4', 'Xiên 4'],
+    ] },
   ];
 
   const KHACH_HANG = [
-    { id: 1, ten: 'Anh Ba — Chợ Lớn', zalo: '0903 112 445', telegram: '@anhba_cl', tele_id: 1101, he_so: { ti_le_chiet_khau_de: 25 } },
-    { id: 2, ten: 'Chị Tư Bến Thành', zalo: '0918 223 778', telegram: '@chitu_bt', tele_id: 1102, he_so: { he_so_ghi_lo: 22500 } },
-    { id: 3, ten: 'Cô Năm Q.5', zalo: '0937 654 120', telegram: '', tele_id: null, he_so: {} },
-    { id: 4, ten: 'Út Hiền Gò Vấp', zalo: '', telegram: '@uthien_gv', tele_id: 1104, he_so: { he_so_de: 75, ti_le_chiet_khau_de: 20 } },
-    { id: 5, ten: 'Bác Sáu Thủ Đức', zalo: '0909 887 001', telegram: '@bacsau', tele_id: 1105, he_so: { he_so_lo: 78000, he_so_ghi_lo: 23500 } },
-    { id: 6, ten: 'Tám Xe Ôm', zalo: '0388 456 999', telegram: '', tele_id: null, he_so: {} },
+    { id: 1, ngay_tao: '12/03/2026', ten: 'Anh Ba — Chợ Lớn', zalo: '0903 112 445', telegram: '@anhba_cl', tele_id: 1101, he_so: { ti_le_chiet_khau_de: 25 } },
+    { id: 2, ngay_tao: '12/03/2026', ten: 'Chị Tư Bến Thành', zalo: '0918 223 778', telegram: '@chitu_bt', tele_id: 1102, he_so: { he_so_ghi_lo: 22500 } },
+    { id: 3, ngay_tao: '02/05/2026', ten: 'Cô Năm Q.5', zalo: '0937 654 120', telegram: '', tele_id: null, he_so: {} },
+    { id: 4, ngay_tao: '18/06/2026', ten: 'Út Hiền Gò Vấp', zalo: '', telegram: '@uthien_gv', tele_id: 1104, he_so: { he_so_de: 75, ti_le_chiet_khau_de: 20 } },
+    { id: 5, ngay_tao: '01/08/2026', ten: 'Bác Sáu Thủ Đức', zalo: '0909 887 001', telegram: '@bacsau', tele_id: 1105, he_so: { he_so_lo: 78000, he_so_ghi_lo: 23500 } },
+    { id: 6, ngay_tao: '20/10/2026', ten: 'Tám Xe Ôm', zalo: '0388 456 999', telegram: '', tele_id: null, he_so: {} },
   ];
 
   const MAU_TIN = [
@@ -125,12 +132,32 @@ window.BW_MOCK = (() => {
     { goc: 'x quay', moi: 'xq', hit: 12, dung_cuoi: '27-10 17:55', nguon: 'thêm tay' },
   ];
 
+  // Bảng dàn số (rules_forms.py CuPhapCuocDialog · core/dan_so_mac_dinh.py) — nguon: 'goc' = 115 dàn hệ thống, 'user' = đại lý tự thêm/sửa
+  const day = (f) => [...Array(100).keys()].map((i) => String(i).padStart(2, '0')).filter((s) => f(+s[0], +s[1], +s));
   const DAN_SO = [
-    { ten: 'Kép bằng', khoa: 'kep', so: ['00', '11', '22', '33', '44', '55', '66', '77', '88', '99'], nguon: 'mặc định', bat: true },
-    { ten: 'Kép lệch', khoa: 'kl, kep lech', so: ['05', '50', '16', '61', '27', '72', '38', '83', '49', '94'], nguon: 'mặc định', bat: true },
-    { ten: 'Sát kép', khoa: 'sk, sat kep', so: ['01', '10', '12', '21', '23', '32', '34', '43', '45', '54', '56', '65', '67', '76', '78', '87', '89', '98'], nguon: 'mặc định', bat: true },
-    { ten: 'Dàn đẹp Anh Ba', khoa: 'dan ab', so: ['18', '81', '27', '72', '36', '63'], nguon: 'của tôi', bat: true },
-    { ten: 'Bóng âm', khoa: 'bong am', so: ['07', '70', '14', '41', '29', '92', '36', '63', '58', '85'], nguon: 'của tôi', bat: false },
+    { id: 1, ten: 'Kép bằng', nhom: 'dan', ap: ['DE', 'LO'], khoa: ['kep', 'kép', 'kep bang'], so: day((a, b) => a === b), nguon: 'goc', bat: true },
+    { id: 2, ten: 'Kép lệch', nhom: 'dan', ap: ['DE', 'LO'], khoa: ['kl', 'kep lech', 'kép lệch'], so: ['05', '16', '27', '38', '49', '50', '61', '72', '83', '94'], nguon: 'goc', bat: true },
+    { id: 3, ten: 'Sát kép', nhom: 'dan', ap: ['DE', 'LO'], khoa: ['sk', 'sat kep', 'sát kép'], so: day((a, b) => Math.abs(a - b) === 1), nguon: 'goc', bat: true },
+    { id: 4, ten: 'Kép chẵn', nhom: 'dan', ap: ['DE', 'LO'], khoa: ['kep chan', 'kép chẵn'], so: day((a, b) => a === b && a % 2 === 0), nguon: 'goc', bat: true },
+    { id: 5, ten: 'Chẵn chẵn', nhom: 'dan', ap: ['DE', 'LO'], khoa: ['chan chan', 'chẵn chẵn', 'cc'], so: day((a, b) => a % 2 === 0 && b % 2 === 0), nguon: 'goc', bat: true },
+    { id: 6, ten: 'Bộ 12', nhom: 'bo', ap: ['DE'], khoa: ['bo 12', 'bộ 12', 'bo12'], so: ['12', '17', '21', '26', '62', '67', '71', '76'], nguon: 'goc', bat: true },
+    { id: 7, ten: 'Bộ 05', nhom: 'bo', ap: ['DE'], khoa: ['bo 05', 'bộ 05', 'bo05'], so: ['00', '05', '50', '55'], nguon: 'goc', bat: true },
+    { id: 8, ten: 'Tổng 5', nhom: 'tong', ap: ['DE'], khoa: ['tong 5', 'tổng 5', 't5'], so: day((a, b) => (a + b) % 10 === 5), nguon: 'goc', bat: true },
+    { id: 9, ten: 'Chia 3 dư 0', nhom: 'chia', ap: ['DE'], khoa: ['chia 3', 'chia het 3'], so: day((a, b, n) => n % 3 === 0), nguon: 'goc', bat: true },
+    { id: 10, ten: 'Chạm 8', nhom: 'cham', ap: ['DE', 'LO'], khoa: ['cham 8', 'chạm 8', 'c8'], so: day((a, b) => a === 8 || b === 8), nguon: 'goc', bat: true },
+    { id: 11, ten: 'Đầu 3', nhom: 'dau', ap: ['DE', 'LO'], khoa: ['dau 3', 'đầu 3'], so: day((a) => a === 3), nguon: 'goc', bat: true },
+    { id: 12, ten: 'Đít 7', nhom: 'dit', ap: ['DE', 'LO'], khoa: ['dit 7', 'đít 7', 'duoi 7'], so: day((a, b) => b === 7), nguon: 'goc', bat: true },
+    { id: 13, ten: 'Dàn đẹp Anh Ba', nhom: 'user', ap: ['DE', 'LO'], khoa: ['dan ab', 'dàn anh ba'], so: ['18', '27', '36', '63', '72', '81'], nguon: 'user', bat: true },
+    { id: 14, ten: 'Bóng âm', nhom: 'user', ap: ['DE', 'LO'], khoa: ['bong am', 'bóng âm'], so: ['07', '14', '29', '36', '41', '58', '63', '70', '85', '92'], nguon: 'user', bat: false },
+    { id: 15, ten: 'Kép lệch (sửa)', nhom: 'user', ap: ['LO'], khoa: ['klo'], so: ['05', '50', '16', '61'], nguon: 'user', bat: true },
+  ];
+  const SO_DAN_GOC = 115; // core/dan_so_mac_dinh.py — preview chỉ giả lập 12 dàn đại diện
+
+  // Tin chuẩn nội bộ dùng để đo ảnh hưởng khi sửa dàn (ql.anh_huong: tin chuẩn + tin thật gần nhất)
+  const TIN_CHUAN_CP = [
+    'de kep x20k', 'lo kep x5', 'de sk x10k', 'lo sat kep x3', 'de kl x50k', 'de kep chan x10k',
+    'de bo 12 x20k', 'de tong 5 x10k', 'de cham 8 x5k', 'lo dau 3 x2', 'de dit 7 x10k', 'de chia 3 x5k',
+    'de dan ab x50k', 'lo bong am x3', 'de cc x10k',
   ];
 
   // Phiên đã lưu trong ngày (hiện ở Lịch sử) — bets đã bung sẵn
@@ -154,7 +181,7 @@ window.BW_MOCK = (() => {
   return {
     homNay: iso(homNay), homQua: iso(homQua),
     KQ: { [iso(homNay)]: KQ_HOM_NAY, [iso(homQua)]: KQ_HOM_QUA },
-    HE_SO_MAC_DINH, COT_HE_SO, KHACH_HANG, MAU_TIN, TELEGRAM_TIN, USERS_CHATTED_TODAY, TG_CONFIG, TU_HOC, DAN_SO, DA_LUU,
+    HE_SO_MAC_DINH, COT_HE_SO, KHACH_HANG, MAU_TIN, TELEGRAM_TIN, USERS_CHATTED_TODAY, TG_CONFIG, TU_HOC, DAN_SO, SO_DAN_GOC, TIN_CHUAN_CP, DA_LUU,
   };
 })();
 

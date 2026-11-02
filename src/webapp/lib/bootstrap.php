@@ -25,6 +25,12 @@ function cfg(string $key)
     static $cfg = null;
     if ($cfg === null) {
         $file = __DIR__ . '/../config.php';
+        // Chỉ CLI (tools/test.php) và `php -S` (test HTTP) được trỏ sang tệp cấu hình khác qua biến môi trường;
+        // Apache/PHP-FPM bỏ qua hoàn toàn → web không bao giờ đổi được cấu hình (P01 Q-P01-1).
+        $khac = in_array(PHP_SAPI, ['cli', 'cli-server'], true) ? getenv('BIGWIN_CONFIG_FILE') : false;
+        if (is_string($khac) && $khac !== '') {
+            $file = $khac;
+        }
         if (!is_file($file)) {
             throw new LoiCauHinh('thieu_config', 'Thiếu file config.php — copy config.sample.php thành config.php rồi điền thông tin database và đường dẫn 2 file khoá.');
         }
@@ -143,6 +149,12 @@ function client_ip(): string
 {
     // CHỈ tin REMOTE_ADDR. X-Forwarded-For do client tự đặt được → lách rate limit.
     return substr((string)($_SERVER['REMOTE_ADDR'] ?? ''), 0, 45);
+}
+
+/** Request hiện tại đi qua HTTPS. Không tin X-Forwarded-Proto (client tự đặt được), như client_ip(). */
+function la_https(): bool
+{
+    return !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
 }
 
 function h(?string $s): string
