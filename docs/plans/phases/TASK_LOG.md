@@ -105,6 +105,8 @@ Câu hỏi cần chủ dự án quyết (nếu có) → câu trả lời + ngày
 
 Hồi quy nền trước khi làm (2026-11-03 20:11): `BIGWIN_CONFIG_FILE=<cấu hình gốc> php src/webapp/tools/test.php` → **`186 passed, 0 failed (20.56s)`**, exit 0 ✅ · không còn `php.exe` sót.
 
+**Kiểm lại lần 2 (2026-11-03, theo thông báo "Tag `port-baseline` đã sẵn sàng"):** `git fetch --tags` (exit 0) → `git tag -l port-baseline` vẫn rỗng; `git describe --exact-match HEAD` → `fatal: No names found`; `git ls-remote --tags origin` → **remote không có tag nào**; HEAD vẫn `3c5fab3`; `git status --short` vẫn **80 mục** (`core/`+`utils/` 11 tệp chưa commit). Không có bản sao BigWIN nào khác trên máy (`D:/Projects/*`, Desktop, Documents). → Giữ **BỊ CHẶN**; không đánh ✔ tiền đề, không chạy `export_golden.py` (xuất từ code treo = S0.4 không đạt — R1).
+
 **Kết luận Bước ①: BỊ CHẶN** — thông báo "đã dọn code treo và đánh tag" không khớp hiện trạng repo BigWIN trên máy này lẫn trên remote. Theo EXECUTION_PIPELINE §1.1 ("Có ✘ → dừng, ghi BỊ CHẶN + lý do, không gõ code") và bẫy P00 ("xuất fixture hoặc gắn tag khi repo còn code treo = S0.4 không đạt", R1): **không lập Action Plan chi tiết, không chạy exporter** cho tới khi gỡ chặn.
 
 **Điều kiện gỡ chặn (chủ repo BigWIN):**
@@ -137,7 +139,7 @@ _(Chưa lập — P00 đang BỊ CHẶN ở Bước ①.)_
 ### ⑤ Khác biệt / Bug phát hiện
 | Mã | Loại | Nguồn | Input | Kỳ vọng | Thực tế | Nguyên nhân gốc | Cách sửa | Trạng thái |
 |---|---|---|---|---|---|---|---|---|
-| P00-B01 | Tiền đề không đạt | Bước ① | Thông báo của chủ dự án: "chủ repo đã dọn code treo và đánh tag `port-baseline`" | Tag tồn tại; `git status` sạch | Không có tag (local + remote); 80 mục treo, `core/`+`utils/` +1.341 / −578 dòng | Chủ repo chưa thực hiện R1 trên repo này (hoặc thực hiện ở bản sao / máy khác chưa push) | Chủ repo làm 4 bước "Điều kiện gỡ chặn" ở trên | **Mở — chặn P00** |
+| P00-B01 | Tiền đề không đạt | Bước ① | Thông báo của chủ dự án: "chủ repo đã dọn code treo và đánh tag `port-baseline`" | Tag tồn tại; `git status` sạch | Không có tag (local + remote); 80 mục treo, `core/`+`utils/` +1.341 / −578 dòng | Chủ repo chưa thực hiện R1 trên repo này (hoặc thực hiện ở bản sao / máy khác chưa push) | Chủ repo làm 4 bước "Điều kiện gỡ chặn" ở trên | **Mở — chặn P00** (kiểm lại lần 2 cùng ngày: vẫn chưa có tag, local lẫn remote) |
 
 ### ⑥ Xác nhận Cổng nghiệm thu
 | # | Điều kiện | ✔ | Bằng chứng |
