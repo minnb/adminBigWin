@@ -80,25 +80,152 @@ Câu hỏi cần chủ dự án quyết (nếu có) → câu trả lời + ngày
 
 <!-- Các entry thật bắt đầu dưới dòng này, mới nhất ở trên -->
 
+## P04 — Lõi cú pháp 1: SequenceMatcher · HeuristicCleaner · Đối chiếu nghi ngờ
+
+| Mục | Giá trị |
+|---|---|
+| Trạng thái | ▶ Đang làm — Bước ③ → ⑤ xong 2026-11-03; **chờ chủ dự án ký PASS** (điều kiện 6) |
+| Luồng | A (lõi PURE) |
+| Bắt đầu | 2026-11-03 |
+| Kết thúc | |
+| Người thực thi | Claude |
+| Người duyệt | Chủ dự án |
+| Commit BigWIN (`port-baseline`) | `45ee0e5` — nguồn Python đọc bằng `git show port-baseline:<tệp>` (không đọc working tree) |
+| Commit web đầu / cuối phase | `a9fb7d5` / |
+
+### ① Tiền đề
+| Điều kiện (P04 §2 + EXECUTION_PIPELINE P04) | ✔/✘ | Ghi chú (kiểm 2026-11-03 20:53) |
+|---|---|---|
+| P00 ✅ ĐẠT | ✔ | Chủ dự án PASS 2026-11-03; `README.md` §1 đã cập nhật |
+| Fixture `seqmatch`, `cleaner`, `cleaner_moi`, `learning`, `doi_chieu` có `meta.bigwin_commit` = tag | ✔ | Cả 5 = `45ee0e5` |
+| Nguồn Python đọc từ tag `port-baseline`, không đọc working tree | ✔ (cam kết) | Dùng `git -C D:/Projects/bigwin show port-baseline:<tệp>`; working tree BigWIN hiện chỉ khác tag ở `scripts/export_golden.py` |
+| Rule `bigwin-core.md` đã đọc | ✔ | PURE; `bw_re` / `bw_finditer`; `mb_*`; `PHP_ROUND_HALF_EVEN`; `SORT_STRING`; CẤM `array_unique` / `array_flip` làm khoá; fixture lệch = bug PHP, KHÔNG sửa fixture |
+| Hạ tầng PHP sẵn có | ✔ | `lib/bigwin/helpers.php`: `bw_re`, `bw_finditer`, `bw_byte_to_char` / `bw_char_to_byte`, `bw_sanitize`, `bw_chuan_hoa_ky_tu_an` (+ `BW_KY_TU_AN`), `bw_int`; runner `bw_fixture()` |
+| *(bổ sung)* Tệp `docs/P04_PREP_NOTES.md` | ✘ (không chặn) | **Không tồn tại** — Claude chưa từng tạo (lượt trước chỉ đề xuất). Thay bằng rà trực tiếp nguồn tại tag (dưới) |
+| *(bổ sung)* Rà nguồn tại tag | ✔ | `core/heuristic_cleaner.py` 1169 dòng (lớp `HeuristicCleaner`, ~28 bước pipeline `_normalize_base` → `_tidy`, chỉ `re` + `unicodedata`) · `utils/diff_analyzer.py` 321 dòng (dùng `difflib.SequenceMatcher`) · `core/doi_chieu_tin.py` 279 dòng (dùng `SequenceMatcher` **và `parser_facade.parse_detailed`** — xem Q-P04-1) |
+| *(bổ sung)* Độ phủ fixture cho `doi_chieu` | ✔ | 1.319 ca; **cả 1.319** tra được `spans` của parser từ `rule_parser.json` (khớp theo `sach`); 0 ca rơi nhánh tin dài (> `MAX_INPUT_LEN` = 10.000) |
+| *(bổ sung)* Độ phủ fixture cho quy tắc tự học của cleaner | ✘ (cần quyết) | `cleaner.json` / `cleaner_moi.json` sinh với `quy_tac_tu_hoc=None` → nhánh `bien_dich_cum_tu` / `quy_tac_tu_boc` / `_bien_dich_quy_tac` / `_ap_dung_quy_tac_tu_hoc` KHÔNG có fixture — xem Q-P04-2 |
+| Hồi quy nền xanh | ✔ | Xem dưới |
+
+Hồi quy nền (2026-11-03 20:53): `BIGWIN_CONFIG_FILE=<cấu hình gốc> php src/webapp/tools/test.php` → **`191 passed, 0 failed (18.02s)`**, exit 0 ✅ · không còn `php.exe` sót.
+
+### ② Action Plan
+Thứ tự theo pipeline Python: **SequenceMatcher → HeuristicCleaner → DiffAnalyzer / DoiChieuTin**. Mỗi khối: test viết trước (đỏ) → port → fixture xanh 100% → mới sang khối kế. Lệch = bug PHP, sửa PHP.
+
+| Thứ tự | Slice | Tệp tạo/sửa | Test viết trước | Rủi ro / lưu ý |
+|---|---|---|---|---|
+| 1 | **S2.1** `SequenceMatcher` | `lib/bigwin/SequenceMatcher.php` — port `difflib.SequenceMatcher(None, a, b, autojunk=False)` trên MẢNG phần tử: `b2j`, `findLongestMatch`, `getMatchingBlocks` (hàng đợi + gộp khối liền kề), `getOpcodes`, `ratio` | `tests/seqmatch_test.php`: **P04-T01** 100% `seqmatch.json` (1.400 ca, cấp ký tự + token: `opcodes`, `matching_blocks`, `ratio`) · **P04-T02** ca biên (rỗng, 1 phần tử, trùng hết, khác hết — chọn từ fixture) | ① **Khoá mảng**: `b2j` lập chỉ mục theo phần tử — token `"05"` làm khoá PHP thành int 5 → dùng khoá `"k:$x"`. ② Thứ tự ưu tiên khi nhiều khối dài bằng nhau phải đúng difflib (khối sớm nhất trong `a`, rồi trong `b`). ③ `ratio` fixture `round(x, 12)` kiểu Python (làm tròn đúng thập phân) — so bằng `round(…, 12)` có thể lệch ở chữ số cuối → so qua định dạng `%.12f` / sai số ≤ 1e-12, ghi rõ trong test |
+| 2 | **S2.2a** Khung `HeuristicCleaner` + ký tự ẩn | `lib/bigwin/HeuristicCleaner.php` (`__construct(?array $quyTacTuHoc = null, bool $bungDanKep = true)`, `clean()`, `chuanHoaKyTuAn()`, hằng `MAX_INPUT_LEN` = 10.000) — tái dùng `bw_chuan_hoa_ky_tu_an` nếu khớp | `tests/cleaner_test.php`: **P04-T05** `chuanHoaKyTuAn` giữ nguyên `mb_strlen` + khớp `cleaner.json[ky_tu_an]` toàn corpus · **P04-T06** NFD ↔ NFC (`Normalizer`) cho cùng kết quả như Python | `unicodedata.normalize` ↔ `Normalizer::normalize`; `str.lower()` ↔ `mb_strtolower(…, 'UTF-8')` (khác ở vài ký tự đặc biệt — fixture sẽ bắt) |
+| 3 | **S2.2b** Pipeline cleaner — giữ NGUYÊN thứ tự ~28 bước | Cùng tệp: `_normalize_base` → `_fix_thousand_separators` → `_fix_decimal_comma` → … → `_normalize_money_slang` → `_expand_number_sets` → `_khoi_phuc_dan_kep` (CHỈ khi `bungDanKep`) → … → `_tidy`. Port từng khối, chạy fixture sau mỗi khối để khoanh vùng lệch | **P04-T03** 100% `cleaner.json` (`bungDanKep = true`, 1.319 ca) · **P04-T04** 100% `cleaner_moi.json` (`false`, 1.319 ca) · **P04-T07** tiếng lóng `x.5` làm tròn banker's (`PHP_ROUND_HALF_EVEN`) khớp fixture | ① **Regex Python ≠ PCRE**: luôn `bw_re()` (`/u` + `(*UCP)`); khác biệt cần canh: Python `\s` gồm `\x1c-\x1f` (PCRE không), `str.isdigit()` nhận cả chữ số mũ `²³` (PCRE `\d` không) → thay bằng lớp ký tự tường minh; lookbehind phải cố định độ dài ở cả hai; `re.sub(callable)` → `preg_replace_callback`; nhóm không khớp = `null`. ② **Offset**: chỉ `bw_finditer()` (offset ký tự). ③ **Ép kiểu**: CẤM `array_unique` / `array_flip` / khoá mảng với chuỗi số (`"05"` → 5) — dedup bằng `$daCo["k:$x"]`; `sort(…, SORT_STRING)`; `(int)` ↔ `int()` Python. ④ Trần `MAX_INPUT_LEN` cắt như Python |
+| 4 | **S2.2c** Quy tắc tự học trong cleaner | Cùng tệp: `bienDichCumTu`, `quyTacTuBoc`, `_bienDichQuyTac`, `_apDungQuyTacTuHoc`, `thongKeApDung` (đếm trong bộ nhớ, PURE) | Theo Q-P04-2 | Không có fixture → không được tính "xong" khi chưa có bằng chứng parity |
+| 5 | **S2.6a** `DiffAnalyzer` | `lib/bigwin/DiffAnalyzer.php` — `trichXuatTatCaKhacBiet`, `trichXuatDiemKhacBiet`, `_phanTich`, nở mảnh chữ / khoảng trắng (dùng `SequenceMatcher` S2.1) | `tests/doi_chieu_test.php`: **P04-T09** `trich_xuat_tat_ca_khac_biet` khớp `learning.json` (cột `[x, y]` của `cac_cap` — cột thứ 3 `quy_tac_hop_le` thuộc `learning_service`, P09) **và** cột `khac_biet` của `doi_chieu.json` (1.319 cặp gốc / đã dọn) | `MAX_SO_TOKEN` = 3.000; tập `_DON_VI_TIEN` / `_TU_KHOA_CUOC` chép nguyên văn |
+| 6 | **S2.6b** `DoiChieuTin` | `lib/bigwin/DoiChieuTin.php` — `danhDauNghiNgo(string $goc, string $daDon, callable $layTomTatParser)`: so token → so ký tự, bản đồ offset đã dọn → gốc, gộp `spans` (offset **ký tự**) | **P04-T08** 100% `doi_chieu.json`: `spans` + `thay_doi` + offset — parser được tiêm bằng `spans` tra từ `rule_parser.json` theo `sach` (Q-P04-1) | ① Python lấy mức độ từng ký tự qua `parser_facade` (parser = P05) → tiêm phụ thuộc. ② `vi_tri_goc` là hàm (lambda) → không có trong fixture; port dạng method / closure riêng. ③ Hằng `SEVERITY_*`, `MAX_INPUT_LEN` lấy từ `MessageParser` → khai báo tạm trong `DoiChieuTin` tới P05 rồi trỏ về `MessageParser` |
+| 7 | Quét PURE | `tests/core_pure_scan_test.php` | **P04-T10** `lib/bigwin/` (trừ `repo/**`, `*Service.php`) không có `db(`, `PDO`, `curl_`, `session_`, `echo` / `print`, `date(` / `time(` / `new DateTime(` không múi giờ, regex trần `'/…/'` ngoài `bw_re`, `strlen(` / `substr(` / `strtolower(` / `str_split(` trên văn bản (Q-P04-3) | Quét bằng `token_get_all` như P01-T27 / P02-T16 |
+| 8 | Cổng | — | **P04-T11** hồi quy P00–P03 · đo thời gian cả corpus (M02) · `/healthcheck` · checklist M01 (10 ca lệch đã gặp + nguyên nhân) | Không có ca nào "biết lệch / bỏ qua" (cổng P04) |
+
+**Câu hỏi cần chủ dự án quyết trước khi code** (đề xuất của Claude in đậm):
+- **Q-P04-1 — `DoiChieuTin` phụ thuộc parser (P05).** `danh_dau_nghi_ngo` lấy mức độ từng ký tự qua `parser_facade.parse_detailed()`. **Đề xuất:** port với tham số `callable` trả `spans` của parser; ở P04 test bằng `spans` tra từ `rule_parser.json` (đủ 1.319 / 1.319 ca); P05 gắn `RuleParser` thật + thêm test đầu–cuối. Nhánh tin > 10.000 ký tự (parse thẳng tin gốc) chưa có ca → kiểm ở P05.
+- **Q-P04-2 — Quy tắc tự học của cleaner không có fixture.** **Đề xuất (a):** mở rộng `scripts/export_golden.py` (tệp duy nhất được sửa — Q7) xuất thêm `cleaner_tu_hoc.json` (corpus × vài bộ quy tắc hợp lệ / biên, cả 2 chế độ) **tại cùng `45ee0e5`** (chỉ đổi `scripts/` → không `-dirty`), cập nhật danh sách P00-T01 thành 13 tệp. Phương án (b): port nhánh này nhưng để test parity tới P09 (tự học) — rủi ro mã chạy thật không có bằng chứng; (c): hoãn port nhánh này sang P09.
+**Chủ dự án (Architect) đã duyệt 2026-11-03:** QĐ1 = Q-P04-1 đề xuất (parser tiêm dạng `callable`, test tra `rule_parser.json`) · QĐ2 = Q-P04-2 phương án **(c)** (hoãn nhánh tự học sang P09) · QĐ3 = Q-P04-3 đề xuất (`mb_*`, miễn bằng `// bw-byte`) · QĐ4 cấm `array_unique` / `array_flip` · QĐ5 `ratio` khớp 12 chữ số, offset theo ký tự. Bản giao việc gộp **T10 + T11 vào `core_pure_scan_test.php`** (T10 = PURE, T11 = UTF-8 / kiểu mảng / regex); hồi quy toàn bộ là điều kiện cổng 2.
+
+- **Q-P04-3 — Phạm vi quét "strlen / substr trên văn bản" (T10).** Không phân biệt được bằng quét mã chuỗi nào là "văn bản". **Đề xuất:** cấm hẳn `strlen` / `substr` / `strtolower` / `str_split` / `ucfirst` trong `lib/bigwin/` (trừ `repo/`); thao tác byte bắt buộc (như `bw_byte_to_char` trong `helpers.php`) đánh dấu bằng chú thích `// bw-byte` trên cùng dòng → bộ quét bỏ qua dòng đó.
+
+### ③ Tiến độ slice
+| Slice | Bắt đầu | Xanh lúc | Test của slice | Ghi chú |
+|---|---|---|---|---|
+| S2.1 | 2026-11-03 | 2026-11-03 — fixture xanh **ngay lần chạy đầu** | T01, T02 (2 test) | `lib/bigwin/SequenceMatcher.php` (port difflib `autojunk=False`, khoá `"k:$x"`). `seqmatch.json` 1.400/1.400 ca (`opcodes`, `matching_blocks`, `ratio` so qua `'%.12f'`) |
+| S2.2 | 2026-11-03 | 2026-11-03 — `cleaner` / `cleaner_moi` xanh **ngay lần chạy đầu** | T03–T07 + 1 test QĐ2 (6 test) | `lib/bigwin/HeuristicCleaner.php`: 24 bước `PIPELINE` đúng thứ tự Python (bước `_ap_dung_quy_tac_tu_hoc` vắng — QĐ2; truyền quy tắc → `LogicException`). 1.319/1.319 ca × 2 chế độ. `helpers.php` thêm `bw_py_round`, `BW_PY_S`, `bw_py_strip`, `bw_nfc` (+2 test trong `helpers_test.php`) |
+| S2.6 | 2026-11-03 | 2026-11-03 — xanh **ngay lần chạy đầu** | T08, T09 (4 test) | `lib/bigwin/DiffAnalyzer.php`, `lib/bigwin/DoiChieuTin.php` (parser tiêm `callable` — QĐ1). `doi_chieu.json` 1.319/1.319 (`spans`, `thay_doi`, `khac_biet`) + `learning.json` 307 cặp |
+| Quét | 2026-11-03 | 2026-11-03 | T10, T11 (4 test) | `tests/core_pure_scan_test.php` (`token_get_all`). Lần đầu T11 đỏ đúng 3 dòng thao tác byte có chủ đích trong `helpers.php` → gắn `// bw-byte` (QĐ3) |
+
+**Kiểm tra đột biến (mutation)** — vì fixture xanh ngay lần đầu, cố ý làm hỏng từng module rồi khôi phục (so `cmp` với bản sao lưu): hoà `>=` trong `findLongestMatch`, bỏ bước `fixDotBeforeOperator`, `\s` thay `BW_PY_S`, `SEVERITY_WARN` → `null`, cửa sổ `CUA_SO_KHOP_LAI` 48 → 4, bỏ nới `noManhChu`, `trim` thiếu `\n` → **đều bị bắt**. 3 đột biến **sống sót** lúc đầu (`round()` PHP thay `bw_py_round`; bỏ `"\n"` trong `_dinh_lien`; token `\s+` thay `BW_PY_S`) — corpus không có ca chạm → bổ sung ca thật lấy từ Python (T07, T08, T09) → cả 3 bị bắt.
+
+### ④ Lần chạy test
+| Lần | Ngày giờ | Lệnh | Kết quả (dòng tổng kết) | Đỏ (mã test) |
+|---|---|---|---|---|
+| Hồi quy nền | 2026-11-03 20:53 | `BIGWIN_CONFIG_FILE=<cấu hình gốc> php src/webapp/tools/test.php` | **`191 passed, 0 failed (18.02s)`**, exit 0 | — |
+| S2.1 | 2026-11-03 | `php src/webapp/tools/test.php seqmatch` | đỏ trước khi có lớp (TDD) → `2 passed, 0 failed` | — |
+| S2.2 lần 1 | 2026-11-03 | `… test.php cleaner` | `5 passed, 1 failed` | T05 — **lỗi ở chính test** (chuỗi mong đợi 6 dấu cách, đuôi chỉ có 5 ký tự vô hình); mã đúng, sửa test |
+| S2.2 lần 2 | 2026-11-03 | `… test.php cleaner` | `6 passed, 0 failed` | — |
+| S2.6 | 2026-11-03 | `… test.php doi_chieu` | `4 passed, 0 failed` | — |
+| Quét lần 1 | 2026-11-03 | `… test.php core_pure` | `3 passed, 1 failed` | T11 — 3 dòng byte trong `helpers.php` (đúng mong đợi) → `// bw-byte` |
+| Quét lần 2 | 2026-11-03 | `… test.php core_pure` | `4 passed, 0 failed` | — |
+| **Hồi quy toàn bộ (cổng)** | **2026-11-03 21:18** | `BIGWIN_CONFIG_FILE=<cấu hình gốc> php src/webapp/tools/test.php` (không lọc) | **`209 passed, 0 failed (17.61s)`**, exit 0 · 0 dòng ✘ · không còn `php.exe` sót | — |
+| `/healthcheck` | 2026-11-03 21:20 | `php -l` toàn bộ + `.htaccess` + `require` | **OK** — `php -l` 100 tệp 0 lỗi; `.htaccess` gốc rewrite → `src/webapp/` + chặn `/.git`; `src/webapp/.htaccess` chặn `config.php` / `*.sql` / `lib\|tools\|migrations`; 143 lệnh nạp `__DIR__` đều tồn tại; **3 ngoại lệ nạp biến hợp lệ** (có từ trước P04): `lib/bootstrap.php` (`BIGWIN_CONFIG_FILE`), `tools/test.php` (runner), `tests/idor_test.php` (mẫu) | — |
+
+209 = 191 nền + 18 test mới (seqmatch 2 · cleaner 6 · doi_chieu 4 · core_pure_scan 4 · helpers 2).
+
+Đo hiệu năng (M02) — tốt nhất 3 lượt, `hrtime`, script tạm ở scratchpad (không thuộc repo):
+| Chỉ số | Mục tiêu | Thực tế PHP | Python cùng máy | Cấu hình máy |
+|---|---|---|---|---|
+| Cleaner `bungDanKep=true`, cả corpus (1.319 tin, dài nhất 914 ký tự) | ghi mốc cho P05 S2.7 | **102,4 ms** (~0,08 ms/tin) | 210,1 ms | Intel Core i3-7100 3.90 GHz · Windows 10 · PHP 8.3.35 (opcache CLI tắt) · Python 3.13 |
+| Cleaner `bungDanKep=false`, cả corpus | ghi mốc | **100,9 ms** | 216,4 ms | như trên |
+| `DiffAnalyzer` (gốc, đã dọn) cả corpus | ghi mốc | 73,5 ms | — | như trên |
+| `DoiChieuTin` (gốc, đã dọn, parser giả) cả corpus | ghi mốc | 232,0 ms | — | như trên |
+
+### Checklist thủ công
+| Mã | Nội dung (tóm tắt) | Người test | Ngày | ✔ |
+|---|---|---|---|---|
+| P04-M01 | **0 ca lệch Golden Fixture** (T01 / T03 / T04 / T08 / T09 xanh ngay lần đầu) — thay vào đó ghi 10 khác biệt Python ↔ PHP đã gặp + cách xử lý ở bảng "Ghi chú port" dưới (bài học cho P05) | Claude | 2026-11-03 | ✔ (chờ chủ dự án xem) |
+| P04-M02 | Thời gian cả corpus: cleaner 102,4 ms (`true`) / 100,9 ms (`false`) — xem bảng M02 | Claude | 2026-11-03 | ✔ |
+
+**Ghi chú port (P04-M01) — khác biệt Python ↔ PHP đã gặp, nguyên nhân, cách sửa:**
+| # | Khác biệt | Phát hiện bởi | Nguyên nhân gốc | Cách xử lý |
+|---|---|---|---|---|
+| 1 | `round()` PHP 8.3 ≠ Python: `0.5015 cu` → PHP **502k**, Python **501k** | Dò chủ động + đột biến (fixture KHÔNG có ca) | PHP < 8.4 làm tròn trước về 15 chữ số (`round(501.49999999999994)` = 502) | `bw_py_round()` (floor + phần dư, banker's chính xác) — P04-B04; T07 + `helpers_test` |
+| 2 | `\s` / `strip()` Python gồm `\x1c–\x1f`; PCRE `\s` và `trim()` thì không | Rà nguồn + so `re` / `preg` | Python `str.isspace` ≠ Unicode White_Space của PCRE | `BW_PY_S`, `bw_py_strip()` ở chỗ tin thô; ca thật trong T07, T08 |
+| 3 | `float()` Python nhận chữ số Unicode (`٣`), `(float)` PHP ra 0 | Rà nguồn | `\d` khớp mọi Nd | `soThuc()` quy về ASCII bằng `IntlChar::charDigitValue` |
+| 4 | Số tiền lóng vượt int64 (`99…9 cu`) | Dò chủ động | Python int không giới hạn; `(int)` PHP tràn | In `sprintf('%.0f', …)` = đúng `int(float)` Python; ca trong T07 |
+| 5 | `if so_truoc_do:` — `"0"` là ĐÚNG ở Python, falsy ở PHP | Rà nguồn `_insert_missing_x` | Ngữ nghĩa truthy khác nhau | So tường minh `!== null && !== ''` |
+| 6 | `str.isalpha()` ≠ `[^\W\d_]` (lớp này nhận cả `²`, `½`) | Rà nguồn DiffAnalyzer / DoiChieuTin | Python isalpha = chỉ `\p{L}` | Dùng `\p{L}`; isalnum = `[^\W_]`; neo `\z` thay `$` |
+| 7 | Lookahead `(?![\d[^\W\d_]])` trông như lớp lồng | Rà nguồn `pattern_ghep` | Cả `re` lẫn PCRE đều KHÔNG có lớp lồng — cùng hiểu `[\d[^\W\d_]` + `]` literal | Chép NGUYÊN VĂN + chú thích (hai bên giống hệt) |
+| 8 | Fixture so dict lệch dù giá trị đúng | Thiết kế T08 | Exporter ghi JSON `sort_keys`; PHP giữ thứ tự khoá như Python | `bw_sap_khoa()` sắp khoá hai vế trong test (không sửa fixture) |
+| 9 | Python lặp tuple / `sort()` list, `max(key=)` lấy phần tử ĐẦU | Rà nguồn | `sort()` PHP trên mảng int cùng độ dài = so từng phần tử; `usort` ổn định (PHP ≥ 8) | Giữ `sort` / `usort` ổn định; `max` viết vòng lặp lấy phần tử đầu |
+| 10 | T05 đỏ lần đầu | Chạy test | **Lỗi ở test** (đếm sai số ký tự vô hình), không phải mã | Sửa test; ghi lại để tránh "sửa mã cho khớp test sai" |
+
+### ⑤ Khác biệt / Bug phát hiện
+| Mã | Loại | Nguồn | Input | Kỳ vọng | Thực tế | Nguyên nhân gốc | Cách sửa | Trạng thái |
+|---|---|---|---|---|---|---|---|---|
+| P04-B01 | Khác tài liệu phase | Bước ① | `docs/P04_PREP_NOTES.md` | Có bản nháp | Không tồn tại | Chưa từng được tạo | Rà trực tiếp nguồn tại tag (mục ①) | Đóng |
+| P04-B02 | Quyết định phát sinh | Rà `core/doi_chieu_tin.py` | `danh_dau_nghi_ngo` | PURE độc lập parser | Gọi `parser_facade` (P05) | Thiết kế Python | QĐ1: tiêm `callable`; nhánh tin > 10.000 ký tự kiểm ở P05 | Đóng (P05 gắn RuleParser thật) |
+| P04-B03 | Quyết định phát sinh | Rà fixture | Nhánh quy tắc tự học của cleaner | Có fixture | Không có | Exporter P00 dùng `quy_tac_tu_hoc=None` | QĐ2: hoãn sang P09; truyền quy tắc → `LogicException` (không im lặng) | Đóng (chuyển P09) |
+| P04-B04 | Bug nền tảng (rule sai) | Dò `round()` PHP | `de 12 x 0.5015 cu` | `de 12 x 501k` (Python) | `502k` nếu dùng `round(…, PHP_ROUND_HALF_EVEN)` | PHP 8.3 làm tròn trước 15 chữ số | `bw_py_round()` trong `helpers.php`; `.claude/rules/bigwin-core.md` đã sửa | Đóng — **cần chủ dự án sửa DoD §10 mục 2 kế hoạch tổng** (vẫn ghi `PHP_ROUND_HALF_EVEN`) |
+| P04-B05 | Khác biệt nền tảng | Rà `re` Python | Tin có `\x1c–\x1f` | Là khoảng trắng | PCRE `\s` / `trim()` bỏ sót | `str.isspace` ≠ PCRE | `BW_PY_S`, `bw_py_strip()`; rule đã ghi | Đóng |
+
+### ⑥ Xác nhận Cổng nghiệm thu
+| # | Điều kiện | ✔ | Bằng chứng |
+|---|---|---|---|
+| 1 | Toàn bộ P04-Tnn xanh, 0 bỏ qua / "biết lệch" | ✔ | T01–T11 (18 test mới) xanh; 0 ca bỏ qua; mọi fixture so `===` toàn corpus (`seqmatch` 1.400 · `cleaner` 1.319 · `cleaner_moi` 1.319 · `doi_chieu` 1.319 · `learning` 307) |
+| 2 | Hồi quy toàn bộ xanh | ✔ | 2026-11-03 21:18 — **`209 passed, 0 failed (17.61s)`**, exit 0 (nền 191 + 18 mới) |
+| 3 | Checklist P04-Mnn tick đủ | ✔ | M01 (0 lệch fixture + 10 khác biệt Python ↔ PHP), M02 (102,4 / 100,9 ms) — chủ dự án xem lại khi ký |
+| 4 | `/healthcheck` xanh | ✔ | 2026-11-03 21:20 — 100 tệp 0 lỗi cú pháp; `.htaccess` OK; 143 `require` OK; 3 ngoại lệ nạp biến hợp lệ |
+| 5 | DoD §10 kế hoạch tổng (mục 1, 2 áp dụng) | ✔ | Mục 1: test xanh 100%, **không sửa fixture** (`*.json` không đổi). Mục 2: lõi PURE + UTF-8 + kiểu mảng được KHOÁ bằng quét T10 / T11. Lưu ý: chữ "`PHP_ROUND_HALF_EVEN`" trong mục 2 đã lỗi thời (P04-B04) — chưa sửa kế hoạch tổng / §14 vì lượt này chỉ được ghi `TASK_LOG.md` |
+| 6 | Chủ dự án ký PASS | | |
+
+**Kết luận:** _(chờ chủ dự án ký PASS)_
+**Phase được mở khoá:** _(P05 khi PASS)_
+
+---
+
 ## P00 — Đóng băng BigWIN & Golden Fixture engine Mới
 
 | Mục | Giá trị |
 |---|---|
-| Trạng thái | 🚫 **BỊ CHẶN** (2026-11-03 20:11) — tiền đề R1 / O4 chưa đạt; chưa lập Action Plan, chưa chạy exporter, chưa sửa mã |
+| Trạng thái | ✅ ĐẠT — chủ dự án nghiệm thu PASS 2026-11-03 (mở khoá P04) |
 | Luồng | A (lõi PURE) |
 | Bắt đầu | 2026-11-03 (đánh giá tiền đề) |
-| Kết thúc | |
+| Kết thúc | 2026-11-03 |
 | Người thực thi | Claude (bước 4–7) · Chủ repo BigWIN (bước 1–3) |
 | Người duyệt | Chủ dự án |
-| Commit BigWIN (`port-baseline`) | **Chưa có** — HEAD `3c5fab3` (2026-10-08 20:30) |
+| Commit BigWIN (`port-baseline`) | `45ee0e5` (tag `port-baseline` — annotated `67f4757`), nhánh `dev`, đã có trên `origin` |
 | Commit web đầu / cuối phase | `32c7ed8` (chốt P03) / |
 
 ### ① Tiền đề
 | Điều kiện (P00 §2 + EXECUTION_PIPELINE P00) | ✔/✘ | Ghi chú (kiểm 2026-11-03 20:11, chỉ đọc) |
 |---|---|---|
-| Tag `port-baseline` tồn tại, `git describe --exact-match` khớp | ✘ **CHẶN** | `git tag -l port-baseline` (D:\Projects\bigwin) → rỗng · `git describe --exact-match HEAD` → `fatal: No names found` · `git ls-remote --tags origin` (github.com/minnb/bigwin) → **không có** `port-baseline` (không phải do chưa fetch) |
-| Chủ repo đã dọn dẹp + commit ~1.300 dòng treo trong `core/`, `utils/` — `git status` sạch | ✘ **CHẶN** | `git status --short` → **80 mục** chưa commit. Riêng `core/` + `utils/`: **11 tệp, +1.341 / −578 dòng** — `core/{database,heuristic_cleaner,learning_service,messageParser,quan_ly_dan_so,rule_parser}.py`, `utils/raw_logger.py` (sửa) + `core/{api_client,cloud_backup,license_service}.py`, `utils/machine_id.py` (chưa theo dõi). Toàn repo: 44 tệp, +3.969 / −6.226 |
-| Test Python BigWIN xanh trên commit được gắn tag | ☐ Chưa kiểm được | Chưa có commit / tag để chạy; Claude không chạy `pytest` trên working tree treo (kết quả không đại diện cho mốc) |
+| Tag `port-baseline` tồn tại, `git describe --exact-match` khớp | ✔ | Lần 4: `git describe --exact-match HEAD` = `port-baseline`; `git ls-remote --tags origin` có `refs/tags/port-baseline` → `45ee0e5` |
+| Chủ repo đã dọn dẹp + commit ~1.300 dòng treo trong `core/`, `utils/` — `git status` sạch | ✔ | Lần 4: `git status` → `nothing to commit, working tree clean` (0 mục) |
+| Test Python BigWIN xanh trên commit được gắn tag | ✔ | `python -m pytest -s --junitxml` trên `45ee0e5`: **3797 tests, 0 failures, 0 errors, 0 skipped (128s)**, exit 0. Ghi chú: phải chạy `-s` — mã BigWIN thay `sys.stdout` làm pytest capture lỗi `I/O operation on closed file` (P00-B02); working tree vẫn sạch sau khi chạy |
 | Claude chỉ sửa `D:\Projects\bigwin\scripts\export_golden.py` (Q7) | ✔ (cam kết) | Lượt này chỉ ĐỌC repo BigWIN (`git tag/describe/status/diff --stat/ls-remote`); không đọc `*.session`, `backups/` |
 | Hạ tầng web (Luồng B) sẵn sàng | ✔ | Working tree web sạch (commit `32c7ed8`); fixture hiện có 6 tệp: `cleaner`, `do_trung`, `learning`, `parser`, `seqmatch`, `tinh_tien` |
 | Hồi quy nền xanh | ✔ | Xem dưới |
@@ -109,7 +236,9 @@ Hồi quy nền trước khi làm (2026-11-03 20:11): `BIGWIN_CONFIG_FILE=<cấu
 
 **Kiểm lại lần 3 (2026-11-03, sau thông báo "đã commit và push lên git"):** `git fetch --tags origin` → không có gì mới. Nhánh hiện tại `dev` = `origin/dev` = `3c5fab3` (2026-10-08, lệch 0/0); `origin/main` = `89215b6` (2026-04-09); remote vẫn **không có tag**; working tree vẫn 80 mục treo (`core/`+`utils/` 11 tệp). → Commit / push được thông báo **không có trên `origin` (github.com/minnb/bigwin)** → vẫn **BỊ CHẶN**.
 
-**Kết luận Bước ①: BỊ CHẶN** — thông báo "đã dọn code treo và đánh tag" không khớp hiện trạng repo BigWIN trên máy này lẫn trên remote. Theo EXECUTION_PIPELINE §1.1 ("Có ✘ → dừng, ghi BỊ CHẶN + lý do, không gõ code") và bẫy P00 ("xuất fixture hoặc gắn tag khi repo còn code treo = S0.4 không đạt", R1): **không lập Action Plan chi tiết, không chạy exporter** cho tới khi gỡ chặn.
+**Kiểm lại lần 4 (2026-11-03) — ĐẠT:** lần 3 các lệnh commit / tag chạy NHẦM trong repo web (`adminBigwin` — commit `a9fb7d5`, tag đã push lên `minnb/adminBigWin`); chủ dự án đã gỡ tag nhầm và làm lại trong `D:/Projects/bigwin` (Git Bash cần `/` thay `\`). Mọi tiền đề ✔ → **gỡ chặn, sang Bước ②.**
+
+~~**Kết luận Bước ①: BỊ CHẶN**~~ (lần 1–3) — thông báo "đã dọn code treo và đánh tag" không khớp hiện trạng repo BigWIN trên máy này lẫn trên remote. Theo EXECUTION_PIPELINE §1.1 ("Có ✘ → dừng, ghi BỊ CHẶN + lý do, không gõ code") và bẫy P00 ("xuất fixture hoặc gắn tag khi repo còn code treo = S0.4 không đạt", R1): **không lập Action Plan chi tiết, không chạy exporter** cho tới khi gỡ chặn.
 
 **Điều kiện gỡ chặn (chủ repo BigWIN):**
 1. Dọn + commit toàn bộ thay đổi treo (tối thiểu `core/`, `utils/`; khuyến nghị cả repo — tệp chưa theo dõi `core/api_client.py`, `cloud_backup.py`, `license_service.py`, `utils/machine_id.py` cần quyết định commit hay bỏ).
@@ -118,43 +247,59 @@ Hồi quy nền trước khi làm (2026-11-03 20:11): `BIGWIN_CONFIG_FILE=<cấu
 4. Báo lại → Claude chạy lại Bước ① (kiểm `git describe --exact-match` = `port-baseline`, `git status` sạch) rồi mới lập Bước ②.
 
 ### ② Action Plan
-_(Chưa lập — P00 đang BỊ CHẶN ở Bước ①.)_
+| Thứ tự | Slice | Tệp tạo/sửa | Test viết trước | Rủi ro / lưu ý |
+|---|---|---|---|---|
+| 1 | **S0.4** Xuất lại 6 fixture engine cũ tại tag | BigWIN: chạy `scripts/export_golden.py` (không sửa phần cũ) → ghi đè `src/webapp/tests/fixtures/{cleaner,parser,tinh_tien,do_trung,seqmatch,learning}.json` | P00-T01 (cùng commit, không `-dirty`) · P00-T04 (`helpers`, `smoke` vẫn xanh) | 6 fixture cũ đang `3c5fab3-dirty` → phải ra hash tag. Nếu nội dung khác → code chủ repo commit khác working tree cũ → ghi khác biệt, sửa test PHP theo fixture mới (KHÔNG sửa fixture) |
+| 2 | **S0.5** 6 fixture engine Mới | BigWIN `scripts/export_golden.py` (tệp DUY NHẤT được sửa — Q7): `bang_mac_dinh`, `don_moi`, `bat_engine_moi` + `xuat_cleaner_moi`, `xuat_rule_parser`, `xuat_dan_so`, `xuat_tong_hop`, `xuat_doi_chieu`, `xuat_pipeline` · Web: `tests/fixture_meta_test.php` | P00-T01 · **P00-T02** (số ca ≥ bảng §4 + phủ đủ loại lỗi `kiem_tra_dan` + pipeline có TRÚNG cả 6 loại cược) · **P00-T03** (0 ca exporter ném lỗi ngoài danh sách cho phép) | ① `-dirty` CHỈ xét `core/`, `utils/` (`commit_bigwin()`) → sửa `scripts/` không làm bẩn mốc. ② Luồng phải giống hệt đối soát engine `moi`: cleaner `bung_dan_kep=False` → `RuleParser(bảng)` → `tinh_tien_*` / `tim_trung*` theo `ui/app.py::_doi_soat_tin_nhan_cho_khach_no_ui` → `tong_hop_doi_soat_bang_bieu`. ③ `doi_chieu_tin` đọc parser QUA `parser_facade` → phải bật facade engine `moi`. ④ Tất định: seed cố định, `sort_keys`, không timestamp |
+| 3 | Kiểm | — | P00-M02 (chạy 2 lần → SHA-256 trùng) · hồi quy toàn bộ | Ghi ra thư mục tạm trước, so SHA, rồi mới ghi đè `tests/fixtures/` |
 
 ### ③ Tiến độ slice
 | Slice | Bắt đầu | Xanh lúc | Test của slice | Ghi chú |
 |---|---|---|---|---|
-| S0.4 | | | P00-T01, T04 | Chờ gỡ chặn |
-| S0.5 | | | P00-T01..T03 | Chờ gỡ chặn |
+| S0.4 | 2026-11-03 | 2026-11-03 20:49 | P00-T01, T04 | 6 fixture cũ xuất lại tại `45ee0e5`: **mỗi tệp chỉ đổi đúng 1 dòng** (`meta.bigwin_commit`: `3c5fab3-dirty` → `45ee0e5`) — nội dung parity không đổi byte nào → code chủ repo commit TRÙNG working tree đã dùng sinh fixture cũ. `helpers` 14/14, `smoke` 14/14 |
+| S0.5 | 2026-11-03 | 2026-11-03 20:49 | P00-T01, T02 ×3, T03 (`fixture_meta_test.php` 5 test) | `export_golden.py` +258 dòng (chỉ tệp này — Q7). 6 tệp mới: `cleaner_moi` 1.319 ca · `rule_parser` 1.319 (698 tin lưu được; items: ĐỀ 3.937, LÔ 689, LX2 66, 3C 16, LX3 16, LX4 6) · `dan_so` (`kiem_tra_dan` 476 ca phủ đủ 13 loại lỗi + ca hợp lệ, `anh_huong` 78, `tach_danh_sach_so` 21, `tach_khoa` 13, bảng 115 dàn + dàn TẮT + dàn user) · `tong_hop` 120 · `doi_chieu` 1.319 · `pipeline` 3 bộ hệ số × 361 tin = 1.083 ca, TRÚNG cả 6 loại (B03) |
 
 ### ④ Lần chạy test
 | Lần | Ngày giờ | Lệnh | Kết quả (dòng tổng kết) | Đỏ (mã test) |
 |---|---|---|---|---|
 | Hồi quy nền | 2026-11-03 20:11 | `BIGWIN_CONFIG_FILE=<cấu hình gốc> php src/webapp/tools/test.php` | **`186 passed, 0 failed (20.56s)`**, exit 0 | — |
+| Tiền đề | 2026-11-03 | BigWIN `python -m pytest -s --junitxml` tại `45ee0e5` | **3797 tests, 0 failures, 0 errors (128s)**, exit 0 | — (B02: cần `-s`) |
+| 1 | 2026-11-03 | `… export_golden.py --out <scratch>` (bản mở rộng, lần đầu) | 12 tệp, 6s, mọi tệp `45ee0e5`, 0 ca lỗi | `pipeline`: chỉ 111/990 ca lưu được, 21 ca trúng → chọn tin sai (B03) |
+| 2 | 2026-11-03 | Như lần 1 sau sửa, **chạy 2 lần** ra 2 thư mục tạm | 12/12 tệp **SHA-256 trùng 100%** (P00-M02) | — |
+| 3 | 2026-11-03 | `php src/webapp/tools/test.php fixture_meta` (test viết TRƯỚC khi ghi fixture thật) | `0 passed, 5 failed` | Đỏ đúng dự kiến (thư mục còn 6 tệp cũ `3c5fab3-dirty`) |
+| 4 | 2026-11-03 | `python scripts/export_golden.py` → `src/webapp/tests/fixtures/` | 12 tệp, SHA trùng bản thử lần 2; `git diff --stat` 6 tệp cũ: **1 dòng / tệp** | — |
+| 5 | 2026-11-03 20:49 | `… test.php fixture_meta` / `helpers` / `smoke` | **`5 passed`** / **`14 passed`** / **`14 passed`**, 0 failed | — |
+| **6 (hồi quy)** | 2026-11-03 20:49 | `BIGWIN_CONFIG_FILE=<cấu hình gốc> php src/webapp/tools/test.php` không lọc, **3 lần** | **`191 passed, 0 failed`** (15.32s / 14.69s / 15.38s), exit 0 | — · 186 Luồng B + 5 P00 · `php -l fixture_meta_test.php` sạch · không còn `php.exe` sót |
 
 ### Checklist thủ công
 | Mã | Nội dung (tóm tắt) | Người test | Ngày | ✔ |
 |---|---|---|---|---|
-| P00-M01 | `git describe --exact-match` tại commit xuất fixture = `port-baseline` | | | |
-| P00-M02 | Chạy exporter 2 lần → SHA-256 trùng | | | |
-| P00-M03 | 5 ca ngẫu nhiên `rule_parser.json` đối chiếu tay với Python | | | |
+| P00-M01 | `git describe --exact-match` tại commit xuất fixture = `port-baseline` | | | ☐ — Claude đã thấy: `port-baseline` (`45ee0e5`), working tree `core/`+`utils/` sạch lúc xuất |
+| P00-M02 | Chạy exporter 2 lần → SHA-256 trùng | | | ☐ — Claude đã chạy (④ lần 2): 12/12 trùng |
+| P00-M03 | 5 ca ngẫu nhiên `rule_parser.json` đối chiếu tay với Python | | | ☐ — chờ chủ dự án |
 
 ### ⑤ Khác biệt / Bug phát hiện
 | Mã | Loại | Nguồn | Input | Kỳ vọng | Thực tế | Nguyên nhân gốc | Cách sửa | Trạng thái |
 |---|---|---|---|---|---|---|---|---|
-| P00-B01 | Tiền đề không đạt | Bước ① | Thông báo của chủ dự án: "chủ repo đã dọn code treo và đánh tag `port-baseline`" | Tag tồn tại; `git status` sạch | Không có tag (local + remote); 80 mục treo, `core/`+`utils/` +1.341 / −578 dòng | Chủ repo chưa thực hiện R1 trên repo này (hoặc thực hiện ở bản sao / máy khác chưa push) | Chủ repo làm 4 bước "Điều kiện gỡ chặn" ở trên | **Mở — chặn P00** (kiểm lại lần 2 cùng ngày: vẫn chưa có tag, local lẫn remote) |
+| P00-B01 | Tiền đề không đạt | Bước ① | Thông báo của chủ dự án: "chủ repo đã dọn code treo và đánh tag `port-baseline`" | Tag tồn tại; `git status` sạch | Không có tag (local + remote); 80 mục treo, `core/`+`utils/` +1.341 / −578 dòng | Chủ repo chưa thực hiện R1 trên repo này (hoặc thực hiện ở bản sao / máy khác chưa push) | Chủ repo làm 4 bước "Điều kiện gỡ chặn" ở trên | **Đã xử lý** (lần 4, 2026-11-03): tag `port-baseline` = `45ee0e5`, working tree sạch, pytest xanh. Lần 3 phát hiện lệnh chạy nhầm repo web — đã gỡ tag nhầm |
+| P00-B02 | Môi trường (BigWIN) | Tiền đề — `pytest` | `python -m pytest -q` | Chạy test, in tổng kết | `ValueError: I/O operation on closed file` → "no tests ran" | Mã BigWIN thay / đóng `sys.stdout` lúc import (capture của pytest hỏng) | Chạy `pytest -s` + `--junitxml` để lấy số liệu (dòng tổng kết không in ra được khi `-s`). Không sửa mã BigWIN (Q7) | Ghi nhận — báo chủ repo nếu muốn sửa |
+| P00-B03 | Bug (exporter, phát hiện khi tự kiểm) | ④ lần 1 | `xuat_pipeline` lấy 330 tin ĐẦU corpus (sắp theo chữ cái) | ≥ 300 tin cược thật × 3 bộ hệ số | Chỉ 111/990 ca lưu được, 21 ca trúng | Đầu corpus là chuỗi test không phải tin cược | Chọn rải đều trong 698 tin LƯU ĐƯỢC + 12 tin dựng từ KQ trong ngày → 361 tin × 3 = 1.083 ca lưu được, TRÚNG cả 6 loại | Đã sửa |
+| P00-B04 | Ghi chú (nguồn gốc) | S0.4 | 6 fixture cũ `3c5fab3-dirty` | — | Xuất lại tại `45ee0e5`: chỉ đổi dòng `meta` | — | Không có khác biệt parity cần xử lý; 19 test parity cũ (`helpers`, `smoke`…) không cần sửa | Đóng |
+| P00-B05 | Việc của chủ repo | BigWIN `scripts/export_golden.py` | Bản mở rộng S0.5 (+258 dòng) | Có trong repo BigWIN | Đang là thay đổi CHƯA commit trong `D:/Projects/bigwin` (ngoài `core/`/`utils/` → không làm `-dirty`) | Claude không dùng git add/commit/push | Chủ repo tự commit khi thuận tiện (để exporter tái lập được fixture về sau) | Mở — chủ repo |
 
 ### ⑥ Xác nhận Cổng nghiệm thu
 | # | Điều kiện | ✔ | Bằng chứng |
 |---|---|---|---|
-| 1 | Toàn bộ P00-Tnn xanh, 0 bỏ qua | | |
-| 2 | Hồi quy toàn bộ xanh | | |
-| 3 | Checklist P00-Mnn tick đủ | | |
-| 4 | `/healthcheck` xanh | | |
-| 5 | DoD §10 kế hoạch tổng (mục 1, 2 áp dụng) | | |
-| 6 | Chủ dự án ký PASS | | |
+| 1 | Toàn bộ P00-Tnn xanh, 0 bỏ qua | ✔ (Claude) | `fixture_meta` 5/5 (T01, T02 ×3, T03) + T04 (`helpers` 14/14, `smoke` 14/14) — ④ lần 5 |
+| 2 | Hồi quy toàn bộ xanh | ✔ (Claude) | ④ lần 6: `191 passed, 0 failed` ×3, exit 0 |
+| 3 | Checklist P00-Mnn tick đủ | ☐ **Chủ dự án** | M01, M02 Claude đã có bằng chứng (xem Checklist); M03 chờ đối chiếu tay |
+| 4 | `/healthcheck` xanh | ✔ (Claude) | P00 chỉ thêm 1 tệp PHP (`tests/fixture_meta_test.php`, `php -l` sạch) + 12 tệp JSON; không đụng `api/`, `lib/` |
+| 5 | DoD §10 kế hoạch tổng (mục 1, 2 áp dụng) | ✔ (Claude) | **1** test xanh 100%, fixture KHÔNG sửa tay (sinh bởi exporter, SHA tái lập) · **2** P00 không viết mã `lib/bigwin` |
+| *Cổng P00* | Tag tồn tại; 12 fixture cùng hash commit; T01..T04 xanh | ✔ (Claude) | `port-baseline` = `45ee0e5`; 12/12 `meta.bigwin_commit = 45ee0e5`, không `-dirty` |
+| 6 | Chủ dự án ký PASS | ✔ | Chủ dự án — 2026-11-03 |
 
-**Kết luận:** _(BỊ CHẶN ở Bước ①)_
-**Phase được mở khoá:** _(P04 khi PASS)_
+**Kết luận:** **PASS** (2026-11-03) — 12 Golden Fixture tại `port-baseline` (`45ee0e5`).
+**Phase được mở khoá:** P04
 
 ---
 

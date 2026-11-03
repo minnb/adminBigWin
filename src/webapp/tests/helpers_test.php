@@ -24,6 +24,25 @@ function test_ngay_vn_khac_ngay_utc_luc_rang_sang(): void
     assert_same('10-08-2026', $utc->setTimezone(new DateTimeZone(BW_TZ))->format('d-m-Y'));
 }
 
+function test_p04_bw_py_round_khop_round_python(): void
+{
+    // [x, round(x) Python 3.13] — banker's chính xác trên double, KHÔNG làm tròn trước như round() PHP 8.3.
+    $ca = [[0.5, 0.0], [1.5, 2.0], [2.5, 2.0], [-0.5, 0.0], [-1.5, -2.0], [-2.5, -2.0], [501.49999999999994, 501.0],
+        [1001.4999999999999, 1001.0], [0.49999999999999994, 0.0], [2.675, 3.0], [1.0000000000000002e+16, 1.0000000000000002e+16], [-0.3, 0.0]];
+    foreach ($ca as [$x, $mong]) {
+        assert_same($mong, bw_py_round($x), "round($x)");
+    }
+    assert_true(is_infinite(bw_py_round(INF)) && is_nan(bw_py_round(NAN)));
+    assert_same(1002.0, round(1001.4999999999999, 0, PHP_ROUND_HALF_EVEN), 'Bằng chứng P04-B04: round() PHP 8.3 lệch Python — nếu PHP nâng cấp hết lệch, xem lại bw_py_round');
+}
+
+function test_p04_bw_py_strip_va_khoang_trang_python(): void
+{
+    assert_same('de 12', bw_py_strip("\x1c\u{3000}\t de 12 \u{00A0}\x1f\n"));
+    assert_same("\u{200B}x", bw_py_strip(" \u{200B}x "), 'U+200B không phải khoảng trắng Python');
+    assert_same('', bw_py_strip(" \x1d "));
+}
+
 function test_fmt_tien_khop_python(): void
 {
     $vao = [0, 5, 999, 1000, 12345, -1234, 1234567.9, '42', 10 ** 12];

@@ -1,0 +1,12 @@
+# PHPStan — phân tích tĩnh (công cụ dev, KHÔNG thuộc ứng dụng; không Composer).
+# Chạy: php ~/.local/bin/phpstan-2.3.1.phar analyse --memory-limit=1G   (hoặc lệnh /phpstan)
+parameters:
+    level: 5   # mốc 2026-11-03: 7 phát hiện (1 lõi + 6 test) — chủ dự án phân loại; KHÔNG baseline, KHÔNG @phpstan-ignore
+    phpVersion: 80300
+    paths:
+        - src/webapp
+    excludePaths:
+        analyseAndScan:
+            - src/webapp/config.php            # bí mật — không phân tích
+            - src/webapp/tests/_vi_pham_mau/*  # mẫu vi phạm CỐ Ý cho test quét
+    tmpDir: .phpstan-cache

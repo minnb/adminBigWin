@@ -65,6 +65,23 @@ function bw_int(int|float|string $v): int
     return is_string($v) ? (int)trim($v) : (int)$v;
 }
 
+/**
+ * round(x) của Python 3: banker's (nửa → chẵn) CHÍNH XÁC trên giá trị double. KHÔNG dùng round($x, 0, PHP_ROUND_HALF_EVEN)
+ * của PHP 8.3 — nó "làm tròn trước" về 15 chữ số: round(1001.4999999999999) = 1002, Python = 1001 (P04-B04).
+ */
+function bw_py_round(float $x): float
+{
+    if (!is_finite($x)) {
+        return $x;
+    }
+    $f = floor($x);
+    $du = $x - $f; // chính xác trong IEEE 754 (|x| ≥ 2^52 thì x đã là số nguyên, du = 0)
+    if ($du > 0.5 || ($du === 0.5 && fmod($f, 2.0) !== 0.0)) {
+        $f += 1.0;
+    }
+    return $f;
+}
+
 function bw_nhom_nghin(int $n): string
 {
     return number_format($n, 0, ',', '.');
@@ -111,14 +128,29 @@ function bw_sanitize(string $s): string
     return strtr($s, BW_KY_TU_AN);
 }
 
+/** unicodedata.normalize("NFC", s) — chuỗi UTF-8 hỏng thì trả nguyên. */
+function bw_nfc(string $s): string
+{
+    $nfc = Normalizer::normalize($s, Normalizer::FORM_C);
+    return $nfc === false ? $s : $nfc;
+}
+
 /** HeuristicCleaner.chuan_hoa_ky_tu_an: NFC rồi thay ký tự vô hình. */
 function bw_chuan_hoa_ky_tu_an(string $s): string
 {
-    $nfc = Normalizer::normalize($s, Normalizer::FORM_C);
-    return bw_sanitize($nfc === false ? $s : $nfc);
+    return bw_sanitize(bw_nfc($s));
 }
 
 // ═══ REGEX UNICODE ═════════════════════════════════════════════════════
+
+/** `\s` của `re` Python (str.isspace) — PCRE (*UCP) `\s` thiếu \x1c–\x1f. Dùng ở chỗ tin THÔ chưa gộp khoảng trắng. */
+const BW_PY_S = '[\s\x{1c}-\x{1f}]';
+
+/** str.strip() Python (không đối số): bỏ MỌI khoảng trắng theo str.isspace ở hai đầu — trim() PHP chỉ bỏ ASCII. */
+function bw_py_strip(string $s): string
+{
+    return preg_replace(bw_re('^' . BW_PY_S . '+|' . BW_PY_S . '+$', 'D'), '', $s) ?? $s;
+}
 
 /**
  * Dựng pattern PCRE có ngữ nghĩa giống `re` Python 3 trên str:
@@ -138,13 +170,13 @@ function bw_re(string $body, string $flags = ''): string
 /** Byte offset (PREG_OFFSET_CAPTURE) → char offset (code point, như Python). */
 function bw_byte_to_char(string $s, int $byteOffset): int
 {
-    return mb_strlen(substr($s, 0, $byteOffset), 'UTF-8');
+    return mb_strlen(substr($s, 0, $byteOffset), 'UTF-8'); // bw-byte: cắt theo offset BYTE của PCRE
 }
 
 /** Char offset → byte offset. */
 function bw_char_to_byte(string $s, int $charOffset): int
 {
-    return strlen(mb_substr($s, 0, $charOffset, 'UTF-8'));
+    return strlen(mb_substr($s, 0, $charOffset, 'UTF-8')); // bw-byte: kết quả LÀ offset byte
 }
 
 /**
@@ -166,7 +198,7 @@ function bw_finditer(string $pattern, string $subject): array
         if ($b < $cacheByte) {
             return bw_byte_to_char($subject, $b);
         }
-        $cacheChar += mb_strlen(substr($subject, $cacheByte, $b - $cacheByte), 'UTF-8');
+        $cacheChar += mb_strlen(substr($subject, $cacheByte, $b - $cacheByte), 'UTF-8'); // bw-byte: đoạn theo offset BYTE
         $cacheByte = $b;
         return $cacheChar;
     };

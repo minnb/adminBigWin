@@ -8,11 +8,11 @@ Tài liệu thực thi chia nhỏ từ kế hoạch tổng [`../2026-11-02-ke-ho
 
 | Phase | Tên | Slice (kế hoạch tổng) | Phụ thuộc | Cỡ | Trạng thái |
 |---|---|---|---|---|---|
-| [P00](P00-dong-bang-va-fixture.md) | Đóng băng BigWIN & fixture engine Mới | S0.4, S0.5 | Chủ repo BigWIN làm R1 | S+M | 🚫 Bị chặn (2026-11-03) — chưa có tag `port-baseline`, `core/`+`utils/` còn ~1.341 dòng treo |
+| [P00](P00-dong-bang-va-fixture.md) | Đóng băng BigWIN & fixture engine Mới | S0.4, S0.5 | Chủ repo BigWIN làm R1 | S+M | ✅ ĐẠT (2026-11-03) |
 | [P01](P01-danh-tinh-va-bao-mat.md) | Hạ tầng test DB/HTTP · Danh tính · Core bảo mật · Đăng nhập | S1.0*, S1.1, S1.2, S1.3 | — | M+M+M | ✅ ĐẠT (2026-11-03) |
 | [P02](P02-tenant-scope-va-ban-quyen.md) | TenantScope · Bản quyền SaaS | S1.4, S1.5 | P01 | M+M | ✅ ĐẠT (2026-11-03) |
 | [P03](P03-khung-app-va-quan-tri.md) | Khung app 6 page · Quản trị tài khoản & thuê bao | S1.6, S1.7 | P02 | M+L | ✅ ĐẠT (Ngày 03/11/2026) |
-| [P04](P04-loi-cu-phap-1.md) | Lõi cú pháp 1: SequenceMatcher · Cleaner · Đối chiếu nghi ngờ | S2.1, S2.2, S2.6 | P00 | M+L+M | |
+| [P04](P04-loi-cu-phap-1.md) | Lõi cú pháp 1: SequenceMatcher · Cleaner · Đối chiếu nghi ngờ | S2.1, S2.2, S2.6 | P00 | ▶ Đang làm — checkpoint sau Bước ② (chờ duyệt Action Plan) |
 | [P05](P05-loi-cu-phap-2.md) | Lõi cú pháp 2: MessageParser · RuleParser · Dàn số · Cache | S2.3, S2.4, S2.5, S2.7 | P04 | L+L+M+M | |
 | [P06](P06-tien-va-kqxs.md) | Tiền · Dò trúng · Tổng hợp · KQXS | S3.1, S3.2, S3.3 | P03, P05 | M+M+M | |
 | [P07](P07-khach-hang-va-bang-gia.md) | Khách hàng & Bảng giá | S4.1, S4.2 | P06 | M+L | |

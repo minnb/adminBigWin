@@ -1,0 +1,49 @@
+{
+  "patterns": [
+    {
+      "rule_name": "bigwin_round_lech_python",
+      "regex": "round\\([^;]*PHP_ROUND_HALF_EVEN",
+      "paths": ["**/src/webapp/lib/bigwin/**"],
+      "exclude_paths": ["**/src/webapp/lib/bigwin/helpers.php"],
+      "reminder": "round(..., PHP_ROUND_HALF_EVEN) của PHP 8.3 làm tròn trước 15 chữ số và lệch Python (P04-B04). Dùng bw_py_round()."
+    },
+    {
+      "rule_name": "bigwin_khoa_mang_chuoi_so",
+      "regex": "\\barray_(unique|flip)\\s*\\(",
+      "paths": ["**/src/webapp/lib/bigwin/**"],
+      "reminder": "array_unique/array_flip ép \"05\" thành 5. Dedup bằng $daCo[\"k:$x\"] (rule bigwin-core.md)."
+    },
+    {
+      "rule_name": "tenant_user_id_viet_tay",
+      "regex": "user_id\\s*=\\s*[?:]",
+      "paths": ["**/src/webapp/app/**", "**/src/webapp/lib/bigwin/**"],
+      "exclude_paths": ["**/src/webapp/lib/bigwin/repo/TenantRepo.php", "**/src/webapp/lib/bigwin/repo/BoQuetSqlTenant.php", "**/src/webapp/lib/bigwin/repo/UserRepo.php", "**/src/webapp/lib/bigwin/repo/ThueBaoRepo.php"],
+      "reminder": "Không viết tay user_id = ? — bảng tenant đi qua lớp extends TenantRepo + TenantContext (rule tenant-isolation.md)."
+    },
+    {
+      "rule_name": "phien_ngoai_phien_bao_mat",
+      "regex": "\\bsession_start\\s*\\(",
+      "paths": ["**/src/webapp/**"],
+      "exclude_paths": ["**/src/webapp/lib/security/PhienBaoMat.php", "**/src/webapp/tests/**"],
+      "reminder": "Phiên chỉ mở qua PhienBaoMat::batDau() (rule security-core.md)."
+    },
+    {
+      "rule_name": "sql_noi_chuoi_bien",
+      "regex": "->(query|exec|prepare)\\(\\s*[\"'][^\"']*[\"']\\s*\\.\\s*\\$",
+      "paths": ["**/src/webapp/**"],
+      "reminder": "Đang ghép biến vào chuỗi SQL. Chỉ được ghép MẢNH SQL do code dựng (tên cột/WHERE có ?) — giá trị người dùng luôn là tham số ? của prepared statement."
+    },
+    {
+      "rule_name": "doc_cau_hinh_bi_mat",
+      "substrings": ["config.php'", "config.php\""],
+      "paths": ["**/src/webapp/app/**", "**/src/webapp/lib/bigwin/**", "**/src/webapp/api/**"],
+      "reminder": "Không nạp/đọc config.php trực tiếp — cấu hình chỉ qua cfg() của lib/bootstrap.php."
+    },
+    {
+      "rule_name": "sua_fixture_golden",
+      "regex": "\"bigwin_commit\"",
+      "paths": ["**/src/webapp/tests/fixtures/**"],
+      "reminder": "Golden Fixture chỉ sinh bởi D:\\Projects\\bigwin\\scripts\\export_golden.py tại tag port-baseline. Fixture lệch = bug PHP, KHÔNG sửa fixture."
+    }
+  ]
+}

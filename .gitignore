@@ -1,3 +1,4 @@
 src/webapp/config.php
 *.key
 src/webapp/tests/fixtures/local/
+.phpstan-cache/
