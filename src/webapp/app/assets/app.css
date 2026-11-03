@@ -1,0 +1,284 @@
+/* BigWIN Web — design tokens (chuẩn hóa Typography Inter & WCAG AAA cho người lớn tuổi / mắt kém) */
+:root {
+  --flat-app-bg: #EEF3F9;
+  --flat-card: #FFFFFF;
+  --flat-panel: #F5F8FC;
+  --flat-border: #D8E2EC;
+  --flat-border-strong: #BDCEDB;
+  --flat-text: #0F172A;        /* Đen than Slate 900 — độ tương phản cao, chữ nét đậm rõ ràng */
+  --flat-title: #0A2540;       /* Xanh thẫm Navy cho tiêu đề */
+  --flat-muted: #334E68;       /* Xám Slate đậm, tránh bị mờ chữ đối với người mắt kém */
+  --flat-primary: #1B6EC2;
+  --flat-primary-hover: #155799;
+  --flat-primary-soft: #E8F1FB;
+  --flat-success: #0E703B;
+  --flat-success-bg: #E6F4EA;
+  --flat-danger: #C42B1C;
+  --flat-danger-strong: #CC0000;
+  --flat-danger-bg: #FDE8E8;
+  --flat-warning: #B86200;
+  --flat-warning-bg: #FFF9DB;
+  --flat-warning-line: #D87A00;
+  --flat-learn: #6F42C1;
+  --flat-learn-bg: #F1EBFB;
+  --flat-console: #1E293B;
+
+  --flat-header-bg: #E2EDF8;          /* Nền header các khối/bảng: xanh xám trang nhã */
+  --flat-header-border: #CBDCEE;      /* Viền dưới của header */
+  --flat-header-title: #0A2540;       /* Chữ xanh thẫm đậm nét */
+
+  --font-ui: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", Consolas, "Courier New", monospace;
+
+  --radius-card: 14px;
+  --radius-ctl: 10px;
+  --editor-line: 32px;
+}
+
+html, body {
+  background: var(--flat-app-bg);
+  color: var(--flat-text);
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  letter-spacing: -0.011em;
+}
+[x-cloak] { display: none !important; }
+
+.mono, .num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "zero" 1;
+  letter-spacing: -0.01em;
+}
+.num { text-align: right; }
+
+.card { background: var(--flat-card); border: 1px solid var(--flat-header-border, #CBDCEE); border-radius: var(--radius-card); }
+
+.card-header {
+  background: var(--flat-header-bg, #E2EDF8);
+  border-bottom: 1px solid var(--flat-header-border, #CBDCEE);
+  color: var(--flat-header-title, #0A2540);
+}
+
+/* ── Nút ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem;
+  font-weight: 700;
+  font-size: 15px;
+  border-radius: var(--radius-ctl);
+  padding: .7rem 1.15rem;
+  transition: background .12s, box-shadow .12s, transform .05s;
+  min-height: 44px;
+}
+.btn:active { transform: translateY(1px); }
+.btn:focus-visible, .ctl:focus-visible, button:focus-visible, a:focus-visible { outline: 3px solid #8EC5FF; outline-offset: 2px; }
+.btn-primary { background: var(--flat-primary); color: #fff; }
+.btn-primary:hover { background: var(--flat-primary-hover); }
+.btn-success { background: var(--flat-success); color: #fff; }
+.btn-success:hover { background: #0C5E31; }
+.btn-ghost { background: #fff; color: var(--flat-title); border: 1px solid var(--flat-border-strong); }
+.btn-ghost:hover { background: var(--flat-primary-soft); }
+.btn-learn { background: var(--flat-learn); color: #fff; }
+.btn-danger { background: var(--flat-danger); color: #fff; }
+.btn-danger:hover { filter: brightness(.95); }
+.btn-learn:hover { background: #59359A; }
+.btn[disabled] { opacity: .5; cursor: not-allowed; }
+
+kbd, .kbd { font-family: var(--font-mono); font-size: 11.5px; font-weight: 700; line-height: 1; padding: 3px 6px; border-radius: 6px; border: 1px solid currentColor; opacity: .9; white-space: nowrap; }
+.btn-primary .kbd, .btn-success .kbd, .btn-learn .kbd { border-color: rgba(255,255,255,.55); }
+
+.ctl {
+  width: 100%;
+  border: 1px solid var(--flat-border-strong);
+  border-radius: var(--radius-ctl);
+  background: #fff;
+  padding: .65rem .85rem;
+  min-height: 44px;
+  font-size: 15.5px;
+  font-weight: 500;
+  color: var(--flat-text);
+}
+.ctl:focus { border-color: var(--flat-primary); box-shadow: 0 0 0 3px rgba(27,110,194,.18); outline: none; }
+
+/* ── Pill trạng thái ── */
+.pill { display: inline-flex; align-items: center; gap: .45rem; padding: .3rem .7rem; border-radius: 999px; font-size: 13px; font-weight: 700; white-space: nowrap; }
+.pill-ok { background: var(--flat-success-bg); color: var(--flat-success); }
+.pill-warn { background: var(--flat-warning-bg); color: var(--flat-warning); }
+.pill-err { background: var(--flat-danger-bg); color: var(--flat-danger); }
+.pill-info { background: var(--flat-primary-soft); color: var(--flat-primary); }
+.dot { width: 10px; height: 10px; border-radius: 99px; display: inline-block; flex-shrink: 0; }
+.dot-ok { background: var(--flat-success); } .dot-warn { background: var(--flat-warning-line); } .dot-err { background: var(--flat-danger-strong); }
+
+/* ── Badge loại cược ── */
+.bet { display: inline-block; white-space: nowrap; min-width: 66px; text-align: center; font-size: 12.5px; font-weight: 800; letter-spacing: .02em; padding: .32rem .55rem; border-radius: 7px; }
+.b-de { background: #FDE8E8; color: #9B1C1C; }
+.b-lo { background: #E6F4EA; color: #0C5E31; }
+.b-xien { background: #E8F1FB; color: #124891; }
+.b-3c { background: #FFF1DC; color: #8A4B00; }
+.b-xq { background: #F1EBFB; color: #59359A; }
+
+/* ── Editor có lớp highlight ── */
+.editor { position: relative; border: 1px solid var(--flat-border-strong); border-radius: var(--radius-ctl); background: #fff; }
+.editor:focus-within { border-color: var(--flat-primary); box-shadow: 0 0 0 3px rgba(27,110,194,.18); }
+.editor .lop, .editor textarea {
+  font-family: var(--font-mono); font-size: 17.5px; line-height: var(--editor-line); letter-spacing: 0;
+  padding: 14px 16px; margin: 0; border: 0; white-space: pre-wrap; overflow-wrap: anywhere; word-break: normal;
+  tab-size: 4; box-sizing: border-box; width: 100%; height: 100%;
+}
+.editor .lop { position: absolute; inset: 0; color: transparent; overflow: hidden; pointer-events: none; }
+.editor textarea { position: relative; background: transparent; color: var(--flat-text); caret-color: var(--flat-primary); resize: none; outline: none; overflow-y: auto; }
+.editor mark { color: transparent; border-radius: 4px; padding: 1px 0; }
+.hl-err { background: var(--flat-danger-bg); box-shadow: inset 0 -3px 0 var(--flat-danger-strong); }
+.hl-warn { background: var(--flat-warning-bg); box-shadow: inset 0 -3px 0 var(--flat-warning-line); }
+
+/* ── Telegram Dock Editor & Layout Modes ── */
+.editor-tg-box {
+  position: relative;
+  border: 1px solid var(--flat-border-strong);
+  border-radius: var(--radius-ctl);
+  background: #fff;
+  transition: border-color .15s, box-shadow .15s;
+}
+.editor-tg-box:focus-within {
+  border-color: var(--flat-primary);
+  box-shadow: 0 0 0 3px rgba(27,110,194,.18);
+}
+.editor-tg-box textarea {
+  width: 100%;
+  height: 100%;
+  font-family: var(--font-mono);
+  font-size: 15.5px;
+  line-height: 26px;
+  color: var(--flat-text);
+  padding: 12px 14px;
+  background: transparent;
+  border: 0;
+  outline: none;
+  resize: vertical;
+  min-height: 140px;
+  box-sizing: border-box;
+}
+
+/* ── Bảng ── */
+.tbl { width: 100%; border-collapse: separate; border-spacing: 0; }
+.tbl th {
+  position: sticky; top: 0; z-index: 1;
+  background: var(--flat-header-bg);
+  color: var(--flat-header-title);
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  text-align: left;
+  padding: .7rem .85rem;
+  border-bottom: 1px solid var(--flat-header-border);
+}
+.tbl td {
+  padding: .65rem .85rem;
+  border-bottom: 1px solid #E2E8F0;
+  vertical-align: middle;
+  white-space: nowrap;
+  font-size: 15px;
+  font-weight: 500;
+}
+.tbl tbody tr:nth-child(even) td { background: #F8FAFC; }
+.tbl tbody tr:hover td { background: var(--flat-primary-soft); }
+.tbl tr.trung td { background: #ECFDF5 !important; }
+
+/* ── KQXS ── */
+.kq-row td { border-bottom: 1px solid #EEF2F7; padding: .45rem .75rem; }
+.kq-so { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 700; font-size: 20px; letter-spacing: .04em; }
+.kq-db { color: var(--flat-danger-strong); font-size: 34px; font-weight: 800; }
+.kq-g1 { color: var(--flat-primary); }
+.duoi-chip { font-family: var(--font-mono); font-weight: 700; display: inline-flex; align-items: baseline; gap: 1px; padding: 2px 6px; border-radius: 6px; }
+.duoi-chip sup { font-size: 10px; color: var(--flat-danger); font-weight: 800; }
+.duoi-nhieu { background: var(--flat-warning-bg); }
+.duoi-db { background: var(--flat-danger-bg); color: var(--flat-danger-strong); }
+
+/* ── Sidebar ── */
+.nav-item { display: flex; align-items: center; gap: .75rem; padding: .7rem .8rem; border-radius: 10px; color: var(--flat-muted); font-weight: 600; font-size: 15px; width: 100%; text-align: left; white-space: nowrap; }
+.nav-item:hover { background: var(--flat-primary-soft); color: var(--flat-title); }
+.nav-item.on { background: var(--flat-primary); color: #fff; }
+.nav-item.on .kbd { border-color: rgba(255,255,255,.55); }
+.nav-item .kbd { margin-left: auto; font-size: 10px; }
+
+/* ── Lưới hệ số ── */
+.hs-input { width: 84px; text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; border: 1px solid transparent; border-radius: 7px; padding: .35rem .45rem; background: transparent; font-size: 14px; }
+.hs-input:hover { border-color: var(--flat-border-strong); background: #fff; }
+.hs-input:focus { border-color: var(--flat-primary); background: #fff; outline: none; box-shadow: 0 0 0 3px rgba(27,110,194,.18); }
+.hs-input::placeholder { color: #A0AEC0; }
+.hs-rieng { background: #FFF6E0; border-color: #F2C46D; color: #7A4A00; font-weight: 700; }
+.hs-daily { background: var(--flat-primary-soft); color: var(--flat-title); font-weight: 700; }
+
+/* ── Toast ── */
+.toast { display: flex; gap: .75rem; align-items: flex-start; padding: .85rem 1rem; border-radius: 12px; background: #fff; border: 1px solid var(--flat-border); border-left-width: 5px; box-shadow: 0 10px 30px -12px rgba(15,40,70,.35); font-size: 14.5px; max-width: 440px; }
+.toast-ok { border-left-color: var(--flat-success); } .toast-ok i { color: var(--flat-success); }
+.toast-err { border-left-color: var(--flat-danger-strong); } .toast-err i { color: var(--flat-danger-strong); }
+.toast-warn { border-left-color: var(--flat-warning-line); } .toast-warn i { color: var(--flat-warning); }
+.toast-learn { border-left-color: var(--flat-learn); background: var(--flat-learn-bg); } .toast-learn i { color: var(--flat-learn); }
+
+.backdrop { background: rgba(11,30,52,.45); backdrop-filter: blur(2px); }
+
+/* ── Cuộn ── */
+.scroll-y { overflow-y: auto; scrollbar-width: thin; scrollbar-color: #C9D6E5 transparent; }
+
+/* ── In phiếu chốt ── */
+.phieu { font-family: var(--font-mono); font-size: 13.5px; line-height: 1.6; white-space: pre-wrap; background: var(--flat-panel); border: 1px dashed var(--flat-border-strong); border-radius: 10px; padding: 1rem; }
+@media print {
+  body * { visibility: hidden !important; }
+  .in-duoc, .in-duoc * { visibility: visible !important; }
+  .in-duoc { position: fixed; inset: 0; padding: 24px; background: #fff; border: 0; font-size: 15px; }
+}
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+/* ── Định nghĩa cú pháp cược ── */
+.lbl { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .02em; color: var(--flat-muted); }
+.chip-loc { white-space: nowrap; padding: .35rem .7rem; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--flat-title); border: 1px solid transparent; }
+.chip-loc b { font-family: var(--font-mono); font-size: 11.5px; color: var(--flat-muted); margin-left: .15rem; }
+.chip-loc:hover { background: #fff; border-color: var(--flat-border); }
+.chip-loc.on { background: var(--flat-primary); color: #fff; }
+.chip-loc.on b { color: rgba(255,255,255,.8); }
+.tbl tbody tr.row-on td { background: var(--flat-primary-soft) !important; box-shadow: inset 0 1px 0 #9CC3EA, inset 0 -1px 0 #9CC3EA; }
+.tbl tbody tr.row-on td:first-child { box-shadow: inset 4px 0 0 var(--flat-primary), inset 0 1px 0 #9CC3EA, inset 0 -1px 0 #9CC3EA; }
+.tg-opt { display: flex; align-items: center; justify-content: center; gap: .5rem; padding: .7rem .5rem; border-radius: 10px; border: 1.5px solid var(--flat-border-strong); background: #fff; font-weight: 800; font-size: 15px; color: var(--flat-muted); cursor: pointer; user-select: none; text-align: center; }
+.tg-opt:focus-within { outline: 3px solid #8EC5FF; outline-offset: 2px; }
+.tg-opt.on-de { border-color: #E3A3A3; background: #FDE8E8; color: #9B1C1C; }
+.tg-opt.on-lo { border-color: #93CDA8; background: #E6F4EA; color: #0C5E31; }
+.tg-opt.on-bat { border-color: var(--flat-primary); background: var(--flat-primary-soft); color: var(--flat-primary); }
+.o-so { font-family: var(--font-mono); font-size: 14px; font-weight: 700; padding: .45rem 0; border-radius: 6px; background: #F1F5F9; color: #64748B; transition: background .1s; }
+.o-so:hover { background: #DBEAFE; color: var(--flat-title); }
+.o-so.on { background: var(--flat-primary); color: #fff; }
+
+/* ── Bảng tổng hợp theo loại cược (component dùng chung · ui/core/report_grid.py) ── */
+.btk { width: 100%; border-collapse: collapse; font-size: 14.5px; font-variant-numeric: tabular-nums; border: 1px solid #B9CBDD; }
+.btk th { background: #DCE8F6; color: var(--flat-title); font-size: 12px; font-weight: 800; letter-spacing: .03em; padding: .5rem .6rem; border: 1px solid #B9CBDD; text-align: center; white-space: nowrap; }
+.btk td { padding: .45rem .6rem; border: 1px solid #D5E0EB; text-align: right; font-family: var(--font-mono); white-space: nowrap; background: #fff; }
+.btk td.c { text-align: center; font-family: inherit; }
+.btk td.b { font-weight: 800; }
+.btk small { font-size: 11px; color: var(--flat-muted); font-family: inherit; font-weight: 600; }
+.btk .btk-tien { background: #FFF8E1; }
+.btk th.btk-tien { background: #F7E7B4; }
+.btk .btk-co { color: var(--flat-success); font-weight: 800; }
+.btk .btk-am { color: var(--flat-danger-strong); }
+.btk .btk-mo { color: #94A3B8; }
+.btk tr.btk-tong td { background: #EEF2F7; font-weight: 800; border-top: 2px solid #94A9C0; }
+.btk tr.btk-tong td.btk-tien { background: #F7E7B4; }
+.btk tr.btk-tong td.btk-tt { font-size: 1.05em; }
+.btk-gon { font-size: 12.5px; }
+.btk-gon th { font-size: 11px; padding: .35rem .4rem; }
+.btk-gon td { padding: .3rem .45rem; }
+.btk-trung { margin-top: .5rem; padding: .5rem .7rem; border-radius: 10px; background: var(--flat-success-bg); border: 1px solid #A7D7B8; color: #0C5E31; font-size: 13px; display: flex; flex-wrap: wrap; gap: .25rem .5rem; align-items: center; }
+.btk-trung i { color: #6FAF86; font-style: normal; }
+.btk-kl { margin-top: .5rem; padding: .6rem .9rem; border-radius: 10px; display: flex; align-items: center; justify-content: space-between; gap: .75rem; flex-wrap: wrap; font-weight: 800; letter-spacing: .02em; border: 2px solid; }
+.btk-kl b { font-size: 1.35em; }
+.btk-kl small { font-weight: 600; letter-spacing: 0; }
+.btk-kl-ok { background: var(--flat-success-bg); color: var(--flat-success); border-color: #5FB37F; }
+.btk-kl-err { background: var(--flat-danger-bg); color: var(--flat-danger-strong); border-color: #E58A8A; }
+.btk-kl-cho { background: var(--flat-warning-bg); color: var(--flat-warning); border-color: #EBC46A; }
+.btk-rong { padding: 2.5rem 1rem; text-align: center; color: var(--flat-muted); }
+.btk-wrap { overflow-x: auto; max-width: 100%; }

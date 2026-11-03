@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 // Đổi mật khẩu (P01 S1.3) — bắt buộc ở lần đăng nhập đầu (cờ phai_doi_mat_khau, O5); đổi xong thu hồi mọi phiên khác.
-// P03 thêm modal "Đổi mật khẩu" trong app; trang này vẫn là đích của luồng bắt buộc.
+// Trong app dùng modal "Đổi mật khẩu" (app/ajax/doi_mat_khau.php — P03); trang này vẫn là đích của luồng bắt buộc.
 
 require __DIR__ . '/lib/auth.php';
 
@@ -14,7 +14,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
         http_response_code(403);
         $loi = 'Phiên làm việc đã hết hạn — vui lòng thử lại.';
     } else {
-        $loi = doi_mat_khau($u, $truong('mat_khau_cu'), $truong('mat_khau_moi'), $truong('xac_nhan')) ?? '';
+        $loi = implode(' ', doi_mat_khau($u, $truong('mat_khau_cu'), $truong('mat_khau_moi'), $truong('xac_nhan')));
         if ($loi === '') {
             chuyen_huong('app/');
         }

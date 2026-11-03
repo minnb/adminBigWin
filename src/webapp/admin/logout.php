@@ -1,25 +1,14 @@
 <?php
 declare(strict_types=1);
 
-require_once __DIR__ . '/_auth.php';
+// P03 bước 9: đăng xuất dùng chung phiên web (POST + CSRF + nguồn) — như /logout.php. GET → về trang đăng nhập.
+// Rollback: khôi phục admin/logout.php từ commit c2044c0.
 
-if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
-    csrf_check();
-    $_SESSION = [];
-    if (ini_get('session.use_cookies')) {
-        $params = session_get_cookie_params();
-        setcookie(
-            session_name(),
-            '',
-            time() - 42000,
-            $params['path'] ?? '/',
-            $params['domain'] ?? '',
-            $params['secure'] ?? false,
-            $params['httponly'] ?? true
-        );
-    }
-    session_destroy();
+require __DIR__ . '/../lib/auth.php';
+
+PhienBaoMat::batDau(); // token CSRF nằm trong phiên
+$token = $_POST['csrf'] ?? null;
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && Csrf::nguonHopLe($_SERVER) && Csrf::hopLe(is_string($token) ? $token : null)) {
+    dang_xuat();
 }
-
-header('Location: login.php');
-exit;
+chuyen_huong('login.php');

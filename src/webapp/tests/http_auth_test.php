@@ -38,7 +38,9 @@ function test_p01_t08_dang_nhap_dung_vao_app_cookie_du_co(): void
     foreach (['HttpOnly', 'SameSite=Lax'] as $co) {
         assert_true(stripos($c, $co) !== false, "T09 qua đăng nhập thật: Set-Cookie thiếu $co ($c)");
     }
-    $app = bw_http('GET', '/app/', ['jar' => 't08']);
+    // P03: app/ chuyển tới page mặc định nhap_tin.php (khung app 6 page)
+    assert_true(str_ends_with(bw_http('GET', '/app/', ['jar' => 't08'])['header']['location'] ?? '', 'nhap_tin.php'));
+    $app = bw_http('GET', '/app/nhap_tin.php', ['jar' => 't08']);
     assert_same(200, $app['ma']);
     assert_true(str_contains($app['than'], 'daily01'), 'Trang app phải nhận ra người đăng nhập');
 }

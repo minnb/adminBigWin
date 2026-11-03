@@ -604,6 +604,7 @@ S0.1 runner · S0.2 golden exporter + 6 fixture · S0.3 helpers & Unicode.
 | 2026-11-02 | — | Tách phase | Chốt O5; tách lộ trình thành 14 phase `phases/P00…P13` có cổng nghiệm thu; thêm S1.0 (hạ tầng test DB/HTTP) và fixture `doi_chieu.json` |
 | 2026-11-03 | S1.0–S1.3 (P01) | ✅ **P01 PASS** (chủ dự án ký 2026-11-03) | Hồi quy 80/80, `/healthcheck` OK, `/audit-api` AN TOÀN, checklist M01–M06 đạt; chi tiết, khác biệt B01–B18: `phases/TASK_LOG.md` mục P01. Mở khoá P02 |
 | 2026-11-03 | S1.4–S1.5 (P02) | ✅ **P02 PASS** (ký theo uỷ quyền chủ dự án) | Hồi quy 138/138, `/healthcheck` OK, `/audit-api` AN TOÀN, M01/M02 đạt; §5.4 cập nhật "bảng lọc sẵn" (Q-P02-8); migration P01 + P02 đã chạy lên DB thật; chi tiết B01–B10: `phases/TASK_LOG.md` mục P02. Mở khoá P03 |
+| 2026-11-03 | S1.6–S1.7 (P03) | ✅ **P03 PASS** (chủ dự án test tay; ký theo uỷ quyền) | Khung app 6 page + quản trị tài khoản / gói & thuê bao; `admin/_auth.php` dùng phiên chung + bảng `users` (bỏ `bigwin_admin`); hồi quy 183/183, `/healthcheck` OK, `/audit-api` AN TOÀN; QĐ1–QĐ7, B01–B09: `phases/TASK_LOG.md` mục P03. Mở khoá P06 (cùng P05) |
 
 ---
 

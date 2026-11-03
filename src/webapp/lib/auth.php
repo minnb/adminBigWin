@@ -123,26 +123,39 @@ function dang_nhap(string $username, string $matKhau): array
     return ['ok' => true, 'thong_diep' => '', 'phai_doi_mat_khau' => (int) $u['phai_doi_mat_khau'] === 1];
 }
 
-/** Đổi mật khẩu của người đang đăng nhập; null = thành công. Thành công → bỏ cờ buộc đổi + thu hồi mọi phiên khác. */
-function doi_mat_khau(array $user, string $cu, string $moi, string $xacNhan): ?string
+/**
+ * Đổi mật khẩu của người đang đăng nhập. Trả lỗi THEO TRƯỜNG ['mat_khau_cu' | 'mat_khau_moi' | 'xac_nhan' => thông điệp];
+ * rỗng = thành công → bỏ cờ buộc đổi + thu hồi mọi phiên khác. Tài khoản admin: ghi kèm bảng `admins` (P03 QĐ3 — cửa sổ
+ * rollback của admin/_auth.php cũ, bỏ sau P03).
+ */
+function doi_mat_khau(array $user, string $cu, string $moi, string $xacNhan): array
 {
     $st = db()->prepare('SELECT password_hash FROM users WHERE id = ?');
     $st->execute([$user['id']]);
+    $loi = [];
     if (!password_verify($cu, (string) $st->fetchColumn())) {
-        return 'Mật khẩu hiện tại không đúng.';
+        $loi['mat_khau_cu'] = 'Mật khẩu hiện tại không đúng.';
     }
     if (mb_strlen($moi) < MAT_KHAU_TOI_THIEU) {
-        return 'Mật khẩu mới phải có ít nhất ' . MAT_KHAU_TOI_THIEU . ' ký tự.';
+        $loi['mat_khau_moi'] = 'Mật khẩu mới phải có ít nhất ' . MAT_KHAU_TOI_THIEU . ' ký tự.';
+    } elseif ($moi === $cu) {
+        $loi['mat_khau_moi'] = 'Mật khẩu mới phải khác mật khẩu hiện tại.';
     }
     if ($moi !== $xacNhan) {
-        return 'Xác nhận mật khẩu không khớp.';
+        $loi['xac_nhan'] = 'Xác nhận mật khẩu không khớp.';
     }
-    if ($moi === $cu) {
-        return 'Mật khẩu mới phải khác mật khẩu hiện tại.';
+    if ($loi !== []) {
+        return $loi;
     }
-    db()->prepare('UPDATE users SET password_hash = ?, phai_doi_mat_khau = 0 WHERE id = ?')->execute([bam_mat_khau($moi), $user['id']]);
+    $hash = bam_mat_khau($moi);
+    trong_giao_dich(static function (PDO $pdo) use ($user, $hash): void {
+        $pdo->prepare('UPDATE users SET password_hash = ?, phai_doi_mat_khau = 0 WHERE id = ?')->execute([$hash, $user['id']]);
+        if ($user['role'] === 'admin') {
+            $pdo->prepare('UPDATE admins SET password_hash = ? WHERE username = ?')->execute([$hash, $user['username']]);
+        }
+    });
     PhienBaoMat::thuHoiTatCa($user['id'], true);
-    return null;
+    return [];
 }
 
 function dang_xuat(): void

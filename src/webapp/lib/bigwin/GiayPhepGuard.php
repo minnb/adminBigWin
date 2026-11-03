@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../bootstrap.php';
 require_once __DIR__ . '/helpers.php';
+require_once __DIR__ . '/NgayLamViec.php';
 
 final class GiayPhepGuard
 {
@@ -63,15 +64,22 @@ final class GiayPhepGuard
     }
 
     /** ['trang_thai', 'cho_phep', 'canh_bao' (ân hạn — băng đỏ topbar), 'thong_diep'] */
+    /**
+     * ['trang_thai', 'cho_phep', 'canh_bao' (ân hạn — băng đỏ topbar), 'thong_diep', 'het_han' ('Y-m-d' | null),
+     *  'so_ngay_con' (số ngày tới hạn, âm = đã quá; null khi không có thuê bao / admin)]
+     */
     public static function kiemTra(string $vaiTro, ?array $thueBao, string $cheDo, DateTimeImmutable $homNay): array
     {
         $trangThai = self::trangThai($vaiTro, $thueBao, $homNay);
-        $choPhep = self::choPhep($trangThai, $cheDo);
+        $hetHan = $vaiTro === 'admin' || $thueBao === null ? null : (string) $thueBao['het_han'];
         return [
             'trang_thai' => $trangThai,
-            'cho_phep' => $choPhep,
+            'cho_phep' => self::choPhep($trangThai, $cheDo),
             'canh_bao' => $trangThai === 'an_han',
             'thong_diep' => self::THONG_DIEP[$trangThai] ?? '',
+            'het_han' => $hetHan,
+            'so_ngay_con' => $hetHan === null ? null
+                : (int) $homNay->setTime(0, 0)->diff(new DateTimeImmutable($hetHan, new DateTimeZone(BW_TZ)))->format('%r%a'),
         ];
     }
 
@@ -100,14 +108,6 @@ final class GiayPhepGuard
     /** Ngày làm căn cứ: cfg('ngay_gia_lap') CHỈ khi cfg('moi_truong') === 'test' (P02-M02), ngược lại today_vn(). */
     public static function homNay(): DateTimeImmutable
     {
-        $giaLap = cfg('ngay_gia_lap');
-        if (cfg('moi_truong') !== 'test' || $giaLap === null || $giaLap === '') {
-            return today_vn();
-        }
-        $ngay = is_string($giaLap) ? DateTimeImmutable::createFromFormat('!Y-m-d', $giaLap, new DateTimeZone(BW_TZ)) : false;
-        if ($ngay === false || $ngay->format('Y-m-d') !== $giaLap) {
-            throw new LoiCauHinh('ngay_gia_lap', 'Cấu hình ngay_gia_lap phải là ngày hợp lệ dạng YYYY-MM-DD.');
-        }
-        return $ngay;
+        return NgayLamViec::homNayLich();
     }
 }

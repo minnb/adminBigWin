@@ -49,7 +49,7 @@ function test_p01_t27_bo_quet_nhan_dung_mau(): void
 function test_p01_t27_moi_endpoint_ajax_qua_gateway_o_cau_dau(): void
 {
     $tep = glob(BW_WEBAPP_DIR . '/app/ajax/*.php') ?: [];
-    assert_true($tep !== [], 'Phải có ít nhất endpoint thử _ping.php');
+    assert_true($tep !== [], 'Phải có ít nhất 1 endpoint (app/ajax/doi_mat_khau.php)');
     foreach ($tep as $f) {
         assert_true(bw_scan_qua_gateway(file_get_contents($f)), basename($f) . ': câu lệnh đầu tiên phải là ajax_khoi_dong(...)');
     }
@@ -57,7 +57,7 @@ function test_p01_t27_moi_endpoint_ajax_qua_gateway_o_cau_dau(): void
 
 function test_p01_s13_session_start_chi_trong_phien_bao_mat(): void
 {
-    $choPhep = ['lib/security/PhienBaoMat.php', 'admin/_auth.php']; // admin/_auth.php: phiên admin cũ, bỏ ở P03
+    $choPhep = ['lib/security/PhienBaoMat.php']; // P03 bước 9: admin/_auth.php bỏ phiên bigwin_admin riêng
     foreach (bw_test_tep_php() as $duong => $tuyetDoi) {
         if (!in_array($duong, $choPhep, true)) {
             assert_true(!preg_match('/\bsession_start\s*\(/', file_get_contents($tuyetDoi)), "$duong gọi session_start() — phải dùng PhienBaoMat::batDau()");

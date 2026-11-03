@@ -77,4 +77,4 @@ Nội dung nghiệp vụ của 6 page; thống kê admin (P12).
 ## 9. Nhật ký
 | Ngày | Người | Nội dung | Kết quả |
 |---|---|---|---|
-| | | | |
+| 2026-11-03 | Claude (thực thi; ký theo uỷ quyền) · Chủ dự án (test tay M01–M07) | S1.6 khung app 6 page (`_layout.php`, `NgayLamViec`, `goiApi()`, đổi mật khẩu độc lập giấy phép, băng thuê bao) + S1.7 quản trị (`UserRepo`, `GoiDichVuRepo`, CLI giấy phép nền tảng, `admin/users.php`, `admin/goi_thue_bao.php`) + chuyển `admin/_auth.php` sang `users` làm bước cuối. Hồi quy 183/183 ×3, `/healthcheck` OK, `/audit-api` AN TOÀN. Chi tiết + QĐ1–QĐ7, B01–B09: `TASK_LOG.md` mục P03 | ✅ **PASS** — mở khoá P06 (cùng P05) |

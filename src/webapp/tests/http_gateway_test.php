@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-// P01 S1.3 — AJAX gateway ajax_khoi_dong() qua endpoint thử app/ajax/_ping.php (HTTP thật).
+// P01 S1.3 — AJAX gateway ajax_khoi_dong() qua endpoint thử /__bw_test__/ajax/{doc,ghi,phan_tich} (tests/_router.php, HTTP thật).
 // Kèm xác nhận lại qua mạng các test S1.2: T25 (tiêu đề), T26 (rate limit).
 
 require_once __DIR__ . '/_thue_bao.php';
@@ -57,7 +57,7 @@ function test_p01_t21_csrf_dung_nhung_khac_origin_tra_403(): void
 function test_p01_t22_get_vao_endpoint_chi_post_tra_405(): void
 {
     bw_gw_san_sang('t22');
-    $r = bw_http('GET', '/app/ajax/_ping.php', ['jar' => 't22']);
+    $r = bw_http('GET', BW_AJAX_THU . 'doc', ['jar' => 't22']);
     assert_same([405, 'sai_phuong_thuc'], [$r['ma'], $r['json']['loi'] ?? null]);
     assert_same('POST', $r['header']['allow'] ?? null);
 }
@@ -65,7 +65,7 @@ function test_p01_t22_get_vao_endpoint_chi_post_tra_405(): void
 function test_p01_t23_body_hoac_content_type_sai_tra_422(): void
 {
     [, $csrf] = bw_gw_san_sang('t23');
-    $goi = static fn (array $tuyChon): array => bw_http('POST', '/app/ajax/_ping.php', ['jar' => 't23', 'csrf' => $csrf] + $tuyChon);
+    $goi = static fn (array $tuyChon): array => bw_http('POST', BW_AJAX_THU . 'doc', ['jar' => 't23', 'csrf' => $csrf] + $tuyChon);
     $r = $goi(['headers' => ['Content-Type' => 'application/x-www-form-urlencoded'], 'body' => 'a=1']);
     assert_same([422, 'sai_dinh_dang'], [$r['ma'], $r['json']['loi'] ?? null], 'Sai Content-Type');
     $r = $goi(['json' => ['x' => str_repeat('a', 70_000)]]);
@@ -122,10 +122,10 @@ function test_p02_t31_het_han_goi_phan_tich_tra_402(): void
     bw_gp_lam_sach();
     bw_gp_dai_ly('hethan31', bw_gp_ngay(-10));
     bw_gw_vao('t31', 'hethan31');
-    $r = bw_ping('t31', ['tep' => '_ping_phan_tich.php']);
+    $r = bw_ping('t31', ['che_do' => 'phan_tich']);
     assert_same([402, 'het_han', 402, false], [...bw_gw_ma_loi($r), $r['json']['ma'] ?? null, $r['json']['ok'] ?? null]);
     assert_true(str_contains($r['json']['thong_diep'] ?? '', 'hết hạn'));
-    assert_same([402, 'het_han'], bw_gw_ma_loi(bw_ping('t31', ['tep' => '_ping_ghi.php'])), 'Hết hạn: chế độ ghi cũng bị chặn');
+    assert_same([402, 'het_han'], bw_gw_ma_loi(bw_ping('t31', ['che_do' => 'ghi'])), 'Hết hạn: chế độ ghi cũng bị chặn');
     assert_same(200, bw_ping('t31')['ma'], 'Hết hạn vẫn xem được dữ liệu (doc)');
 }
 
@@ -146,10 +146,10 @@ function test_p02_t31_an_han_qua_kem_canh_bao_admin_khong_bi_chan(): void
     bw_gp_dai_ly('anhan31', bw_gp_ngay(-1));
     bw_auth_tao_user('admin31', ['role' => 'admin']);
     bw_gw_vao('t31a', 'anhan31');
-    $r = bw_ping('t31a', ['tep' => '_ping_phan_tich.php']);
+    $r = bw_ping('t31a', ['che_do' => 'phan_tich']);
     assert_same([200, 'an_han', true], [$r['ma'], $r['json']['trang_thai'] ?? null, $r['json']['canh_bao'] ?? null]);
     bw_gw_vao('t31ad', 'admin31');
-    $r = bw_ping('t31ad', ['tep' => '_ping_phan_tich.php']);
+    $r = bw_ping('t31ad', ['che_do' => 'phan_tich']);
     assert_same([200, 'hieu_luc'], [$r['ma'], $r['json']['trang_thai'] ?? null], 'Admin không có thuê bao vẫn dùng được (gói nội bộ)');
 }
 
@@ -162,7 +162,7 @@ function test_p02_t25_http_vuot_han_muc_tra_402(): void
     $csrf = bw_auth_csrf('t25h');
     $ma = [];
     for ($i = 0; $i < 4; $i++) {
-        $ma[] = bw_gw_ma_loi(bw_ping('t25h', ['tep' => '_ping_ghi.php', 'csrf' => $csrf, 'json' => ['dem' => true]]));
+        $ma[] = bw_gw_ma_loi(bw_ping('t25h', ['che_do' => 'ghi', 'csrf' => $csrf, 'json' => ['dem' => true]]));
     }
     assert_same([[200, null], [200, null], [200, null], [402, 'vuot_han_muc']], $ma);
     assert_same(3, bw_gp_da_dung($uid, 'so_tin_doi_soat', bw_gp_ngay()));

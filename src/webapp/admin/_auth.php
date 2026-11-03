@@ -1,7 +1,12 @@
 <?php
 declare(strict_types=1);
 
+// Trang quản trị cũ (máy, bản quyền app, backup, nhật ký). P03 bước 9 (QĐ3 — bước cuối): đăng nhập / phiên / CSRF dùng CHUNG
+// web BigWIN (bảng users, lib/security/PhienBaoMat + Csrf); bỏ phiên riêng `bigwin_admin` và bảng `admins` khi đăng nhập.
+// Rollback: khôi phục admin/_auth.php, admin/login.php, admin/logout.php từ commit c2044c0 (bảng admins vẫn được ghi kép).
+
 require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../lib/auth.php';
 
 if (!function_exists('trang_bao_loi')) {
     /** Trang lỗi ĐỘC LẬP (CSS inline, không CDN/layout) — lỗi có thể nổ giữa lúc đang render trang. */
@@ -29,25 +34,13 @@ set_exception_handler(function (Throwable $e): void {
     $ref = ghi_loi($e);
     $cd = chan_doan_loi($e);
     $chiTiet = "Mã lỗi: {$cd['ma']} · Mã tra cứu trong error_log: $ref";
-    if (che_do_debug() || !empty($_SESSION['admin_id'])) {
+    if (che_do_debug() || isset($GLOBALS['bw_admin'])) {
         $chiTiet .= "\n" . get_class($e) . ': ' . $e->getMessage() . "\n@ " . $e->getFile() . ':' . $e->getLine();
     }
     trang_bao_loi(500, 'Máy chủ gặp lỗi', $cd['goi_y'], $chiTiet);
 });
 
-if (session_status() === PHP_SESSION_NONE) {
-    ini_set('session.gc_maxlifetime', '604800');
-    session_set_cookie_params([
-        'lifetime' => 604800,
-        'path'     => '/',
-        'domain'   => '',
-        'secure'   => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
-        'httponly' => true,
-        'samesite' => 'Lax',
-    ]);
-    session_name('bigwin_admin');
-    session_start();
-}
+PhienBaoMat::batDau();
 
 if (!headers_sent()) {
     header('X-Frame-Options: DENY');
@@ -57,10 +50,7 @@ if (!headers_sent()) {
 if (!function_exists('csrf_token')) {
     function csrf_token(): string
     {
-        if (empty($_SESSION['csrf'])) {
-            $_SESSION['csrf'] = bin2hex(random_bytes(32));
-        }
-        return $_SESSION['csrf'];
+        return Csrf::token();
     }
 }
 
@@ -74,7 +64,8 @@ if (!function_exists('csrf_field')) {
 if (!function_exists('csrf_check')) {
     function csrf_check(): void
     {
-        if (!hash_equals($_SESSION['csrf'] ?? '', (string)($_POST['csrf'] ?? ''))) {
+        $token = $_POST['csrf'] ?? null;
+        if (!Csrf::nguonHopLe($_SERVER) || !Csrf::hopLe(is_string($token) ? $token : null)) {
             trang_bao_loi(403, 'Phiên làm việc đã hết hạn', 'Mã bảo vệ form (CSRF) không khớp — thường do mở trang quá lâu hoặc đã đăng xuất ở tab khác. Tải lại trang rồi thao tác lại.');
         }
     }
@@ -133,12 +124,18 @@ if (!function_exists('kiem_tra_he_thong')) {
 }
 
 if (!function_exists('require_login')) {
+    /** Bắt buộc admin đăng nhập qua /login.php chung (chưa đăng nhập → login, role user → 403). */
     function require_login(): void
     {
-        if (empty($_SESSION['admin_id'])) {
-            header('Location: login.php');
-            exit;
-        }
+        $GLOBALS['bw_admin'] = require_admin();
+    }
+}
+
+if (!function_exists('ten_admin')) {
+    function ten_admin(): string
+    {
+        $u = $GLOBALS['bw_admin'] ?? null;
+        return $u === null ? 'Admin' : ($u['ten_hien_thi'] !== '' ? $u['ten_hien_thi'] : $u['username']);
     }
 }
 
@@ -237,6 +234,8 @@ if (!function_exists('admin_header')) {
     function admin_header(string $trangHienTai): void
     {
         $menu = [
+            'users.php'  => ['nhan' => 'Tài khoản web',          'icon' => 'fa-solid fa-user-gear'],
+            'goi_thue_bao.php' => ['nhan' => 'Gói & Thuê bao',     'icon' => 'fa-solid fa-box'],
             'index.php'  => ['nhan' => 'Quản lý máy & Bản quyền', 'icon' => 'fa-solid fa-laptop-code'],
             'owners.php' => ['nhan' => 'Chủ sở hữu máy',         'icon' => 'fa-solid fa-users-gear'],
             'usage.php'  => ['nhan' => 'Nhật ký đối soát',        'icon' => 'fa-solid fa-chart-line'],
@@ -370,7 +369,7 @@ if (!function_exists('admin_header')) {
                         class="w-8 h-8 rounded-full ring-2 ring-primary-500/30 object-cover"
                     >
                     <span class="text-xs font-bold text-slate-700 dark:text-slate-300 hidden md:inline">
-                        <?= h($_SESSION['admin_user'] ?? 'Admin') ?>
+                        <?= h(ten_admin()) ?>
                     </span>
                     <i class="fa-solid fa-angle-down text-slate-400 text-xs hidden md:inline"></i>
                 </button>
@@ -383,7 +382,7 @@ if (!function_exists('admin_header')) {
                     style="display: none;"
                 >
                     <div class="px-3 py-2 border-b border-slate-100 dark:border-slate-800">
-                        <div class="font-bold text-slate-800 dark:text-white"><?= h($_SESSION['admin_user'] ?? 'Admin') ?></div>
+                        <div class="font-bold text-slate-800 dark:text-white"><?= h(ten_admin()) ?></div>
                         <div class="text-[10px] text-slate-400">Quản trị viên hệ thống</div>
                     </div>
                     <div class="pt-1">

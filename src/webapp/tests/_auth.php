@@ -58,14 +58,17 @@ function bw_auth_csrf(string $jar): string
     return $tok;
 }
 
-/** POST endpoint thử qua gateway ('tep', mặc định _ping.php); $tuyChon như bw_http (+ csrf mặc định lấy tự động). */
+/** URL endpoint thử của gateway theo chế độ (tests/_router.php — P03 QĐ2). */
+const BW_AJAX_THU = '/__bw_test__/ajax/';
+
+/** POST endpoint thử qua gateway ('che_do' doc|ghi|phan_tich, mặc định doc); $tuyChon như bw_http (+ csrf lấy tự động). */
 function bw_ping(string $jar, array $tuyChon = []): array
 {
-    $tuyChon += ['json' => [], 'tep' => '_ping.php'];
+    $tuyChon += ['json' => [], 'che_do' => 'doc'];
     if (!array_key_exists('csrf', $tuyChon)) {
         $tuyChon['csrf'] = bw_auth_csrf($jar);
     }
-    return bw_http('POST', '/app/ajax/' . $tuyChon['tep'], ['jar' => $jar] + $tuyChon);
+    return bw_http('POST', BW_AJAX_THU . $tuyChon['che_do'], ['jar' => $jar] + $tuyChon);
 }
 
 function bw_auth_post_form(string $jar, string $duongDan, array $truong): array

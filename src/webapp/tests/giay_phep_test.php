@@ -72,6 +72,16 @@ function test_p02_s15_dung_thu_va_chua_co_thue_bao(): void
     assert_same(3, GiayPhepGuard::hanMuc('user', bw_tb('2027-01-01', ['so_tin_ngay_toi_da' => 3]))['so_tin_ngay_toi_da']);
 }
 
+function test_p03_s16_so_ngay_con_cho_bang_thue_bao(): void
+{
+    $kq = static fn (string $vaiTro, ?array $tb): array => array_intersect_key(GiayPhepGuard::kiemTra($vaiTro, $tb, 'doc', bw_ngay('2026-11-03')), ['het_han' => 1, 'so_ngay_con' => 1]);
+    assert_same(['het_han' => '2026-11-08', 'so_ngay_con' => 5], $kq('user', bw_tb('2026-11-08')));
+    assert_same(['het_han' => '2026-11-03', 'so_ngay_con' => 0], $kq('user', bw_tb('2026-11-03')));
+    assert_same(['het_han' => '2026-11-01', 'so_ngay_con' => -2], $kq('user', bw_tb('2026-11-01')));
+    assert_same(['het_han' => null, 'so_ngay_con' => null], $kq('user', null));
+    assert_same(['het_han' => null, 'so_ngay_con' => null], $kq('admin', bw_tb('2026-11-08')));
+}
+
 function test_p02_s15_che_do_hoac_trang_thai_la_bi_tu_choi(): void
 {
     assert_true(bw_test_bat_loi(static fn () => GiayPhepGuard::kiemTra('user', bw_tb('2027-01-01'), 'xoa', bw_ngay('2026-11-03'))) !== null, 'Chế độ lạ phải lỗi, không mặc định cho qua');

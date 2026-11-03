@@ -14,6 +14,7 @@ const BW_TSCAN_LOP_NEN = [
     'lib/bigwin/repo/SharedRepo.php',
     'lib/bigwin/repo/BoQuetSqlTenant.php',
     'lib/bigwin/repo/ThueBaoRepo.php',
+    'lib/bigwin/repo/UserRepo.php', // P03 QĐ4: quản trị tài khoản, chỉ ngữ cảnh admin / hệ thống
     'lib/bigwin/repo/ThongKeRepo.php',
 ];
 

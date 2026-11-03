@@ -80,6 +80,125 @@ Câu hỏi cần chủ dự án quyết (nếu có) → câu trả lời + ngày
 
 <!-- Các entry thật bắt đầu dưới dòng này, mới nhất ở trên -->
 
+## P03 — Khung app 6 page · Quản trị tài khoản & thuê bao
+
+| Mục | Giá trị |
+|---|---|
+| Trạng thái | ✅ ĐẠT — PASS 2026-11-03 (chủ dự án test tay M01–M07; Claude ký theo uỷ quyền; mở khoá P06 cùng P05) |
+| Luồng | B (nền tảng web) |
+| Bắt đầu | 2026-11-03 |
+| Kết thúc | 2026-11-03 |
+| Người thực thi | Claude |
+| Người duyệt | Chủ dự án |
+| Commit BigWIN (`port-baseline`) | Không áp dụng (luồng B) |
+| Commit web đầu / cuối phase | `c2044c0` (commit P02) / commit P03 (ghi trong `git log`) |
+
+### ① Tiền đề
+| Điều kiện (P03 §2 + EXECUTION_PIPELINE P03) | ✔/✘ | Ghi chú (kiểm 2026-11-03) |
+|---|---|---|
+| P02 ✅ ĐẠT | ✔ | PASS 2026-11-03, commit `c2044c0`; `README.md` §1 |
+| Token giao diện lấy từ `docs/ui-preview/app.css` | ✔ | Có `app.css` (15,6 KB, token `--flat-*`: nền, thẻ, viền, chữ, primary/success/danger/warning…), `index.html` (`tailwind.config` nội tuyến dòng 13), `app.js`, `mock-data.js` |
+| Tailwind khoá `3.4.16` như preview | ✔ | `cdn.tailwindcss.com/3.4.16`; Alpine `alpinejs@3.13.5` (jsdelivr); Font Awesome (cdnjs) — CSP dev của `TieuDeBaoMat` đã cho phép đủ 3 nguồn (`unsafe-eval` cho Alpine bản thường; CSP chặt ở S9.3) |
+| Preview có đủ thành phần khung | ✔ | Sidebar 6 mục + "Quản trị hệ thống (Alt 7)" chỉ hiện với admin (dòng 90–91), thanh tab mobile (dòng 108), modal phím tắt, menu avatar |
+| Hạ tầng P01–P02 dùng được | ✔ | `lib/auth.php` (`require_user/require_admin`, `doi_mat_khau()`), gateway + `GiayPhepGuard`, `ThueBaoRepo` (mặt quản trị có sẵn), `PhienBaoMat::thuHoiTatCa()` |
+| *(bổ sung)* Hiện trạng admin cũ | ✔ (lưu ý) | `admin/_auth.php` 457 dòng: phiên riêng `bigwin_admin`, `$_SESSION['admin_id'/'admin_user'/'csrf'/'bao']`, hàm `csrf_token/csrf_field/csrf_check/require_login/page_head/admin_header/admin_footer`; trang dùng: `index`, `owners`, `backups`, `backup_download`, `usage`, `login`, `logout`. DB thật đã có `users` (admin `bigwin` chép từ `admins`) |
+| *(bổ sung)* Test đang dùng `_ping*.php` | ✔ (lưu ý) | P01-T20…T26 + P02-T25-HTTP, T31 gọi 3 endpoint thử → xoá `_ping*` phải chuyển test sang chỗ khác (Q-P03-2) |
+| Hồi quy nền xanh | ✔ | Xem dưới |
+
+Hồi quy nền trước khi code (2026-11-03 18:50):
+- `BIGWIN_CONFIG_FILE=<cấu hình gốc> php src/webapp/tools/test.php` → **`138 passed, 0 failed (22.57s)`**, exit 0 ✅ · không còn `php.exe` sót · working tree sạch.
+- Chạy lại khi nhận quyết định Architect (2026-11-03 18:55): **`138 passed, 0 failed (38.18s)`**, exit 0 ✅.
+- `php src/webapp/tools/test.php` (config thật) → `55 passed, 83 failed (0.61s)` — cả 83 là `Thiếu khoá 'db_test_dsn'` (P01-B06, cấu hình — không phải lỗi mã).
+
+### ② Action Plan
+Nguyên tắc thứ tự (bẫy của phase): **mọi trang mới không phụ thuộc `admin/_auth.php` cũ**; việc chuyển `admin/_auth.php` sang `users` là **bước cuối** (bước 9), có rollback = khôi phục `_auth.php` (bảng `admins` còn nguyên).
+
+| Thứ tự | Slice | Tệp tạo/sửa | Test viết trước | Rủi ro / lưu ý |
+|---|---|---|---|---|
+| 1 | **S1.6a** `NgayLamViec` (thuần) | `lib/bigwin/NgayLamViec.php`: `macDinh(DateTimeImmutable $luc)` (trước 18:30 → D-1, từ 18:30 → D — N8), `laMacDinh($ngay, $luc)` (cho ô ngày đổi màu), `hienTai()` = `macDinh(now_vn())` có `ngay_gia_lap` khi `moi_truong=test` | `tests/ngay_lam_viec_test.php`: **P03-T01** 18:29:59 → hôm qua · **T02** 18:30:00 → hôm nay · **T03** 00:05 → hôm qua của ngày mới · (bổ sung) biên 18:30:01, qua tháng/năm (01/01 00:05 → 31/12) | Thời gian chỉ qua tham số / `now_vn()` (rule PURE). Xử lý luôn P02-B08(1): `ngay_gia_lap` thành "ngày làm việc" dùng chung → `GiayPhepGuard::homNay()` gọi về đây (một nguồn) |
+| 2 | **S1.6b** Khung app | `app/_layout.php` (`require_user()` → `TenantContext::tuPhien` → `GiayPhepGuard::kiemTra(…,'doc')`; topbar: ô ngày N8 + đổi màu + "Về hôm nay", đồng hồ, trạng thái KQ placeholder "chưa có dữ liệu", avatar menu; sidebar 6 mục + Quản trị nếu admin; tab mobile; modal phím tắt; Alt+1…6/7, `?`, Esc), `app/assets/app.css` (chép token `--flat-*` + class `card/tbl/pill/btn/hs-input/nav-item` từ preview — không vẽ lại), `app/assets/app.js` (`goiApi()` DUY NHẤT gắn `X-CSRF-Token`, xử lý 401 → login, 402 → băng, 422 → lỗi trường), 6 page rỗng `app/{nhap_tin,telegram,kqxs,khach_hang,lich_su,cu_phap}.php`, `app/index.php` → chuyển `nhap_tin.php` | `tests/http_app_test.php`: **T04** chưa đăng nhập GET `app/nhap_tin.php` → 302 login · **T07** 6 page có `<meta name="csrf-token">`, sidebar đủ 6 mục, user thường không thấy "Quản trị" · `tests/app_js_scan_test.php`: **T08** không có `fetch(`/`XMLHttpRequest`/`$.ajax` ngoài `goiApi()` (token, như P01-T27) | ① CSP dev đã cho phép CDN; KHÔNG thêm nguồn mới. ② Giá trị động in ra luôn `h()`; dữ liệu cho Alpine qua `json_encode()` với các cờ `JSON_HEX_TAG`, `JSON_HEX_AMP`, `JSON_HEX_APOS`, `JSON_HEX_QUOT` trong thuộc tính. ③ `tuPhien` chỉ ở `_layout.php` (quét P02-T16). **QĐ1:** layout phải phục vụ cả trang quản trị mới (`$chiAdmin = true` → `require_admin()`, user thường 403). ④ Trang `tam_khoa`/`chua_co_thue_bao` (doc bị chặn) → layout chỉ hiện thông báo, không render nội dung page |
+| 3 | **S1.6c** Đổi mật khẩu (modal + endpoint) | `app/ajax/doi_mat_khau.php` (`ajax_khoi_dong('doc', ['cho_phep_phai_doi' => true, 'bo_qua_ban_quyen' => true])`), sửa `lib/auth.php` `doi_mat_khau()` trả lỗi **theo trường** (`mat_khau_cu` / `mat_khau_moi` / `xac_nhan`) — `doi_mat_khau.php` gốc (buộc đổi lần đầu) dùng lại | **T09** sai mật khẩu cũ / mới < 10 / xác nhận lệch → 422 kèm `loi_truong` đúng từng trường · **T10** đổi mật khẩu khi thuê bao hết hạn → được · (bổ sung) đổi xong các phiên khác bị thu hồi (như P01-T16) | **QĐ5:** đổi mật khẩu ĐỘC LẬP với giấy phép — hết hạn / tạm khoá / chưa có thuê bao vẫn đổi được; tuỳ chọn gateway `bo_qua_ban_quyen` CHỈ cho endpoint này (quét mã: danh sách cho phép đúng 1 tệp) — vẫn bắt buộc phiên + CSRF + nguồn + rate limit. Test bổ sung: đổi mật khẩu khi `tam_khoa` → 200. Đổi chữ ký `doi_mat_khau()` → cập nhật P01-T15/T16 + `doi_mat_khau.php`, giữ nguyên hành vi |
+| 4 | **S1.6d** Băng thuê bao + ẩn hành động | `_layout.php` (băng: còn ≤ 7 ngày vàng · ân hạn đỏ · hết hạn đỏ "chỉ xem"; helper `nut_hanh_dong($cheDo, …)` không render nút khi `GiayPhepGuard::choPhep()` = false — mỗi page rỗng có 1 nút mẫu `data-che-do`) | **T11** tài khoản hết hạn tải page → có băng "hết hạn", không có phần tử `data-che-do="phan_tich"`/`"ghi"` · (bổ sung) còn 5 ngày → băng vàng; ân hạn → băng đỏ | "Còn N ngày" cần ngày hết hạn → `GiayPhepGuard::kiemTra` trả thêm `so_ngay_con` (thuần) |
+| 5 | **S1.6e** Bỏ endpoint thử | Xoá `app/ajax/_ping.php`, `_ping_ghi.php`, `_ping_phan_tich.php`; endpoint thử 3 chế độ chuyển vào `tests/_router.php` (`/__bw_test__/ajax/{doc,ghi,phan_tich}`); sửa `bw_ping()` | P01-T20…T26, P02-T25/T31 chạy trên endpoint mới, kết quả không đổi | **QĐ2:** endpoint thử 3 chế độ CHỈ nằm ở `tests/_router.php` (chỉ tồn tại khi test chạy `php -S`; `tests/` bị `tests/.htaccess` chặn trên Apache) — gọi `ajax_khoi_dong` thật nên vẫn kiểm đúng gateway; `app/ajax/` không còn tệp thử. P01-T27 (mọi `app/ajax/*.php` qua gateway) vẫn có ≥ 1 endpoint thật (`doi_mat_khau.php`) |
+| 6 | **S1.7a** `UserRepo` | `lib/bigwin/repo/UserRepo.php` (chỉ ngữ cảnh admin/hệ thống, như mặt quản trị `ThueBaoRepo`): `danhSach()`, `tao($username, $vaiTro, $maGoi, $hetHan)` (trả mật khẩu tạm; `phai_doi_mat_khau=1`; cùng 1 transaction với `ThueBaoRepo::tao` → lịch sử `tao`), `khoa/moKhoa` (+ `thuHoiTatCa`), `datLaiMatKhau` (buộc đổi + thu hồi phiên), `dangXuatMoiNoi`, `doiVaiTro`; chặn tự khoá/tự hạ quyền và hạ/khoá admin cuối cùng; kiểm `ThueBaoRepo::coTheThemDaiLy()` khi tạo / mở khoá / đổi admin→user | `tests/db_user_repo_test.php`: **T12** tạo khi đã đạt `so_dai_ly_toi_da` → chặn, thông báo rõ · **T13** tạo đại lý → `phai_doi_mat_khau=1` + `thue_bao` theo gói + 1 dòng lịch sử `tao` · **T14** tự khoá / hạ admin cuối → chặn · **T15** đăng xuất mọi nơi → mọi phiên X thu hồi (HTTP: request kế của X → login) · **T17** mở khoá khi vượt giấy phép → chặn · (bổ sung) ngữ cảnh đại lý gọi `UserRepo` → `LoiCoLapTenant` | **QĐ4:** `UserRepo` là lớp quản trị độc lập gọi DB trực tiếp (như `ThueBaoRepo`) → thêm `lib/bigwin/repo/UserRepo.php` vào `BW_TSCAN_LOP_NEN` (P02-T16) + rule `tenant-isolation.md`; ngữ cảnh đại lý gọi → `LoiCoLapTenant`. **QĐ6:** mật khẩu khởi tạo / đặt lại = ngẫu nhiên 12 ký tự (`random_int`, bỏ ký tự dễ nhầm), trả về MỘT lần cho trang admin hiển thị, KHÔNG lưu / ghi log bản rõ; luôn `phai_doi_mat_khau = 1`. **QĐ3:** tạo / đặt lại mật khẩu tài khoản admin vẫn GHI KÉP `admins` (dùng chung đường ghi với `tools/create_admin.php`). Kiểm giấy phép + ghi **cùng transaction có khoá** (2 admin tạo cùng lúc không vượt hạn mức): khoá dòng `giay_phep_he_thong` `FOR UPDATE` |
+| 7 | **S1.7b** Trang quản trị mới | `admin/users.php`, `admin/thue_bao.php` dùng **khung app mới** (`app/_layout.php`, chỉ admin), form POST server-side + `Csrf`; tab Tài khoản (tạo, khoá/mở, đặt lại mật khẩu, đăng xuất mọi nơi, đổi role) · tab Gói & Thuê bao (thêm/sửa gói, ngừng bán; gia hạn, đổi gói, tạm khoá/mở, lịch sử; "Đã dùng X/Y đại lý" — chỉ đọc) · `tools/giay_phep_nen_tang.php` (CLI đặt `so_dai_ly_toi_da`) | `tests/http_admin_test.php`: **T05** user `role=user` GET `admin/users.php` → 403 · **T16** form admin POST thiếu CSRF → 403 · luồng tạo đại lý qua HTTP (khớp T13) | **QĐ1:** dựng trên `app/_layout.php`, KHÔNG dùng `admin_header()` / `admin/_auth.php` cũ → làm được trước bước 9; admin đăng nhập qua `/login.php`. **QĐ7:** gói chỉ thêm / sửa / ngừng bán (`dang_ban = 0`) — KHÔNG có nút / route / method xoá gói (test: trang không có form xoá; mã không có câu xoá trên `goi_dich_vu`); `so_dai_ly_toi_da` KHÔNG có trên UI admin (chỉ hiển thị X/Y) — đổi bằng CLI `tools/giay_phep_nen_tang.php`. **QĐ6:** mật khẩu tạm hiện 1 lần trên trang kết quả (không đưa vào URL, không lưu vào `bao()` của phiên) |
+| 8 | **S1.7c** Dọn P01-B08 | Câu hướng dẫn tạo admin trong `admin/login.php` → `php tools/create_admin.php` (P01-B08). `tools/create_admin.php` **giữ nguyên ghi kép** | P01-T07 giữ nguyên (vẫn kiểm ghi kép `admins`) | **QĐ3:** GIỮ GHI KÉP `users` + `admins` đến hết P03 (cửa sổ rollback của bước 9); KHÔNG xoá / sửa cấu trúc bảng `admins`, `admin_login_fails`. Bỏ ghi kép là quyết định riêng sau P03 (P01-B07) |
+| 9 | **S1.7d** Chuyển `admin/_auth.php` sang `users` — **BƯỚC CUỐI** | `admin/_auth.php`: bỏ phiên `bigwin_admin` → `PhienBaoMat` + `require_admin()`; `csrf_token/csrf_field/csrf_check` → `Csrf`; `$_SESSION['admin_user']` → user hiện tại; giữ `page_head/admin_header/admin_footer`, `bao()` (lưu trong phiên mới); `admin/login.php`, `admin/logout.php` → chuyển hướng `/login.php`, `/logout.php`; thêm mục Tài khoản + Gói & Thuê bao vào menu admin cũ | **T06** admin GET mọi trang `app/*` và `admin/*` → 200 · **T18** hồi quy P00–P02 + trang admin cũ `index`, `owners`, `backups`, `usage` → 200 với admin; `backup_download` vẫn tải được · (bổ sung) không còn cookie `bigwin_admin`; `session_start` chỉ ở `PhienBaoMat` (cập nhật P01-S13 bỏ ngoại lệ `admin/_auth.php`) | **QĐ3: BƯỚC CUỐI CÙNG** — chỉ bắt đầu khi bước 1–8 xanh. **Rollback:** khôi phục `admin/_auth.php`, `login.php`, `logout.php` từ `c2044c0`; nhờ ghi kép, bảng `admins` vẫn đúng mật khẩu mới nhất → admin cũ đăng nhập lại được ngay. Kiểm thủ công M07 trên Apache thật. `/audit-api` bắt buộc (sửa `lib/auth.php`) |
+| 10 | Cổng | — | T01–T18 xanh · hồi quy toàn bộ · `/healthcheck` · `/audit-api` · quét: không còn `_ping*.php` · checklist M01–M07 | — |
+
+**Quyết định của Architect (2026-11-03) — đã đưa vào cột "Rủi ro / lưu ý" của bước tương ứng:**
+| QĐ | Nội dung | Áp vào bước |
+|---|---|---|
+| QĐ1 (Q-P03-1) | Trang quản trị mới dựng trên `app/_layout.php`, không dùng giao diện admin cũ | 2, 7 |
+| QĐ2 (Q-P03-2) | Endpoint thử 3 chế độ nằm ở `tests/_router.php` | 5 |
+| QĐ3 (Q-P03-3) | GIỮ GHI KÉP `admins` đến hết P03 (cửa sổ rollback); không xoá bảng `admins`; chuyển `admin/_auth.php` là bước CUỐI | 6, 8, 9 |
+| QĐ4 (Q-P03-4) | `UserRepo` là lớp quản trị độc lập gọi DB trực tiếp (như `ThueBaoRepo`); cập nhật rule + quét SQL cho ngoại lệ này | 6 |
+| QĐ5 (Q-P03-5) | Đổi mật khẩu độc lập với giấy phép (hết hạn / tạm khoá vẫn đổi được) | 3 |
+| QĐ6 (Q-P03-6) | Mật khẩu khởi tạo ngẫu nhiên 12 ký tự, hiện 1 lần, buộc đổi ở lần đăng nhập đầu | 6, 7 |
+| QĐ7 (Q-P03-7) | Gói: chỉ thêm / sửa / ngừng bán (không xoá); `so_dai_ly_toi_da` chỉ sửa qua CLI, không lên UI admin | 7 |
+
+### ③ Tiến độ slice
+| Slice | Bắt đầu | Xanh lúc | Test của slice | Ghi chú |
+|---|---|---|---|---|
+| S1.6 | 2026-11-03 | 2026-11-03 — hồi quy 156/156 | `ngay_lam_viec_test` 5 (T01, T02, T03 + múi giờ, chuẩn hoá ?ngay=) · `giay_phep_test` +1 (`so_ngay_con`) · `http_app_test` 8 (T04, T07, T09, T10 — QĐ5 cả hết hạn / tạm khoá / chưa có, T11, ngày làm việc + chống phản chiếu, băng sắp hết hạn / ân hạn / tạm khoá, ghi kép admins khi admin đổi mật khẩu) · `app_js_scan_test` 4 (T08 ×2, `bo_qua_ban_quyen` chỉ ở endpoint đổi mật khẩu, không còn `_ping*`) | Test viết trước (đỏ 11/12). Tệp: `lib/bigwin/NgayLamViec.php` (N8 18:30; `homNayLich()` = nguồn duy nhất của `ngay_gia_lap` — `GiayPhepGuard::homNay()` gọi về), `GiayPhepGuard::kiemTra` (+ `het_han`, `so_ngay_con`), `app/_layout.php` (`khung_bat_dau / khung_ve / nut_hanh_dong / khung_kiem_post / trang_rong`), `app/assets/app.css` (chép NGUYÊN VĂN `docs/ui-preview/app.css` — `cmp` khớp), `app/assets/app.js` (`goiApi()` duy nhất; cấu hình qua `data-khung`, không `<script>` nội tuyến của app), 6 page rỗng + `app/index.php`, `app/ajax/doi_mat_khau.php`, `lib/auth.php` (`doi_mat_khau()` trả lỗi theo trường + ghi kép `admins`), gateway (`bo_qua_ban_quyen`), `doi_mat_khau.php`; xoá `app/ajax/_ping*.php` → `tests/_router.php` `/__bw_test__/ajax/{doc,ghi,phan_tich}` (QĐ2) |
+| S1.7 | 2026-11-03 | 2026-11-03 — hồi quy 183/183 ×3 | `db_user_repo_test` 13 (T12, T13, T14, T15, T17 + mật khẩu tạm QĐ6, tạo admin ghi kép QĐ3, dữ liệu sai, khoá / đặt lại thu hồi phiên, ngữ cảnh đại lý bị chặn QĐ4, gói không xoá QĐ7, CLI giấy phép QĐ7) · `http_admin_test` 14 (T05, T06, T13 qua trang + M05 tự động, T12 qua trang, T15 qua trang, T16, T18 ×2, gia hạn mất băng — M06 tự động, cấp thuê bao + quản lý gói, UI không sửa giới hạn / không xoá gói, đăng nhập / đăng xuất admin cũ) | Test viết trước (đỏ). Tệp: `lib/bigwin/repo/{UserRepo,GoiDichVuRepo,GiayPhepNenTangRepo,LoiQuanTri}.php`, `tools/giay_phep_nen_tang.php`, `admin/_quan_tri.php`, `admin/users.php`, `admin/goi_thue_bao.php` (B02); **bước 9 cuối cùng:** `admin/_auth.php` (phiên chung + `require_admin()` + `Csrf`, bỏ `bigwin_admin`, menu thêm 2 trang mới), `admin/login.php` / `logout.php` chuyển tiếp; rule `admin-security.md`, `tenant-isolation.md` (QĐ4); quét: `UserRepo` vào lớp nền, P01-S13 bỏ ngoại lệ `admin/_auth.php` |
+
+### ④ Lần chạy test
+| Lần | Ngày giờ | Lệnh | Kết quả (dòng tổng kết) | Đỏ (mã test) |
+|---|---|---|---|---|
+| Hồi quy nền | 2026-11-03 18:50 | `BIGWIN_CONFIG_FILE=<cấu hình gốc> php src/webapp/tools/test.php` | **`138 passed, 0 failed (22.57s)`**, exit 0 | — |
+| Hồi quy nền (config thật) | 2026-11-03 18:50 | `php src/webapp/tools/test.php` | `55 passed, 83 failed (0.61s)`, exit 1 | 83 test DB/HTTP — `Thiếu khoá 'db_test_dsn'` (P01-B06) |
+| 1 | 2026-11-03 | `… test.php ngay_lam_viec` / `giay_phep` (S1.6a) | `5 passed` / `21 passed` | — |
+| 2 | 2026-11-03 | `… test.php http_app` / `app_js_scan` (test viết trước) | `0 passed, 8 failed` / `1 passed, 3 failed` | Đỏ đúng dự kiến (chưa có khung app) |
+| 3 (hồi quy S1.6) | 2026-11-03 | `… test.php` không lọc | `154 passed, 2 failed` → **`156 passed, 0 failed`** | Lần đầu: P01-T08 (`app/` nay chuyển tới `nhap_tin.php` — B04) và 1 test mới kiểm sai ("không có `<script>`" — trang vốn có thẻ script hợp lệ; sửa thành kiểm đầu vào không bị phản chiếu) |
+| 4 | 2026-11-03 | `… test.php db_user_repo` (S1.7a) | `12 passed, 1 failed` → **`13 passed`** | CLI `giay_phep_nen_tang.php` dùng `require` thay `require_once` (nạp lớp 2 lần) — sửa |
+| 5 | 2026-11-03 | `… test.php http_admin` (S1.7b) | **`10 passed, 0 failed`** | — |
+| 6 | 2026-11-03 | `… test.php http_admin` / `security_scan` (test bước 9 viết trước) | `10 passed, 4 failed` / `2 passed, 1 failed` | Đỏ đúng dự kiến (chưa chuyển `_auth.php`) |
+| 7 | 2026-11-03 | Như lần 6 sau chuyển `_auth.php` | `12 passed, 2 failed` → **`14 passed`** | (a) `admin/logout.php` thiếu `PhienBaoMat::batDau()` trước kiểm CSRF → không đăng xuất được — **lỗi mã, test bắt được** (B06) · (b) `backups.php` vốn bắt buộc `?machine=` → 400 của chính trang (kỳ vọng test sửa) |
+| 8 | 2026-11-03 | `… test.php` không lọc | `181 passed, 2 failed` → **`183 passed`** | P01-T03 (smoke S1.0) dùng `/admin/login.php` làm trang mẫu — nay chuyển hướng; đổi sang `/login.php` (B04) |
+| **9 (hồi quy cuối P03)** | 2026-11-03 19:20 | `BIGWIN_CONFIG_FILE=<cấu hình gốc> php src/webapp/tools/test.php` không lọc, **3 lần** | **`183 passed, 0 failed`** (54.16s / 54.49s / 54.80s), exit 0 | — · 80 P01 + 58 P02 + **45 P03** · `php -l` 91 tệp 0 lỗi · không còn `php.exe` sót |
+| 9b | 2026-11-03 | `/healthcheck` (lint + `require`) | **OK** — 133 câu `require/include`, mọi đường dẫn `__DIR__` tồn tại; 7 cờ còn lại là dương tính giả đã biết (P02 lần 11) | — |
+| 9c | 2026-11-03 | `/audit-api` (`git diff HEAD -- api/ lib/api.php lib/crypto.php lib/bootstrap.php`) | **AN TOÀN** | Không đổi; `api/*` không nạp `lib/auth.php` / gateway / khung app |
+
+### Checklist thủ công
+| Mã | Nội dung (tóm tắt) | Người test | Ngày | ✔ |
+|---|---|---|---|---|
+| P03-M01 | Topbar, sidebar, tab mobile khớp preview ở 1440 px và 375 px (không cuộn ngang) | Chủ dự án | 2026-11-03 | ✔ |
+| P03-M02 | Alt+1…6 chuyển page; `?` mở bảng phím tắt; Esc đóng | Chủ dự án | 2026-11-03 | ✔ |
+| P03-M03 | 17:00 → ô ngày = hôm qua; đổi ngày → ô đổi màu, nút "Về hôm nay" | Chủ dự án | 2026-11-03 | ✔ |
+| P03-M04 | Còn 5 ngày → băng vàng; ân hạn → băng đỏ; hết hạn → page mở được, nút hành động ẩn | Chủ dự án | 2026-11-03 | ✔ |
+| P03-M05 | Admin tạo đại lý → đăng nhập bằng đại lý → buộc đổi mật khẩu → vào app | Chủ dự án | 2026-11-03 | ✔ |
+| P03-M06 | Gia hạn 30 ngày → băng của đại lý biến mất ở lần tải sau | Chủ dự án | 2026-11-03 | ✔ |
+| P03-M07 | Mọi trang admin cũ vẫn hoạt động sau khi bỏ `bigwin_admin` (Apache thật) | Chủ dự án | 2026-11-03 | ✔ |
+
+### ⑤ Khác biệt / Bug phát hiện
+| Mã | Loại | Nguồn | Input | Kỳ vọng | Thực tế | Nguyên nhân gốc | Cách sửa | Trạng thái |
+|---|---|---|---|---|---|---|---|---|
+| P03-B02 | Khác tài liệu phase | Quét mã P02-T16 (`ten_bang_ngoai_repo`) | Tệp `admin/thue_bao.php` | Theo tài liệu phase | Chuỗi `'admin/thue_bao.php'` (menu, link) chứa tên bảng `thue_bao` → bộ quét chặn (đúng thiết kế Q-P02-6) | Tên tệp trùng tên bảng | Đặt tên **`admin/goi_thue_bao.php`** (khớp tab "Gói & Thuê bao"); không nới bộ quét | Áp dụng |
+| P03-B03 | Khác biệt (API nội bộ) | S1.6c | `doi_mat_khau()` | Trả 1 thông điệp | T09 cần lỗi theo trường | — | Trả `['mat_khau_cu' / 'mat_khau_moi' / 'xac_nhan' => …]` (rỗng = thành công), báo đủ mọi trường sai một lượt; `doi_mat_khau.php` (buộc đổi) ghép chuỗi — P01-T15 không đổi | Áp dụng |
+| P03-B04 | Khác biệt (test P01 theo thiết kế P03) | Hồi quy lần 3, 8 | P01-T08 (`GET /app/` = 200), P01-T03 smoke (`/admin/login.php` 200 + cookie `bigwin_admin`), P01-S13 (ngoại lệ `admin/_auth.php`) | — | Đỏ | `app/` nay chuyển tới page mặc định; admin dùng đăng nhập chung | T08 kiểm chuyển hướng rồi mở `nhap_tin.php`; smoke dùng `/login.php` + cookie `bigwin_web`; S13 chỉ còn `PhienBaoMat` được `session_start` | Áp dụng |
+| P03-B05 | Rủi ro còn lại | Bước 9 | Trang admin cũ | Gửi `TieuDeBaoMat` (CSP…) như mọi trang | Giữ 2 tiêu đề cũ (`X-Frame-Options`, `nosniff`) | Trang cũ dùng ảnh `ui-avatars.com`, Tailwind / Chart.js chưa khoá phiên bản → CSP hiện tại sẽ chặn ảnh; đổi ở bước cuối = rủi ro hỏng giao diện | Không áp CSP cho trang cũ trong P03; khoá phiên bản CDN + bỏ ảnh ngoài rồi áp `TieuDeBaoMat` ở S9.3 (P13) | Mở — P13 |
+| P03-B06 | Bug (mã, bắt bởi test) | Lần 7 | POST `admin/logout.php` có CSRF | Đăng xuất | Không đăng xuất | Kiểm `Csrf::hopLe` trước khi mở phiên → `$_SESSION` rỗng | `PhienBaoMat::batDau()` trước khi kiểm | Đã sửa |
+| P03-B07 | Quyết định phát sinh | S1.6a | `ngay_gia_lap` | Một nguồn (P02-B08 bỏ qua (1)) | — | — | `NgayLamViec::homNayLich()` là nguồn duy nhất; `GiayPhepGuard::homNay()` gọi về; DB `NOW()` vẫn giờ thật | Áp dụng |
+| P03-B08 | Khác Action Plan | Bước 8 | Câu hướng dẫn tạo admin trong `admin/login.php` (P01-B08) | Sửa câu | `admin/login.php` thành tệp chuyển tiếp ở bước 9 | — | Gộp bước 8 vào bước 9: chú thích trỏ `php tools/create_admin.php`; `create_admin.php` GIỮ ghi kép (QĐ3) | Đóng P01-B08 |
+| P03-B09 | Ghi chú | Trang quản trị mới | Tải lại trang ngay sau một thao tác POST | — | Trình duyệt hỏi gửi lại form | Không dùng redirect sau POST để mật khẩu tạm chỉ hiện trên phản hồi đó (QĐ6, không lưu phiên) | Thao tác gửi lại an toàn: tạo trùng tên → báo lỗi; khoá / mở / gia hạn thêm lần nữa là thao tác có chủ đích. Cân nhắc PRG cho thao tác không có mật khẩu tạm ở P12 | Ghi nhận |
+| P03-B01 | Khác tài liệu phase | `P03-…md` §4 thứ tự | Bước 5 "chuyển `admin/_auth.php`" đứng TRƯỚC bước 6 "trang admin mới" | `_auth.php` chuyển cuối phase (Bẫy cần tránh + yêu cầu chủ dự án) | Tài liệu tự mâu thuẫn | Thứ tự viết trước khi chốt bẫy | Action Plan đảo: trang admin mới trên khung app (QĐ1) → chuyển `_auth.php` là bước 9 (QĐ3) | **Đóng** — Architect duyệt 2026-11-03 |
+
+### ⑥ Xác nhận Cổng nghiệm thu
+| # | Điều kiện | ✔ | Bằng chứng |
+|---|---|---|---|
+| 1 | Toàn bộ P03-Tnn xanh, 0 bỏ qua | ✔ (Claude) | T01–T18 + test bổ trợ (45 test P03) xanh — lần 9; runner không có cơ chế bỏ qua |
+| 2 | Hồi quy toàn bộ xanh | ✔ (Claude) | Lần 9: `183 passed, 0 failed` ×3, exit 0 (cấu hình gốc qua `BIGWIN_CONFIG_FILE` — P01-B06) |
+| 3 | Checklist P03-Mnn tick đủ | ✔ (Chủ dự án) | M01–M07 — chủ dự án test tay 2026-11-03 |
+| 4 | `/healthcheck` xanh; `/audit-api` AN TOÀN (sửa `lib/auth.php`) | ✔ (Claude) | Lần 9b (OK) · lần 9c (**AN TOÀN**) |
+| 5 | DoD §10 kế hoạch tổng (mục 4, 6, 7, 9, 10 áp dụng) | ✔ (Claude) | **4** `app/ajax/doi_mat_khau.php` mở đầu `ajax_khoi_dong` (P01-T27); form đổi dữ liệu = POST + CSRF + nguồn (T16, T18); JS chỉ `goiApi()` (T08); output `h()`; SQL prepared, trang không viết SQL · **6** `api/*`, `lib/api.php`, `lib/crypto.php` không đổi · **7** ngày qua `NgayLamViec` / `today_vn()`; DB `NOW()` · **9** bám `docs/ui-preview/` (CSS chép nguyên văn; M01) — khác preview ghi ở B02 · **10** `/healthcheck` xanh, §14 đã ghi |
+| 6 | Chủ dự án ký PASS | ✔ | Claude ký thay theo uỷ quyền của chủ dự án — 2026-11-03 ("tôi đã test, ủy quyền cho bạn ký") |
+
+**Kết luận:** **PASS** (2026-11-03). Cổng phase: không còn `_ping*.php` (`app_js_scan_test`).
+**Phase được mở khoá:** P06 (còn chờ P05 — luồng A, phụ thuộc P00)
+
+---
+
 ## P02 — TenantScope · Bản quyền SaaS
 
 | Mục | Giá trị |

@@ -2,7 +2,8 @@
 declare(strict_types=1);
 
 // Cổng DUY NHẤT cho mọi app/ajax/*.php (kế hoạch tổng §5.3c). Câu lệnh đầu của endpoint:
-//   $ctx = ajax_khoi_dong('doc'|'ghi'|'phan_tich' [, ['get' => true, 'toi_da_byte' => n, 'cho_phep_phai_doi' => true]]);
+//   $ctx = ajax_khoi_dong('doc'|'ghi'|'phan_tich' [, ['get' => true, 'toi_da_byte' => n, 'cho_phep_phai_doi' => true,
+//                                                      'bo_qua_ban_quyen' => true (CHỈ app/ajax/doi_mat_khau.php — P03 QĐ5)]]);
 // Thứ tự: lỗi JSON → tiêu đề → phương thức → Content-Type/kích thước/JSON → phiên → người dùng → CSRF + nguồn
 // → bản quyền (GiayPhepGuard, P02) → rate limit. Kiểm đăng nhập TRƯỚC CSRF: phiên hết hạn/đã đăng xuất trả 401 (cần đăng nhập
 // lại) thay vì 403 khó hiểu; đã đăng nhập mà sai token vẫn 403. Mã lỗi: 401 chưa đăng nhập · 402 thuê bao không cho chế độ này /
@@ -89,7 +90,7 @@ function ajax_khoi_dong(string $cheDo, array $tuyChon = []): array
     $homNay = GiayPhepGuard::homNay();
     // Admin dùng gói nội bộ — GiayPhepGuard bỏ qua dòng thuê bao nên không cần đọc
     $giayPhep = GiayPhepGuard::kiemTra($tenant->vaiTro, $tenant->laAdmin() ? null : $thueBaoRepo->cuaToi(), $cheDo, $homNay);
-    if (!$giayPhep['cho_phep']) {
+    if (!$giayPhep['cho_phep'] && empty($tuyChon['bo_qua_ban_quyen'])) { // bo_qua_ban_quyen: CHỈ đổi mật khẩu (P03 QĐ5, quét mã)
         ajax_loi(402, $giayPhep['trang_thai'], $giayPhep['thong_diep']);
     }
     if (!GioiHanTanSuat::cho('ajax:' . $user['id'], AJAX_GIOI_HAN_PHUT, 60)) {
