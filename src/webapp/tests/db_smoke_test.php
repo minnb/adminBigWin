@@ -18,7 +18,8 @@ function test_p01_t01_dung_db_test_hai_lan_khong_loi(): void
     bw_test_dung_db_chinh();
     $bang = db()->query('SHOW TABLES')->fetchAll(PDO::FETCH_COLUMN);
     sort($bang, SORT_STRING);
-    assert_same(bw_test_bang_trong_sql(file_get_contents(BW_WEBAPP_DIR . '/schema.sql')), $bang);
+    $mong = bw_test_bang_trong_sql(file_get_contents(BW_WEBAPP_DIR . '/schema.sql') . file_get_contents(__DIR__ . '/_tenant_demo.sql'));
+    assert_same($mong, $bang, 'DB test chính = schema.sql + bảng demo TenantScope (P02)');
     assert_same(bw_ten_db_test((string) cfg('db_dsn')), db()->query('SELECT DATABASE()')->fetchColumn());
 }
 

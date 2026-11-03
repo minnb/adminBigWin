@@ -13,10 +13,10 @@ const BW_REPO_DIR = __DIR__ . '/../../..';
 /** Mốc schema cho P01-T02 (Q-P01-3): commit cuối trước khi P01 thêm migration. */
 const BW_TEST_BASELINE = '0533c33';
 
-/** Chạy tiến trình con (kế thừa môi trường, gồm BIGWIN_CONFIG_FILE). Trả [mã thoát, stdout, stderr]. */
-function bw_test_chay(array $lenh): array
+/** Chạy tiến trình con (kế thừa môi trường, gồm BIGWIN_CONFIG_FILE; $env ghi đè từng biến). Trả [mã thoát, stdout, stderr]. */
+function bw_test_chay(array $lenh, array $env = []): array
 {
-    $p = proc_open($lenh, [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $ong);
+    $p = proc_open($lenh, [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $ong, null, $env === [] ? null : $env + getenv());
     if (!is_resource($p)) {
         throw new RuntimeException('Không chạy được: ' . implode(' ', $lenh));
     }
@@ -69,11 +69,32 @@ function bw_test_dung_db(string $ten, string $sql): void
     bw_test_chay_sql($pdo, $sql);
 }
 
-/** Dựng lại DB test chính từ schema.sql hiện tại (luôn dựng, kể cả khi đã dựng trong lần chạy này). */
+/** Bảng demo TenantScope — nguồn DUY NHẤT là tests/_tenant_demo.sql (chỉ nạp vào DB test chính, không có trong schema.sql). */
+function bw_test_bang_demo(): array
+{
+    return bw_test_bang_trong_sql(file_get_contents(__DIR__ . '/_tenant_demo.sql'));
+}
+
+/** Mọi tệp .php của src/webapp ngoài tests/ và config.php (bí mật — không bao giờ đọc): [đường dẫn tương đối => tuyệt đối]. */
+function bw_test_tep_php(): array
+{
+    $goc = realpath(BW_WEBAPP_DIR);
+    $tep = [];
+    foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($goc, FilesystemIterator::SKIP_DOTS)) as $f) {
+        $duong = str_replace('\\', '/', substr($f->getPathname(), strlen($goc) + 1));
+        if ($f->getExtension() === 'php' && !str_starts_with($duong, 'tests/') && $duong !== 'config.php') {
+            $tep[$duong] = $f->getPathname();
+        }
+    }
+    ksort($tep, SORT_STRING);
+    return $tep;
+}
+
+/** Dựng lại DB test chính từ schema.sql hiện tại + bảng demo TenantScope (luôn dựng, kể cả khi đã dựng trong lần chạy này). */
 function bw_test_dung_db_chinh(): void
 {
     $ten = bw_ten_db_test((string) cfg('db_dsn'));
-    bw_test_dung_db($ten, file_get_contents(BW_WEBAPP_DIR . '/schema.sql'));
+    bw_test_dung_db($ten, file_get_contents(BW_WEBAPP_DIR . '/schema.sql') . "\n" . file_get_contents(__DIR__ . '/_tenant_demo.sql'));
     db()->exec("USE `$ten`"); // DROP DATABASE làm kết nối db() đang mở mất DB đang chọn
     $GLOBALS['bw_test_db_da_dung'] = true;
 }
@@ -125,25 +146,25 @@ function bw_test_migration_moi(string $rev): array
     return $moi;
 }
 
-/** Cấu trúc DB để so sánh: cột (không tính thứ tự cột), chỉ mục, khoá ngoại. */
+/** Cấu trúc DB để so sánh: cột (không tính thứ tự cột), chỉ mục, khoá ngoại. Bỏ bảng demo (bw_test_bang_demo — chỉ có ở DB test chính). */
 function bw_test_cau_truc(PDO $pdo, string $db): array
 {
     $hoi = static function (string $sql) use ($pdo, $db): array {
         $st = $pdo->prepare($sql);
-        $st->execute([$db]);
+        $st->execute([$db, implode(',', bw_test_bang_demo())]);
         return $st->fetchAll(PDO::FETCH_ASSOC);
     };
     return [
         'cot' => $hoi('SELECT TABLE_NAME, COLUMN_NAME, COLUMN_TYPE, IS_NULLABLE, COLUMN_DEFAULT, EXTRA, COLLATION_NAME
-                         FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = ? ORDER BY TABLE_NAME, COLUMN_NAME'),
+                         FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = ? AND NOT FIND_IN_SET(TABLE_NAME, ?) ORDER BY TABLE_NAME, COLUMN_NAME'),
         'chi_muc' => $hoi('SELECT TABLE_NAME, INDEX_NAME, SEQ_IN_INDEX, COLUMN_NAME, NON_UNIQUE
-                             FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = ? ORDER BY TABLE_NAME, INDEX_NAME, SEQ_IN_INDEX'),
+                             FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = ? AND NOT FIND_IN_SET(TABLE_NAME, ?) ORDER BY TABLE_NAME, INDEX_NAME, SEQ_IN_INDEX'),
         'khoa_ngoai' => $hoi('SELECT k.TABLE_NAME, k.CONSTRAINT_NAME, k.COLUMN_NAME, k.REFERENCED_TABLE_NAME, k.REFERENCED_COLUMN_NAME,
                                      r.UPDATE_RULE, r.DELETE_RULE
                                 FROM information_schema.KEY_COLUMN_USAGE k
                                 JOIN information_schema.REFERENTIAL_CONSTRAINTS r
                                   ON r.CONSTRAINT_SCHEMA = k.CONSTRAINT_SCHEMA AND r.CONSTRAINT_NAME = k.CONSTRAINT_NAME
                                  AND r.TABLE_NAME = k.TABLE_NAME
-                               WHERE k.TABLE_SCHEMA = ? ORDER BY k.TABLE_NAME, k.CONSTRAINT_NAME, k.ORDINAL_POSITION'),
+                               WHERE k.TABLE_SCHEMA = ? AND NOT FIND_IN_SET(k.TABLE_NAME, ?) ORDER BY k.TABLE_NAME, k.CONSTRAINT_NAME, k.ORDINAL_POSITION'),
     ];
 }

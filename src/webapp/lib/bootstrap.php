@@ -118,6 +118,27 @@ function db(): PDO
 }
 
 /**
+ * Chạy $fn(PDO) trong transaction của db(), trả kết quả của $fn. Đã có transaction ngoài thì THAM GIA (không commit /
+ * rollback thay người gọi) — để vd đếm hạn mức và ghi nghiệp vụ cùng commit.
+ */
+function trong_giao_dich(callable $fn): mixed
+{
+    $pdo = db();
+    if ($pdo->inTransaction()) {
+        return $fn($pdo);
+    }
+    $pdo->beginTransaction();
+    try {
+        $kq = $fn($pdo);
+        $pdo->commit();
+        return $kq;
+    } catch (Throwable $e) {
+        $pdo->rollBack();
+        throw $e;
+    }
+}
+
+/**
  * Trạng thái HIỆU LỰC của máy — chỗ DUY NHẤT định nghĩa "dùng thử": máy 'pending' còn trong
  * `trial_ttl` kể từ lần đầu API lưu máy (first_seen) thì là 'trial' (được dùng). Hết hạn vẫn
  * 'pending' (app chặn). active / revoked giữ nguyên. Dùng cho check.php + xác thực API backup.

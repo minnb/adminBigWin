@@ -31,7 +31,8 @@ Thiết kế: `docs/plans/2026-11-02-ke-hoach-chuyen-doi-python-php.md` §5.3. K
 - Đăng nhập KHÔNG dùng `GioiHanTanSuat`: `dang_nhap()` (`lib/auth.php`) đếm sai trong bảng `user_login_fails` theo username HOẶC IP (5 lần / 15 phút → khoá, giữ dấu vết để tra cứu); đăng nhập đúng → xoá đếm của username và IP đó.
 
 ## Endpoint & lỗi
-- `app/ajax/*.php`: dòng đầu là `ajax_khoi_dong(CheDo)` (S1.3) — gateway làm phiên, CSRF, nguồn, tiêu đề, rate limit, bản quyền, lỗi JSON. Không bỏ bước nào.
+- `app/ajax/*.php`: dòng đầu là `ajax_khoi_dong(CheDo)` (S1.3) — gateway làm phiên, CSRF, nguồn, tiêu đề, bản quyền (`GiayPhepGuard`, P02 → 402), rate limit, lỗi JSON. Không bỏ bước nào. Trả `['user', 'tenant' => TenantContext, 'giay_phep', 'hom_nay', 'thue_bao_repo', 'du_lieu']`.
+- Thao tác có hạn mức gói (vd tin đối soát/ngày) gọi `ajax_dem_han_muc($ctx, $cot)` trong transaction của thao tác ghi → hết hạn mức = 402 `vuot_han_muc`.
 - Lỗi trả JSON `{ok:false, ma, thong_diep}`; KHÔNG lộ stack trace, câu SQL, đường dẫn tệp; chi tiết ghi `ghi_loi()`.
 - Thông báo đăng nhập sai luôn chung một câu (không phân biệt sai username hay sai mật khẩu).
 

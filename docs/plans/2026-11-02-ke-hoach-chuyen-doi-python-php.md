@@ -298,11 +298,12 @@ abstract class TenantRepo {
     final protected function sua(int $id, array $cot): bool;      // cấm sửa user_id, cấm sửa cột tiền snapshot
     final protected function xoaMem(int $id, string $lyDo): bool;
 
-    // SQL tự viết (JOIN, tổng hợp): BẮT BUỘC đánh dấu từng bảng tenant bằng {tenant:alias}
+    // SQL tự viết (JOIN, tổng hợp): BẮT BUỘC viết từng bảng tenant là {tenant:ten_bang alias}
     final protected function truyVan(string $sql, array $thamSo): PDOStatement;
 }
 ```
-- `truyVan()` thay `{tenant:k}` → `k.user_id = :__uid AND k.deleted_at IS NULL` (bỏ phần `deleted_at` với `{tenant_ca_xoa:k}` khi báo cáo cần cả bản đã xoá). Trước khi prepare, lớp nền **quét SQL**: mọi `FROM|JOIN <bảng>` thuộc `DANH_SACH_BANG_TENANT` phải có placeholder tương ứng; thiếu → ném `LoiCoLapTenant` (fail-closed, kể cả trên production).
+- **(Cập nhật P02, Q-P02-8 — "bảng lọc sẵn")** placeholder đứng **thay tên bảng** sau `FROM`/`JOIN`: `{tenant:khach_hang k}` → `(SELECT * FROM khach_hang WHERE user_id = <id> AND deleted_at IS NULL) k` (`{tenant_ca_xoa:…}` bỏ phần `deleted_at`). Thiết kế cũ (chèn `k.user_id = … AND …` vào `WHERE`) bị loại vì `WHERE a OR {tenant:k}` làm lộ dữ liệu mọi đại lý và đổi nghĩa `LEFT JOIN` (P02-B01). Trước khi prepare, `BoQuetSqlTenant` quét SQL: tên bảng tenant xuất hiện "trần" ở bất cứ đâu, chú thích, `;`, `UNION`, `WITH`, `INTO`, câu không phải `SELECT` → `LoiCoLapTenant` (fail-closed, kể cả trên production). `user_id` chèn dạng số nguyên lấy từ `TenantContext` (PDO native prepare không cho trộn `?` với tham số tên).
+- **Bảng thuê bao** (`thue_bao`, `thue_bao_lich_su`, `su_dung_ngay`) không thuộc `DANH_SACH_BANG_TENANT`: truy cập qua `ThueBaoRepo` riêng (Q-P02-1) vì admin phải thao tác trên thuê bao của đại lý khác.
 - Bảng con không có `user_id` (`he_so_khach_hang`, `parser_dan_so_khoa`, `parser_dan_so_so`): **thêm cột `user_id`** + FK kép (`(khach_hang_id, user_id)` → `khach_hang(id, user_id)`) để mọi bảng tenant đều tự chèn được, không phải nhớ JOIN.
 - Tham chiếu chéo khi ghi (`khach_hang_id` trong phiên) xác thực bằng `timMot()` của repo tương ứng trước khi ghi; FK kép ở DB là lớp chặn thứ hai.
 - `SharedRepo`: chỉ cho bảng dùng chung; method ghi yêu cầu `TenantContext` có role admin hoặc ngữ cảnh CLI.
@@ -602,6 +603,7 @@ S0.1 runner · S0.2 golden exporter + 6 fixture · S0.3 helpers & Unicode.
 | 2026-11-02 | — | Hoàn thiện v2.1 | Chốt O8 (1 User = 1 Đại lý, khoá cô lập `user_id`); R1/S0.4: bắt buộc commit ~1.300 dòng treo trước khi gắn tag và xuất fixture; câu chữ Xoá khách "Ẩn khách hàng, bảo toàn lịch sử đối soát cũ" (Phụ lục A-KH + preview) |
 | 2026-11-02 | — | Tách phase | Chốt O5; tách lộ trình thành 14 phase `phases/P00…P13` có cổng nghiệm thu; thêm S1.0 (hạ tầng test DB/HTTP) và fixture `doi_chieu.json` |
 | 2026-11-03 | S1.0–S1.3 (P01) | ✅ **P01 PASS** (chủ dự án ký 2026-11-03) | Hồi quy 80/80, `/healthcheck` OK, `/audit-api` AN TOÀN, checklist M01–M06 đạt; chi tiết, khác biệt B01–B18: `phases/TASK_LOG.md` mục P01. Mở khoá P02 |
+| 2026-11-03 | S1.4–S1.5 (P02) | ✅ **P02 PASS** (ký theo uỷ quyền chủ dự án) | Hồi quy 138/138, `/healthcheck` OK, `/audit-api` AN TOÀN, M01/M02 đạt; §5.4 cập nhật "bảng lọc sẵn" (Q-P02-8); migration P01 + P02 đã chạy lên DB thật; chi tiết B01–B10: `phases/TASK_LOG.md` mục P02. Mở khoá P03 |
 
 ---
 

@@ -16,11 +16,17 @@ Thiết kế đầy đủ: `docs/plans/2026-11-02-ke-hoach-chuyen-doi-python-php
 ## Repository — bắt buộc qua lớp nền
 - Repo cho bảng tenant **phải** `extends TenantRepo`, nhận `TenantContext` qua constructor. KHÔNG có tham số `int $userId` ở method; KHÔNG viết tay `user_id = ?`.
 - Dùng `tim()` / `timMot()` / `them()` / `sua()` / `xoaMem()` của lớp nền — `user_id` và `deleted_at IS NULL` được tự chèn. `them()`/`sua()` CẤM có khoá `user_id` trong mảng cột.
-- SQL tự viết (JOIN, tổng hợp) chỉ qua `truyVan()`; mỗi bảng tenant trong `FROM`/`JOIN` phải có placeholder `{tenant:alias}` (hoặc `{tenant_ca_xoa:alias}` khi cần cả bản đã xoá mềm). Thiếu → `LoiCoLapTenant` (fail-closed). Không bắt lỗi này để "chạy tiếp".
-- CẤM gọi `db()`, `->prepare(`, `->query(`, `->exec(` ngoài `TenantRepo`, `SharedRepo`, `ThongKeRepo`, migration, `tools/`. `app/**` và `*Service.php` không chứa SQL.
-- Bảng tenant mới: thêm cột `user_id NOT NULL` (kể cả bảng con), `UNIQUE(id, user_id)` ở bảng cha + FK kép `(cha_id, user_id)` ở bảng con; khai báo vào `TenantRepo::DANH_SACH_BANG_TENANT`.
+- SQL tự viết (JOIN, tổng hợp) chỉ qua `truyVan()` (chỉ một câu `SELECT`); mỗi bảng tenant viết **thay tên bảng** sau `FROM`/`JOIN`: `{tenant:ten_bang alias}` (hoặc `{tenant_ca_xoa:ten_bang alias}` khi cần cả bản đã xoá mềm) — alias bắt buộc, không trùng tên bảng tenant. Lớp nền thay bằng bảng lọc sẵn `(SELECT * FROM ten_bang WHERE user_id = <id> AND deleted_at IS NULL) alias` → `OR` / `LEFT JOIN` ở câu ngoài không vô hiệu được (Q-P02-8, `BoQuetSqlTenant`). Tên bảng tenant xuất hiện "trần" ở bất cứ đâu, chú thích SQL, `;`, `UNION`, `WITH`, `INTO` → `LoiCoLapTenant` (fail-closed). Không bắt lỗi này để "chạy tiếp".
+- CẤM gọi `db()`, `->prepare(`, `->query(`, `->exec(`, `new PDO` trong `app/**`, `lib/bigwin/**`, `*Service.php` — trừ lớp nền `TenantRepo`, `SharedRepo`, `BoQuetSqlTenant`, `ThueBaoRepo`, `ThongKeRepo`. Chuỗi SQL nhắc tên bảng tenant / bảng thuê bao chỉ được nằm trong `lib/bigwin/repo/` (Q-P02-6; `admin/`, `api/`, `tools/` cũng không ngoại lệ — dùng repo).
+- `TenantContext::tuPhien` chỉ ở `lib/security/AjaxGateway.php` và `app/_layout.php`; `choCli` / `heThong` chỉ trong `tools/` (và chỉ chạy được khi `PHP_SAPI = cli`).
+- Bảng tenant mới: thêm cột `user_id NOT NULL` (kể cả bảng con), `UNIQUE(id, user_id)` ở bảng cha + FK kép `(cha_id, user_id)` ở bảng con; khai báo vào `TenantRepo::DANH_SACH_BANG_TENANT` (`bang => có xoá mềm`; `demo_cha`/`demo_con` chỉ có trong DB test — Q-P02-5).
 - Tham chiếu chéo (vd `khach_hang_id` khi ghi phiên) phải được lấy qua `timMot()` của repo tương ứng TRƯỚC khi ghi; không thấy → 404 (không tiết lộ là của tenant khác). FK kép ở DB là lớp chặn thứ hai.
 - PDO prepared 100%; tên bảng/cột không bao giờ đến từ input.
+
+## Thuê bao — `ThueBaoRepo` (Q-P02-1)
+- `thue_bao`, `thue_bao_lich_su`, `su_dung_ngay` có `user_id` nhưng KHÔNG nằm trong `DANH_SACH_BANG_TENANT`: chỉ truy cập qua `ThueBaoRepo` (không kế thừa `TenantRepo`).
+- Mặt đại lý (`cuaToi`, `tangDem`) luôn theo id của `TenantContext`. Mặt quản trị (`tao`, `giaHan`, `doiGoi`, `tamKhoa`, `moKhoa`, `lichSu`, …) chỉ ngữ cảnh admin (web) hoặc hệ thống (CLI); id đại lý đích chỉ do trang `admin/` đã `require_admin()` truyền vào.
+- `thue_bao_lich_su` append-only: mọi thay đổi ghi 1 dòng cùng transaction; không có đường sửa/gỡ dòng lịch sử.
 
 ## Dữ liệu tiền — xoá mềm & bất biến
 - CẤM `DELETE` trên `khach_hang`, `tin_nhan_log`, `lich_su_doi_soat` — chỉ `xoaMem()` (`deleted_at`, `deleted_by`, `ly_do_xoa`). Ghi đè / sửa phiên / đồng bộ lại = xoá mềm bản cũ + ghi bản mới + `thay_the_boi_msg_id`.

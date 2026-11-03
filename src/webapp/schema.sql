@@ -115,6 +115,78 @@ CREATE TABLE IF NOT EXISTS gioi_han_tan_suat (
   KEY idx_het_luc (het_luc)
 ) ENGINE=InnoDB;
 
+-- Web BigWIN — bản quyền SaaS (P02 S1.5) — giống migrations/2026-11-03_thue_bao.sql.
+-- Chỉ truy cập qua lib/bigwin/repo/ThueBaoRepo.php; trạng thái thuê bao TÍNH RA từ ngày (GiayPhepGuard).
+-- Giấy phép nền tảng: đúng 1 dòng — số đại lý (role=user) đang hoạt động tối đa, NULL = không giới hạn.
+CREATE TABLE IF NOT EXISTS giay_phep_he_thong (
+  id                TINYINT UNSIGNED NOT NULL PRIMARY KEY,
+  so_dai_ly_toi_da  INT UNSIGNED     NULL,
+  ghi_chu           VARCHAR(255)     NOT NULL DEFAULT '',
+  cap_nhat_luc      DATETIME         NOT NULL,
+  CONSTRAINT ck_giay_phep_mot_dong CHECK (id = 1)
+) ENGINE=InnoDB;
+
+-- Gói dịch vụ & hạn mức (NULL = không giới hạn). Dùng chung, không có user_id.
+CREATE TABLE IF NOT EXISTS goi_dich_vu (
+  id                       INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  ma                       VARCHAR(30)  NOT NULL,
+  ten                      VARCHAR(100) NOT NULL,
+  gia_thang                BIGINT       NOT NULL DEFAULT 0,
+  so_khach_toi_da          INT UNSIGNED NULL,
+  so_tin_ngay_toi_da       INT UNSIGNED NULL,
+  cho_phep_telegram        TINYINT(1)   NOT NULL DEFAULT 1,
+  so_ngay_tra_cuu_lich_su  INT UNSIGNED NULL,
+  so_ngay_an_han           INT UNSIGNED NOT NULL DEFAULT 3,
+  dang_ban                 TINYINT(1)   NOT NULL DEFAULT 1,
+  UNIQUE KEY uq_goi_ma (ma)
+) ENGINE=InnoDB;
+
+-- Thuê bao: 1 dòng / đại lý.
+CREATE TABLE IF NOT EXISTS thue_bao (
+  user_id       INT UNSIGNED NOT NULL PRIMARY KEY,
+  goi_id        INT UNSIGNED NOT NULL,
+  bat_dau       DATE         NOT NULL,
+  het_han       DATE         NOT NULL,
+  tam_khoa      TINYINT(1)   NOT NULL DEFAULT 0,
+  ly_do_khoa    VARCHAR(255) NULL,
+  cap_nhat_boi  INT UNSIGNED NULL,
+  cap_nhat_luc  DATETIME     NOT NULL,
+  KEY idx_thue_bao_goi (goi_id),
+  KEY idx_thue_bao_het_han (het_han),
+  CONSTRAINT fk_thue_bao_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE RESTRICT,
+  CONSTRAINT fk_thue_bao_goi FOREIGN KEY (goi_id) REFERENCES goi_dich_vu (id) ON DELETE RESTRICT
+) ENGINE=InnoDB;
+
+-- Lịch sử thuê bao — append-only; tu_dong = cron ghi chuyển trạng thái.
+CREATE TABLE IF NOT EXISTS thue_bao_lich_su (
+  id          BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user_id     INT UNSIGNED NOT NULL,
+  hanh_dong   ENUM('tao','gia_han','doi_goi','tam_khoa','mo_khoa','tu_dong') NOT NULL,
+  truoc_json  TEXT         NULL,
+  sau_json    TEXT         NOT NULL,
+  boi         INT UNSIGNED NULL,
+  luc         DATETIME     NOT NULL,
+  KEY idx_tbls_user_id (user_id, id),
+  CONSTRAINT fk_tbls_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE RESTRICT
+) ENGINE=InnoDB;
+
+-- Bộ đếm hạn mức theo ngày.
+CREATE TABLE IF NOT EXISTS su_dung_ngay (
+  user_id           INT UNSIGNED NOT NULL,
+  ngay              DATE         NOT NULL,
+  so_tin_doi_soat   INT UNSIGNED NOT NULL DEFAULT 0,
+  so_lan_phan_tich  INT UNSIGNED NOT NULL DEFAULT 0,
+  PRIMARY KEY (user_id, ngay),
+  CONSTRAINT fk_sdn_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE RESTRICT
+) ENGINE=InnoDB;
+
+INSERT IGNORE INTO giay_phep_he_thong (id, so_dai_ly_toi_da, ghi_chu, cap_nhat_luc)
+VALUES (1, NULL, 'Khởi tạo P02 — không giới hạn số đại lý', NOW());
+
+INSERT IGNORE INTO goi_dich_vu (ma, ten, gia_thang, so_ngay_an_han, dang_ban)
+VALUES ('unlimited', 'Không giới hạn', 0, 3, 1),
+       ('dung_thu', 'Dùng thử', 0, 3, 1);
+
 -- Cloud backup (BACKUP_DU_LIEU_CLOUD.md §7.1) — giống migrations/2026-10-16_cloud_backup.sql
 CREATE TABLE IF NOT EXISTS backup_versions (
   id            BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,

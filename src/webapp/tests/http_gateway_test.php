@@ -4,15 +4,27 @@ declare(strict_types=1);
 // P01 S1.3 — AJAX gateway ajax_khoi_dong() qua endpoint thử app/ajax/_ping.php (HTTP thật).
 // Kèm xác nhận lại qua mạng các test S1.2: T25 (tiêu đề), T26 (rate limit).
 
-require_once __DIR__ . '/_auth.php';
+require_once __DIR__ . '/_thue_bao.php';
+
+/** Đăng nhập jar mới cho tài khoản $ten (đã tạo sẵn). */
+function bw_gw_vao(string $jar, string $ten): void
+{
+    bw_http_xoa_cookie($jar);
+    bw_auth_dang_nhap($jar, $ten);
+}
+
+/** [mã HTTP, mã lỗi JSON `loi`] của một phản hồi gateway. */
+function bw_gw_ma_loi(array $r): array
+{
+    return [$r['ma'], $r['json']['loi'] ?? null];
+}
 
 /** Đăng nhập jar mới, trả [uid, csrf]. */
 function bw_gw_san_sang(string $jar): array
 {
     bw_auth_lam_sach();
     $uid = bw_auth_tao_user('daily01');
-    bw_http_xoa_cookie($jar);
-    bw_auth_dang_nhap($jar, 'daily01');
+    bw_gw_vao($jar, 'daily01');
     return [$uid, bw_auth_csrf($jar)];
 }
 
@@ -101,4 +113,57 @@ function test_p01_s13_chua_dang_nhap_tra_401(): void
     $csrf = bw_auth_meta_csrf(bw_http('GET', '/login.php', ['jar' => 'kdn'])['than']); // phiên khách có token hợp lệ
     $r = bw_ping('kdn', ['csrf' => $csrf]);
     assert_same([401, 'chua_dang_nhap'], [$r['ma'], $r['json']['loi'] ?? null]);
+}
+
+// ---- P02 S1.5: bản quyền trong gateway (HTTP thật) ----
+
+function test_p02_t31_het_han_goi_phan_tich_tra_402(): void
+{
+    bw_gp_lam_sach();
+    bw_gp_dai_ly('hethan31', bw_gp_ngay(-10));
+    bw_gw_vao('t31', 'hethan31');
+    $r = bw_ping('t31', ['tep' => '_ping_phan_tich.php']);
+    assert_same([402, 'het_han', 402, false], [...bw_gw_ma_loi($r), $r['json']['ma'] ?? null, $r['json']['ok'] ?? null]);
+    assert_true(str_contains($r['json']['thong_diep'] ?? '', 'hết hạn'));
+    assert_same([402, 'het_han'], bw_gw_ma_loi(bw_ping('t31', ['tep' => '_ping_ghi.php'])), 'Hết hạn: chế độ ghi cũng bị chặn');
+    assert_same(200, bw_ping('t31')['ma'], 'Hết hạn vẫn xem được dữ liệu (doc)');
+}
+
+function test_p02_t31_tam_khoa_va_chua_co_thue_bao_chan_ca_doc(): void
+{
+    bw_gp_lam_sach();
+    bw_gp_dai_ly('khoa31', bw_gp_ngay(30), 'unlimited', 1);
+    bw_gp_dai_ly('chuaco31', null);
+    bw_gw_vao('t31k', 'khoa31');
+    assert_same([402, 'tam_khoa'], bw_gw_ma_loi(bw_ping('t31k')), 'Tạm khoá: đăng nhập được nhưng không xem được');
+    bw_gw_vao('t31c', 'chuaco31');
+    assert_same([402, 'chua_co_thue_bao'], bw_gw_ma_loi(bw_ping('t31c')), 'Q-P02-2: chưa có thuê bao → 402');
+}
+
+function test_p02_t31_an_han_qua_kem_canh_bao_admin_khong_bi_chan(): void
+{
+    bw_gp_lam_sach();
+    bw_gp_dai_ly('anhan31', bw_gp_ngay(-1));
+    bw_auth_tao_user('admin31', ['role' => 'admin']);
+    bw_gw_vao('t31a', 'anhan31');
+    $r = bw_ping('t31a', ['tep' => '_ping_phan_tich.php']);
+    assert_same([200, 'an_han', true], [$r['ma'], $r['json']['trang_thai'] ?? null, $r['json']['canh_bao'] ?? null]);
+    bw_gw_vao('t31ad', 'admin31');
+    $r = bw_ping('t31ad', ['tep' => '_ping_phan_tich.php']);
+    assert_same([200, 'hieu_luc'], [$r['ma'], $r['json']['trang_thai'] ?? null], 'Admin không có thuê bao vẫn dùng được (gói nội bộ)');
+}
+
+function test_p02_t25_http_vuot_han_muc_tra_402(): void
+{
+    bw_gp_lam_sach();
+    bw_gp_goi('goi_3', ['so_tin_ngay_toi_da' => 3]);
+    $uid = bw_gp_dai_ly('hanmuc25', bw_gp_ngay(10), 'goi_3');
+    bw_gw_vao('t25h', 'hanmuc25');
+    $csrf = bw_auth_csrf('t25h');
+    $ma = [];
+    for ($i = 0; $i < 4; $i++) {
+        $ma[] = bw_gw_ma_loi(bw_ping('t25h', ['tep' => '_ping_ghi.php', 'csrf' => $csrf, 'json' => ['dem' => true]]));
+    }
+    assert_same([[200, null], [200, null], [200, null], [402, 'vuot_han_muc']], $ma);
+    assert_same(3, bw_gp_da_dung($uid, 'so_tin_doi_soat', bw_gp_ngay()));
 }

@@ -10,16 +10,29 @@ const BW_MK = 'MatKhau@2026x';
 
 function bw_auth_lam_sach(): void
 {
-    bw_test_don_bang('phien_dang_nhap', 'user_login_fails', 'gioi_han_tan_suat', 'users', 'admins');
+    bw_test_don_bang('phien_dang_nhap', 'user_login_fails', 'gioi_han_tan_suat', 'thue_bao_lich_su', 'su_dung_ngay', 'thue_bao', 'users', 'admins');
 }
 
-/** Tạo user (bcrypt cost 4 cho nhanh — vẫn là hash thật). $them: role, trang_thai, phai_doi_mat_khau. */
+/**
+ * Tạo user (bcrypt cost 4 cho nhanh — vẫn là hash thật). $them: role, trang_thai, phai_doi_mat_khau, mat_khau, thue_bao:
+ *   (mặc định, role user) gói `unlimited` còn 30 ngày — test không về bản quyền khỏi bị 402 (Q-P02-2) · false = không cấp ·
+ *   ['het_han' => 'Y-m-d', 'goi' => mã gói, 'tam_khoa' => 0|1] = thuê bao tuỳ chọn.
+ */
 function bw_auth_tao_user(string $ten, array $them = []): int
 {
+    $role = $them['role'] ?? 'user';
     db_test()->prepare('INSERT INTO users (username, password_hash, role, trang_thai, phai_doi_mat_khau, created_at) VALUES (?, ?, ?, ?, ?, NOW())')
         ->execute([$ten, password_hash($them['mat_khau'] ?? BW_MK, PASSWORD_BCRYPT, ['cost' => 4]),
-            $them['role'] ?? 'user', $them['trang_thai'] ?? 'active', $them['phai_doi_mat_khau'] ?? 0]);
-    return (int) db_test()->lastInsertId();
+            $role, $them['trang_thai'] ?? 'active', $them['phai_doi_mat_khau'] ?? 0]);
+    $id = (int) db_test()->lastInsertId();
+    $tb = $them['thue_bao'] ?? ($role === 'user');
+    if ($tb !== false) {
+        $tb = (is_array($tb) ? $tb : []) + ['het_han' => null, 'goi' => 'unlimited', 'tam_khoa' => 0];
+        db_test()->prepare('INSERT INTO thue_bao (user_id, goi_id, bat_dau, het_han, tam_khoa, cap_nhat_luc)
+            SELECT ?, id, CURDATE() - INTERVAL 60 DAY, COALESCE(?, CURDATE() + INTERVAL 30 DAY), ?, NOW() FROM goi_dich_vu WHERE ma = ?')
+            ->execute([$id, $tb['het_han'], $tb['tam_khoa'], $tb['goi']]);
+    }
+    return $id;
 }
 
 function bw_auth_meta_csrf(string $html): ?string
@@ -45,14 +58,14 @@ function bw_auth_csrf(string $jar): string
     return $tok;
 }
 
-/** POST /app/ajax/_ping.php qua gateway; $tuyChon như bw_http (+ csrf mặc định lấy tự động). */
+/** POST endpoint thử qua gateway ('tep', mặc định _ping.php); $tuyChon như bw_http (+ csrf mặc định lấy tự động). */
 function bw_ping(string $jar, array $tuyChon = []): array
 {
-    $tuyChon += ['json' => []];
+    $tuyChon += ['json' => [], 'tep' => '_ping.php'];
     if (!array_key_exists('csrf', $tuyChon)) {
         $tuyChon['csrf'] = bw_auth_csrf($jar);
     }
-    return bw_http('POST', '/app/ajax/_ping.php', ['jar' => $jar] + $tuyChon);
+    return bw_http('POST', '/app/ajax/' . $tuyChon['tep'], ['jar' => $jar] + $tuyChon);
 }
 
 function bw_auth_post_form(string $jar, string $duongDan, array $truong): array

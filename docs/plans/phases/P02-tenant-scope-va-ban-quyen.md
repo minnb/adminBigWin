@@ -91,4 +91,4 @@ Giao diện băng thuê bao & trang Gói/Thuê bao (P03); bảng nghiệp vụ t
 ## 9. Nhật ký
 | Ngày | Người | Nội dung | Kết quả |
 |---|---|---|---|
-| | | | |
+| 2026-11-03 | Claude (thực thi; ký theo uỷ quyền chủ dự án) | S1.4 TenantScope (bảng lọc sẵn `{tenant:ten_bang alias}`, `TenantRepo`, `SharedRepo`, quét mã, khung IDOR) + S1.5 bản quyền (`GiayPhepGuard`, `ThueBaoRepo`, cron, gateway 402). Hồi quy 138/138 ×3, `/healthcheck` OK, `/audit-api` AN TOÀN, M01/M02 đạt, migration P01+P02 đã chạy lên DB thật. Chi tiết + B01–B10: `TASK_LOG.md` mục P02 | ✅ **PASS** — mở khoá P03 |

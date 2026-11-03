@@ -58,13 +58,9 @@ function test_p01_t27_moi_endpoint_ajax_qua_gateway_o_cau_dau(): void
 function test_p01_s13_session_start_chi_trong_phien_bao_mat(): void
 {
     $choPhep = ['lib/security/PhienBaoMat.php', 'admin/_auth.php']; // admin/_auth.php: phiên admin cũ, bỏ ở P03
-    $tim = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(realpath(BW_WEBAPP_DIR), FilesystemIterator::SKIP_DOTS));
-    $goc = strlen(realpath(BW_WEBAPP_DIR)) + 1;
-    foreach ($tim as $f) {
-        $duong = str_replace('\\', '/', substr($f->getPathname(), $goc));
-        if ($f->getExtension() !== 'php' || str_starts_with($duong, 'tests/') || $duong === 'config.php' || in_array($duong, $choPhep, true)) {
-            continue;
+    foreach (bw_test_tep_php() as $duong => $tuyetDoi) {
+        if (!in_array($duong, $choPhep, true)) {
+            assert_true(!preg_match('/\bsession_start\s*\(/', file_get_contents($tuyetDoi)), "$duong gọi session_start() — phải dùng PhienBaoMat::batDau()");
         }
-        assert_true(!preg_match('/\bsession_start\s*\(/', file_get_contents($f->getPathname())), "$duong gọi session_start() — phải dùng PhienBaoMat::batDau()");
     }
 }

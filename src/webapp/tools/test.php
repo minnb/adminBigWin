@@ -35,6 +35,17 @@ function bw_test_bat_loi(callable $fn): ?string
     return null;
 }
 
+/** Như bw_test_bat_loi nhưng trả TÊN LỚP exception (để assert đúng loại lỗi, vd LoiCoLapTenant). */
+function bw_test_loi_lop(callable $fn): ?string
+{
+    try {
+        $fn();
+    } catch (Throwable $e) {
+        return $e::class;
+    }
+    return null;
+}
+
 /** So sánh nghiêm ngặt (===), lỗi thì in diff dòng-theo-dòng. */
 function assert_same(mixed $expected, mixed $actual, string $msg = ''): void
 {

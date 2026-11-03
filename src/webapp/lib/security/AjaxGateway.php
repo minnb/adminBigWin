@@ -4,12 +4,14 @@ declare(strict_types=1);
 // Cổng DUY NHẤT cho mọi app/ajax/*.php (kế hoạch tổng §5.3c). Câu lệnh đầu của endpoint:
 //   $ctx = ajax_khoi_dong('doc'|'ghi'|'phan_tich' [, ['get' => true, 'toi_da_byte' => n, 'cho_phep_phai_doi' => true]]);
 // Thứ tự: lỗi JSON → tiêu đề → phương thức → Content-Type/kích thước/JSON → phiên → người dùng → CSRF + nguồn
-// → (P02: bản quyền) → rate limit. Kiểm đăng nhập TRƯỚC CSRF: phiên hết hạn/đã đăng xuất trả 401 (cần đăng nhập
-// lại) thay vì 403 khó hiểu; đã đăng nhập mà sai token vẫn 403. Mã lỗi: 401 chưa đăng nhập · 403 CSRF/không quyền · 405 sai phương thức
-// · 422 dữ liệu sai · 429 quá tần suất · 500 lỗi hệ thống (chỉ trả mã tham chiếu, chi tiết ở ghi_loi()).
+// → bản quyền (GiayPhepGuard, P02) → rate limit. Kiểm đăng nhập TRƯỚC CSRF: phiên hết hạn/đã đăng xuất trả 401 (cần đăng nhập
+// lại) thay vì 403 khó hiểu; đã đăng nhập mà sai token vẫn 403. Mã lỗi: 401 chưa đăng nhập · 402 thuê bao không cho chế độ này /
+// vượt hạn mức · 403 CSRF/không quyền · 405 sai phương thức · 422 dữ liệu sai · 429 quá tần suất · 500 lỗi hệ thống (chỉ trả
+// mã tham chiếu, chi tiết ở ghi_loi()).
 
 require_once __DIR__ . '/../auth.php';
 require_once __DIR__ . '/GioiHanTanSuat.php';
+require_once __DIR__ . '/../bigwin/repo/ThueBaoRepo.php';
 
 const AJAX_BODY_TOI_DA = 65536;
 const AJAX_GIOI_HAN_PHUT = 120;
@@ -27,7 +29,18 @@ function ajax_loi(int $ma, string $loi, string $thongDiep, array $them = []): ne
     exit;
 }
 
-/** Trả ['user' => người dùng đã xác thực, 'du_lieu' => body JSON đã giải mã]; mọi vi phạm dừng request bằng JSON lỗi. */
+/** Đếm 1 lần sử dụng có hạn mức của gói (vd 'so_tin_doi_soat'); hết hạn mức → 402. Gọi trong transaction của thao tác ghi. */
+function ajax_dem_han_muc(array $ctx, string $cot): void
+{
+    if (!$ctx['thue_bao_repo']->tangDem($cot, $ctx['hom_nay'])) {
+        ajax_loi(402, 'vuot_han_muc', 'Đã dùng hết hạn mức hôm nay của gói — liên hệ quản trị để nâng gói.');
+    }
+}
+
+/**
+ * Trả ['user' => người dùng đã xác thực, 'tenant' => TenantContext, 'giay_phep' => kết quả GiayPhepGuard::kiemTra(),
+ * 'hom_nay', 'thue_bao_repo', 'du_lieu' => body JSON đã giải mã]; mọi vi phạm dừng request bằng JSON lỗi.
+ */
 function ajax_khoi_dong(string $cheDo, array $tuyChon = []): array
 {
     set_exception_handler(static function (Throwable $e): void {
@@ -71,9 +84,16 @@ function ajax_khoi_dong(string $cheDo, array $tuyChon = []): array
     if ($user['phai_doi_mat_khau'] === 1 && empty($tuyChon['cho_phep_phai_doi'])) {
         ajax_loi(403, 'phai_doi_mat_khau', 'Bạn cần đổi mật khẩu trước khi dùng hệ thống.');
     }
-    // P02 (S1.5): GiayPhepGuard::kiemTra(TenantContext, $cheDo) — tạm cho qua mọi chế độ.
+    $tenant = TenantContext::tuPhien($user);
+    $thueBaoRepo = new ThueBaoRepo($tenant);
+    $homNay = GiayPhepGuard::homNay();
+    // Admin dùng gói nội bộ — GiayPhepGuard bỏ qua dòng thuê bao nên không cần đọc
+    $giayPhep = GiayPhepGuard::kiemTra($tenant->vaiTro, $tenant->laAdmin() ? null : $thueBaoRepo->cuaToi(), $cheDo, $homNay);
+    if (!$giayPhep['cho_phep']) {
+        ajax_loi(402, $giayPhep['trang_thai'], $giayPhep['thong_diep']);
+    }
     if (!GioiHanTanSuat::cho('ajax:' . $user['id'], AJAX_GIOI_HAN_PHUT, 60)) {
         ajax_loi(429, 'qua_tan_suat', 'Thao tác quá nhanh — thử lại sau ít giây.');
     }
-    return ['user' => $user, 'du_lieu' => $duLieu];
+    return ['user' => $user, 'tenant' => $tenant, 'giay_phep' => $giayPhep, 'hom_nay' => $homNay, 'thue_bao_repo' => $thueBaoRepo, 'du_lieu' => $duLieu];
 }

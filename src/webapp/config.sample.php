@@ -41,6 +41,11 @@ return [
     // true = CSP chặt (không unsafe-inline/eval). Chỉ bật khi đã dùng CSS Tailwind build sẵn + Alpine CSP build (S9.3).
     'csp_chat' => false,
 
+    // Môi trường: 'production' | 'test'. Production KHÔNG BAO GIỜ đặt 'test'.
+    'moi_truong' => 'production',
+    // Ngày giả lập 'YYYY-MM-DD' để thử trạng thái thuê bao (P02-M02). CHỈ có tác dụng khi moi_truong = 'test'.
+    'ngay_gia_lap' => null,
+
     // true = trang lỗi hiện nguyên văn lỗi PHP/MySQL cả khi CHƯA đăng nhập (trang đăng nhập là công khai).
     // Chỉ bật tạm lúc cài đặt, xong TẮT. Admin đã đăng nhập luôn thấy chi tiết.
     'debug' => false,
