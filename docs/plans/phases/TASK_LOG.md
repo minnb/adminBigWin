@@ -107,6 +107,8 @@ Hồi quy nền trước khi làm (2026-11-03 20:11): `BIGWIN_CONFIG_FILE=<cấu
 
 **Kiểm lại lần 2 (2026-11-03, theo thông báo "Tag `port-baseline` đã sẵn sàng"):** `git fetch --tags` (exit 0) → `git tag -l port-baseline` vẫn rỗng; `git describe --exact-match HEAD` → `fatal: No names found`; `git ls-remote --tags origin` → **remote không có tag nào**; HEAD vẫn `3c5fab3`; `git status --short` vẫn **80 mục** (`core/`+`utils/` 11 tệp chưa commit). Không có bản sao BigWIN nào khác trên máy (`D:/Projects/*`, Desktop, Documents). → Giữ **BỊ CHẶN**; không đánh ✔ tiền đề, không chạy `export_golden.py` (xuất từ code treo = S0.4 không đạt — R1).
 
+**Kiểm lại lần 3 (2026-11-03, sau thông báo "đã commit và push lên git"):** `git fetch --tags origin` → không có gì mới. Nhánh hiện tại `dev` = `origin/dev` = `3c5fab3` (2026-10-08, lệch 0/0); `origin/main` = `89215b6` (2026-04-09); remote vẫn **không có tag**; working tree vẫn 80 mục treo (`core/`+`utils/` 11 tệp). → Commit / push được thông báo **không có trên `origin` (github.com/minnb/bigwin)** → vẫn **BỊ CHẶN**.
+
 **Kết luận Bước ①: BỊ CHẶN** — thông báo "đã dọn code treo và đánh tag" không khớp hiện trạng repo BigWIN trên máy này lẫn trên remote. Theo EXECUTION_PIPELINE §1.1 ("Có ✘ → dừng, ghi BỊ CHẶN + lý do, không gõ code") và bẫy P00 ("xuất fixture hoặc gắn tag khi repo còn code treo = S0.4 không đạt", R1): **không lập Action Plan chi tiết, không chạy exporter** cho tới khi gỡ chặn.
 
 **Điều kiện gỡ chặn (chủ repo BigWIN):**
