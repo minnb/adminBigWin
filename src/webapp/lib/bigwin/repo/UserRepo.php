@@ -7,16 +7,18 @@ declare(strict_types=1);
 //     transaction → 2 admin thao tác cùng lúc không vượt giới hạn.
 //   • Luôn còn ≥ 1 admin hoạt động; không tự khoá / tự hạ quyền / tự đặt lại mật khẩu (dùng Đổi mật khẩu).
 //   • Mật khẩu tạm 12 ký tự ngẫu nhiên, trả về MỘT lần, không lưu / ghi log bản rõ; luôn buộc đổi lần đầu (QĐ6).
-//   • Tài khoản admin ghi kèm bảng `admins` (QĐ3 — cửa sổ rollback của admin/_auth.php cũ, bỏ sau P03).
+//   • Tài khoản admin đồng bộ bảng `admins` qua dong_bo_admins() (QĐ3 — cửa sổ rollback admin/_auth.php cũ, bỏ sau P03):
+//     admin hoạt động có mặt với mật khẩu mới nhất; bị khoá / hạ quyền thì gỡ.
 
 require_once __DIR__ . '/../../auth.php';
 require_once __DIR__ . '/ThueBaoRepo.php';
+require_once __DIR__ . '/GiayPhepNenTangRepo.php';
 require_once __DIR__ . '/LoiQuanTri.php';
 
 final class UserRepo
 {
     public const DO_DAI_MAT_KHAU_TAM = 12;
-    public const VAI_TRO = ['user', 'admin'];
+    private const VAI_TRO = ['user', 'admin'];
     /** Chữ + số, bỏ 0 O 1 l I (đọc / gõ lại không nhầm khi admin chuyển cho đại lý). */
     private const KY_TU_MAT_KHAU = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
 
@@ -27,13 +29,15 @@ final class UserRepo
         }
     }
 
-    /** Mọi tài khoản kèm thuê bao (nếu có) — cho bảng quản trị. */
-    public function danhSach(): array
+    /** Tài khoản (mọi vai trò, hoặc chỉ $vaiTro) kèm thuê bao nếu có — cho bảng quản trị. */
+    public function danhSach(?string $vaiTro = null): array
     {
-        return db()->query("SELECT u.id, u.username, u.role, u.trang_thai, u.ten_hien_thi, u.phai_doi_mat_khau, u.created_at,
+        $st = db()->prepare("SELECT u.id, u.username, u.role, u.trang_thai, u.ten_hien_thi, u.phai_doi_mat_khau, u.created_at,
                 u.last_login_at, g.ma AS goi_ma, tb.het_han, tb.tam_khoa
             FROM users u LEFT JOIN thue_bao tb ON tb.user_id = u.id LEFT JOIN goi_dich_vu g ON g.id = tb.goi_id
-            ORDER BY u.role = 'admin' DESC, u.username")->fetchAll();
+            WHERE (? IS NULL OR u.role = ?) ORDER BY u.role = 'admin' DESC, u.username");
+        $st->execute([$vaiTro, $vaiTro]);
+        return $st->fetchAll();
     }
 
     /**
@@ -50,23 +54,20 @@ final class UserRepo
         if ($vaiTro === 'user' && ($maGoi === null || $hetHan === null)) {
             throw new InvalidArgumentException('Tài khoản đại lý cần chọn gói và ngày hết hạn thuê bao.');
         }
+        $this->batBuocChuaCo($username); // trước khi băm (~0,8 s) — kiểm lại trong transaction
         $matKhau = self::sinhMatKhau();
         $hash = bam_mat_khau($matKhau);
         $id = trong_giao_dich(function (PDO $pdo) use ($username, $vaiTro, $tenHienThi, $maGoi, $hetHan, $hash): int {
             if ($vaiTro === 'user') {
                 $this->batBuocConGiayPhep();
             }
-            $st = $pdo->prepare('SELECT 1 FROM users WHERE username = ?');
-            $st->execute([$username]);
-            if ($st->fetchColumn() !== false) {
-                throw new LoiQuanTri("Tên đăng nhập '$username' đã tồn tại.");
-            }
+            $this->batBuocChuaCo($username);
             $pdo->prepare("INSERT INTO users (username, password_hash, role, trang_thai, ten_hien_thi, phai_doi_mat_khau, created_at, created_by)
                 VALUES (?, ?, ?, 'active', ?, 1, NOW(), ?)")
                 ->execute([$username, $hash, $vaiTro, mb_substr(trim($tenHienThi), 0, 100, 'UTF-8'), $this->boi()]);
             $id = (int) $pdo->lastInsertId();
             if ($vaiTro === 'admin') {
-                $this->ghiKepAdmins($username, $hash);
+                dong_bo_admins($username, $hash);
             } else {
                 (new ThueBaoRepo($this->ctx))->tao($id, (string) $maGoi, GiayPhepGuard::homNay(), $hetHan);
             }
@@ -85,6 +86,9 @@ final class UserRepo
                 $this->conAdminKhac($id);
             }
             db()->prepare("UPDATE users SET trang_thai = 'locked' WHERE id = ?")->execute([$id]);
+            if ($u['role'] === 'admin') {
+                dong_bo_admins($u['username'], null);
+            }
         });
         PhienBaoMat::thuHoiTatCa($id);
     }
@@ -100,6 +104,9 @@ final class UserRepo
                 $this->batBuocConGiayPhep();
             }
             db()->prepare("UPDATE users SET trang_thai = 'active' WHERE id = ?")->execute([$id]);
+            if ($u['role'] === 'admin') {
+                dong_bo_admins($u['username'], $u['password_hash']);
+            }
         });
     }
 
@@ -112,8 +119,8 @@ final class UserRepo
             $u = $this->docKhoa($id);
             $this->khongPhaiMinh($id, 'đặt lại mật khẩu (dùng "Đổi mật khẩu")');
             $pdo->prepare('UPDATE users SET password_hash = ?, phai_doi_mat_khau = 1 WHERE id = ?')->execute([$hash, $id]);
-            if ($u['role'] === 'admin') {
-                $this->ghiKepAdmins($u['username'], $hash);
+            if ($u['role'] === 'admin' && $u['trang_thai'] === 'active') {
+                dong_bo_admins($u['username'], $hash);
             }
         });
         PhienBaoMat::thuHoiTatCa($id);
@@ -141,9 +148,7 @@ final class UserRepo
                 $this->batBuocConGiayPhep();
             }
             db()->prepare('UPDATE users SET role = ? WHERE id = ?')->execute([$vaiTro, $id]);
-            if ($vaiTro === 'admin') {
-                $this->ghiKepAdmins($u['username'], $u['password_hash']);
-            }
+            dong_bo_admins($u['username'], $vaiTro === 'admin' && $u['trang_thai'] === 'active' ? $u['password_hash'] : null);
         });
         PhienBaoMat::thuHoiTatCa($id); // quyền đổi → đăng nhập lại để menu / quyền mới có hiệu lực
     }
@@ -195,21 +200,19 @@ final class UserRepo
         }
     }
 
-    /** Khoá giấy phép nền tảng rồi kiểm còn chỗ cho thêm 1 đại lý hoạt động. Gọi TRONG transaction. */
+    /** Còn chỗ trong giấy phép nền tảng cho thêm 1 đại lý hoạt động (khoá dòng giấy phép). Gọi TRONG transaction. */
     private function batBuocConGiayPhep(): void
     {
-        $toiDa = db()->query('SELECT so_dai_ly_toi_da FROM giay_phep_he_thong WHERE id = 1 FOR UPDATE')->fetchColumn();
         $thueBao = new ThueBaoRepo($this->ctx);
-        if (!$thueBao->coTheThemDaiLy()) {
-            $dung = $thueBao->soDaiLyHoatDong();
-            throw new LoiQuanTri("Đã đạt giới hạn giấy phép nền tảng ($dung/" . ($toiDa === false ? 0 : (int) $toiDa)
-                . ' đại lý đang hoạt động) — liên hệ nhà cung cấp để nâng giấy phép.');
-        }
+        (new GiayPhepNenTangRepo($this->ctx))->batBuocConCho(static fn (): int => $thueBao->soDaiLyHoatDong());
     }
 
-    private function ghiKepAdmins(string $username, string $hash): void
+    private function batBuocChuaCo(string $username): void
     {
-        db()->prepare('INSERT INTO admins (username, password_hash, created_at) VALUES (?, ?, NOW())
-            ON DUPLICATE KEY UPDATE password_hash = VALUES(password_hash)')->execute([$username, $hash]);
+        $st = db()->prepare('SELECT 1 FROM users WHERE username = ?');
+        $st->execute([$username]);
+        if ($st->fetchColumn() !== false) {
+            throw new LoiQuanTri("Tên đăng nhập '$username' đã tồn tại.");
+        }
     }
 }

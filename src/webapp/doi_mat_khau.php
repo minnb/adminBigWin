@@ -10,7 +10,7 @@ $u = require_user(true);
 $loi = '';
 if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     $truong = static fn (string $k): string => is_string($_POST[$k] ?? null) ? $_POST[$k] : '';
-    if (!Csrf::nguonHopLe($_SERVER) || !Csrf::hopLe($truong('csrf'))) {
+    if (!form_hop_le()) {
         http_response_code(403);
         $loi = 'Phiên làm việc đã hết hạn — vui lòng thử lại.';
     } else {
@@ -27,7 +27,7 @@ $o_mk = static fn (string $ten, string $nhan, string $ac): string => '<label cla
 trang_don_gian('Đổi mật khẩu',
     ($u['phai_doi_mat_khau'] === 1 ? '<p class="mb-3 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">Lần đăng nhập đầu: bạn cần đặt mật khẩu mới để tiếp tục.</p>' : '')
     . ($loi !== '' ? '<p class="mb-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">' . h($loi) . '</p>' : '')
-    . '<form method="post" class="space-y-3"><input type="hidden" name="csrf" value="' . h(Csrf::token()) . '">'
+    . '<form method="post" class="space-y-3">' . truong_csrf()
     . $o_mk('mat_khau_cu', 'Mật khẩu hiện tại', 'current-password')
     . $o_mk('mat_khau_moi', 'Mật khẩu mới (ít nhất ' . MAT_KHAU_TOI_THIEU . ' ký tự)', 'new-password')
     . $o_mk('xac_nhan', 'Nhập lại mật khẩu mới', 'new-password')

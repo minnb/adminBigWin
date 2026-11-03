@@ -19,10 +19,11 @@ function bw_qt_vao(): int
     return $ad;
 }
 
-/** POST form trang quản trị với CSRF của phiên admin. */
+/** POST form trang quản trị với CSRF của phiên admin; theo chuyển hướng PRG (303) → trả trang hiển thị kết quả. */
 function bw_qt_post(string $trang, array $truong, string $jar = 'qt'): array
 {
-    return bw_auth_post_form($jar, $trang, ['csrf' => bw_auth_csrf($jar)] + $truong);
+    $r = bw_auth_post_form($jar, $trang, ['csrf' => bw_auth_csrf($jar)] + $truong);
+    return $r['ma'] === 303 ? bw_http('GET', $trang, ['jar' => $jar]) : $r;
 }
 
 function test_p03_t05_user_thuong_va_khach_khong_vao_duoc_quan_tri(): void
@@ -87,6 +88,18 @@ function test_p03_t12_trang_bao_ro_khi_dat_gioi_han_giay_phep(): void
     $r = bw_qt_post('/admin/users.php', ['hanh_dong' => 'tao', 'username' => 'dl12b', 'vai_tro' => 'user', 'goi' => 'unlimited', 'het_han' => bw_gp_ngay(30)]);
     assert_true(str_contains($r['than'], 'giấy phép nền tảng (1/1'), 'Thông báo rõ giới hạn, nhận: ' . mb_substr(strip_tags($r['than']), 0, 300));
     assert_same(0, (int) db_test()->query("SELECT COUNT(*) FROM users WHERE username = 'dl12b'")->fetchColumn());
+}
+
+function test_p03_s17_thao_tac_khong_bi_mat_dung_prg_thong_bao_mot_lan(): void
+{
+    bw_qt_vao();
+    $x = bw_auth_tao_user('dl_prg');
+    $r = bw_auth_post_form('qt', '/admin/users.php', ['csrf' => bw_auth_csrf('qt'), 'hanh_dong' => 'khoa', 'id' => (string) $x]);
+    assert_true($r['ma'] === 303 && str_ends_with($r['header']['location'] ?? '', 'admin/users.php'), 'Thao tác không có mật khẩu tạm → 303 về trang (PRG)');
+    assert_true(str_contains(bw_http('GET', '/admin/users.php', ['jar' => 'qt'])['than'], 'Đã khoá tài khoản'), 'Thông báo hiện ở lần tải kế');
+    assert_true(!str_contains(bw_http('GET', '/admin/users.php', ['jar' => 'qt'])['than'], 'Đã khoá tài khoản'), 'Thông báo chỉ hiện 1 lần');
+    $r = bw_auth_post_form('qt', '/admin/users.php', ['csrf' => bw_auth_csrf('qt'), 'hanh_dong' => 'dat_lai_mat_khau', 'id' => (string) $x]);
+    assert_true($r['ma'] === 200 && str_contains($r['than'], 'data-mat-khau-tam'), 'QĐ6: thao tác có mật khẩu tạm KHÔNG chuyển hướng');
 }
 
 function test_p03_t15_dang_xuat_moi_noi_request_ke_cua_dai_ly_ve_login(): void

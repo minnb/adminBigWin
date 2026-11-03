@@ -6,9 +6,4 @@ declare(strict_types=1);
 
 require __DIR__ . '/../lib/auth.php';
 
-PhienBaoMat::batDau(); // token CSRF nằm trong phiên
-$token = $_POST['csrf'] ?? null;
-if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && Csrf::nguonHopLe($_SERVER) && Csrf::hopLe(is_string($token) ? $token : null)) {
-    dang_xuat();
-}
-chuyen_huong('login.php');
+dang_xuat_tu_form('login.php');

@@ -5,6 +5,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/_db.php';
 require_once __DIR__ . '/_http.php';
+require_once __DIR__ . '/../lib/auth.php';
 
 const BW_MK = 'MatKhau@2026x';
 
@@ -14,7 +15,7 @@ function bw_auth_lam_sach(): void
 }
 
 /**
- * Tạo user (bcrypt cost 4 cho nhanh — vẫn là hash thật). $them: role, trang_thai, phai_doi_mat_khau, mat_khau, thue_bao:
+ * Tạo user (băm thật qua bam_mat_khau() — tham số nhẹ khi moi_truong = test). $them: role, trang_thai, phai_doi_mat_khau, mat_khau, thue_bao:
  *   (mặc định, role user) gói `unlimited` còn 30 ngày — test không về bản quyền khỏi bị 402 (Q-P02-2) · false = không cấp ·
  *   ['het_han' => 'Y-m-d', 'goi' => mã gói, 'tam_khoa' => 0|1] = thuê bao tuỳ chọn.
  */
@@ -22,7 +23,7 @@ function bw_auth_tao_user(string $ten, array $them = []): int
 {
     $role = $them['role'] ?? 'user';
     db_test()->prepare('INSERT INTO users (username, password_hash, role, trang_thai, phai_doi_mat_khau, created_at) VALUES (?, ?, ?, ?, ?, NOW())')
-        ->execute([$ten, password_hash($them['mat_khau'] ?? BW_MK, PASSWORD_BCRYPT, ['cost' => 4]),
+        ->execute([$ten, bam_mat_khau($them['mat_khau'] ?? BW_MK), // tham số băm nhẹ khi moi_truong = test — không rehash khi đăng nhập
             $role, $them['trang_thai'] ?? 'active', $them['phai_doi_mat_khau'] ?? 0]);
     $id = (int) db_test()->lastInsertId();
     $tb = $them['thue_bao'] ?? ($role === 'user');

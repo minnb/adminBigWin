@@ -35,7 +35,7 @@ $kq = quan_tri_xu_ly_post(static function (string $hanhDong) use ($repo): array 
     }
 });
 
-$goi = array_values(array_filter((new GoiDichVuRepo($ctx['tenant']))->danhSach(), static fn (array $g): bool => (int) $g['dang_ban'] === 1));
+$goi = (new GoiDichVuRepo($ctx['tenant']))->dangBan();
 $tai = $repo->danhSach();
 khung_ve($ctx, 'Quản trị — Tài khoản', static function (array $ctx) use ($kq, $goi, $tai): void {
     quan_tri_dau('users', $kq);
@@ -51,14 +51,14 @@ khung_ve($ctx, 'Quản trị — Tài khoản', static function (array $ctx) use
 <section class="card p-4 mb-4">
   <div class="font-extrabold text-lg text-pos-title mb-3"><i class="fa-solid fa-user-plus mr-2"></i>Tạo tài khoản</div>
   <form method="post" class="grid gap-3 md:grid-cols-3 items-end" x-data="{ vaiTro: 'user' }">
-    <?= o_csrf() ?><input type="hidden" name="hanh_dong" value="tao">
+    <?= truong_csrf() ?><input type="hidden" name="hanh_dong" value="tao">
     <label class="text-sm font-semibold">Tên đăng nhập<input class="ctl mt-1 mono" name="username" required pattern="[A-Za-z0-9_.\-]{3,50}" autocomplete="off"></label>
     <label class="text-sm font-semibold">Tên hiển thị<input class="ctl mt-1" name="ten_hien_thi" maxlength="100"></label>
     <label class="text-sm font-semibold">Quyền
       <select class="ctl mt-1" name="vai_tro" x-model="vaiTro"><option value="user">Đại lý (user)</option><option value="admin">Quản trị (admin)</option></select></label>
     <label class="text-sm font-semibold" x-show="vaiTro === 'user'">Gói
       <select class="ctl mt-1" name="goi"><?php foreach ($goi as $g): ?><option value="<?= h($g['ma']) ?>"><?= h($g['ten']) ?> (<?= h($g['ma']) ?>)</option><?php endforeach; ?></select></label>
-    <label class="text-sm font-semibold" x-show="vaiTro === 'user'">Hết hạn thuê bao<input type="date" class="ctl mt-1 mono" name="het_han" value="<?= h(GiayPhepGuard::homNay()->modify('+30 day')->format('Y-m-d')) ?>"></label>
+    <label class="text-sm font-semibold" x-show="vaiTro === 'user'">Hết hạn thuê bao<input type="date" class="ctl mt-1 mono" name="het_han" value="<?= h(het_han_mac_dinh()) ?>"></label>
     <div><button class="btn btn-primary"><i class="fa-solid fa-plus"></i>Tạo &amp; sinh mật khẩu tạm</button></div>
   </form>
 </section>
@@ -80,9 +80,7 @@ khung_ve($ctx, 'Quản trị — Tài khoản', static function (array $ctx) use
           <?= $t['trang_thai'] === 'active' ? nut_form('khoa', $id, 'Khoá', 'btn-ghost', 'Khoá tài khoản ' . $t['username'] . '?') : nut_form('mo_khoa', $id, 'Mở khoá') ?>
           <?= nut_form('dat_lai_mat_khau', $id, 'Đặt lại MK', 'btn-ghost', 'Đặt lại mật khẩu ' . $t['username'] . '?') ?>
           <?= nut_form('dang_xuat_moi_noi', $id, 'Đăng xuất mọi nơi') ?>
-          <form method="post" class="inline"><?= o_csrf() ?><input type="hidden" name="hanh_dong" value="doi_vai_tro"><input type="hidden" name="id" value="<?= $id ?>">
-            <input type="hidden" name="vai_tro" value="<?= $t['role'] === 'admin' ? 'user' : 'admin' ?>">
-            <button class="btn btn-ghost !px-2.5 !py-1 !text-[13px]"><?= $t['role'] === 'admin' ? '→ đại lý' : '→ admin' ?></button></form>
+          <?= $t['role'] === 'admin' ? nut_form('doi_vai_tro', $id, '→ đại lý', an: ['vai_tro' => 'user']) : nut_form('doi_vai_tro', $id, '→ admin', an: ['vai_tro' => 'admin']) ?>
           <?php endif; ?>
         </td>
       </tr>

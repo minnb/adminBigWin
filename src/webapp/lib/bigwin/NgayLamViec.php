@@ -52,6 +52,6 @@ final class NgayLamViec
     /** Ngày làm việc mặc định lúc này (giờ thật, ngày lịch có thể là ngày giả lập). */
     public static function hienTai(): DateTimeImmutable
     {
-        return self::macDinh(self::homNayLich()->setTime(...array_map('intval', explode(':', now_vn()->format('H:i:s')))));
+        return self::macDinh(self::homNayLich()->modify(now_vn()->format('H:i:s')));
     }
 }

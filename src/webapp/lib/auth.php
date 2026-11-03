@@ -16,9 +16,20 @@ const THONG_BAO_SAI_DANG_NHAP = 'Sai tên đăng nhập hoặc mật khẩu.';
 /** Hash argon2id của một chuỗi ngẫu nhiên đã bỏ — verify với nó khi username không tồn tại (cùng chi phí với user thật). */
 const HASH_GIA = '$argon2id$v=19$m=65536,t=4,p=1$ZE5ZZnoxOGlzaUp1Qm44Mw$hAZmyQARGRJ7FWgQLYAbkH2fv4cNHvqJaOEyD1qD/+0';
 
+/**
+ * [thuật toán, tuỳ chọn] băm mật khẩu — nguồn DUY NHẤT cho băm + kiểm rehash. moi_truong = 'test': argon2id tham số tối
+ * thiểu để bộ test không tốn ~0,8 s / lần băm (production KHÔNG BAO GIỜ đặt 'test' — P02 rủi ro ngay_gia_lap, P13 kiểm).
+ */
+function thuat_toan_bam(): array
+{
+    $thuatToan = defined('PASSWORD_ARGON2ID') ? PASSWORD_ARGON2ID : PASSWORD_BCRYPT;
+    $nhe = cfg('moi_truong') === 'test' && $thuatToan === PASSWORD_ARGON2ID;
+    return [$thuatToan, $nhe ? ['memory_cost' => 1024, 'time_cost' => 1, 'threads' => 1] : []];
+}
+
 function bam_mat_khau(string $matKhau): string
 {
-    return password_hash($matKhau, defined('PASSWORD_ARGON2ID') ? PASSWORD_ARGON2ID : PASSWORD_BCRYPT);
+    return password_hash($matKhau, ...thuat_toan_bam());
 }
 
 /**
@@ -27,10 +38,13 @@ function bam_mat_khau(string $matKhau): string
  */
 function url_web(string $tep): string
 {
-    $goc = realpath(__DIR__ . '/..');
-    $script = realpath((string) ($_SERVER['SCRIPT_FILENAME'] ?? '')) ?: $goc . '/index.php';
-    $doSau = substr_count(str_replace('\\', '/', substr(dirname($script), strlen($goc))), '/');
-    return str_repeat('../', $doSau) . ltrim($tep, '/');
+    static $tienTo = null; // script cố định trong một request → tính 1 lần (khung app gọi hàng chục lần / trang)
+    if ($tienTo === null) {
+        $goc = realpath(__DIR__ . '/..');
+        $script = realpath((string) ($_SERVER['SCRIPT_FILENAME'] ?? '')) ?: $goc . '/index.php';
+        $tienTo = str_repeat('../', substr_count(str_replace('\\', '/', substr(dirname($script), strlen($goc))), '/'));
+    }
+    return $tienTo . ltrim($tep, '/');
 }
 
 function chuyen_huong(string $tep): never
@@ -114,7 +128,7 @@ function dang_nhap(string $username, string $matKhau): array
 
     $uid = (int) $u['id'];
     $pdo->prepare('DELETE FROM user_login_fails WHERE username = ? OR ip = ?')->execute([$username, $ip]);
-    if (password_needs_rehash($u['password_hash'], defined('PASSWORD_ARGON2ID') ? PASSWORD_ARGON2ID : PASSWORD_BCRYPT)) {
+    if (password_needs_rehash($u['password_hash'], ...thuat_toan_bam())) {
         $pdo->prepare('UPDATE users SET password_hash = ? WHERE id = ?')->execute([bam_mat_khau($matKhau), $uid]);
     }
     $pdo->prepare('UPDATE users SET last_login_at = NOW() WHERE id = ?')->execute([$uid]);
@@ -151,7 +165,7 @@ function doi_mat_khau(array $user, string $cu, string $moi, string $xacNhan): ar
     trong_giao_dich(static function (PDO $pdo) use ($user, $hash): void {
         $pdo->prepare('UPDATE users SET password_hash = ?, phai_doi_mat_khau = 0 WHERE id = ?')->execute([$hash, $user['id']]);
         if ($user['role'] === 'admin') {
-            $pdo->prepare('UPDATE admins SET password_hash = ? WHERE username = ?')->execute([$hash, $user['username']]);
+            dong_bo_admins($user['username'], $hash);
         }
     });
     PhienBaoMat::thuHoiTatCa($user['id'], true);
@@ -161,6 +175,49 @@ function doi_mat_khau(array $user, string $cu, string $moi, string $xacNhan): ar
 function dang_xuat(): void
 {
     PhienBaoMat::huy();
+}
+
+/** Form POST của request hiện tại hợp lệ (nguồn + token `csrf`) — điểm kiểm DUY NHẤT cho form HTML; tự mở phiên. */
+function form_hop_le(): bool
+{
+    PhienBaoMat::batDau(); // token nằm trong phiên (P03-B06)
+    return Csrf::formHopLe($_SERVER, $_POST['csrf'] ?? null);
+}
+
+/** Ô ẩn CSRF cho form POST. */
+function truong_csrf(): string
+{
+    return '<input type="hidden" name="csrf" value="' . h(Csrf::token()) . '">';
+}
+
+/** Xử lý form đăng xuất (POST + CSRF + nguồn → thu hồi phiên → trang đăng nhập); không hợp lệ → $tepKhac. */
+function dang_xuat_tu_form(string $tepKhac): never
+{
+    if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && form_hop_le()) {
+        dang_xuat();
+        chuyen_huong('login.php');
+    }
+    chuyen_huong($tepKhac);
+}
+
+/** Tên hiển thị của người dùng (trống → username). */
+function ten_hien(array $u): string
+{
+    return $u['ten_hien_thi'] !== '' ? $u['ten_hien_thi'] : $u['username'];
+}
+
+/**
+ * Ghi kép bảng `admins` cho cửa sổ rollback admin/_auth.php cũ (P03 QĐ3 — bỏ sau P03): admin còn hiệu lực ($hash khác
+ * null) → upsert mật khẩu mới nhất; bị khoá / hạ quyền ($hash null) → gỡ khỏi `admins` để đăng nhập cũ cũng mất quyền.
+ */
+function dong_bo_admins(string $username, ?string $hash): void
+{
+    if ($hash === null) {
+        db()->prepare('DELETE FROM admins WHERE username = ?')->execute([$username]);
+        return;
+    }
+    db()->prepare('INSERT INTO admins (username, password_hash, created_at) VALUES (?, ?, NOW())
+        ON DUPLICATE KEY UPDATE password_hash = VALUES(password_hash)')->execute([$username, $hash]);
 }
 
 /** Trang HTML tối giản dùng chung cho login/đổi mật khẩu (P03 thay bằng layout app). */

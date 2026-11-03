@@ -19,6 +19,12 @@ final class GoiDichVuRepo extends SharedRepo
         return $this->doc('1=1', [], 'ORDER BY dang_ban DESC, ma');
     }
 
+    /** Gói đang bán (chọn khi tạo / cấp / đổi gói). */
+    public function dangBan(): array
+    {
+        return $this->doc('dang_ban = 1', [], 'ORDER BY ma');
+    }
+
     /** $goi: ma, ten, gia_thang, so_khach_toi_da, so_tin_ngay_toi_da, so_ngay_tra_cuu_lich_su, so_ngay_an_han, cho_phep_telegram. */
     public function themGoi(array $goi): int
     {
@@ -67,9 +73,10 @@ final class GoiDichVuRepo extends SharedRepo
         if ($v === null || $v === '') {
             return null;
         }
-        if (is_int($v) ? $v < 0 : !is_string($v) || preg_match('/^\d{1,9}$/', trim($v)) !== 1) {
+        $s = is_int($v) ? (string) $v : (is_string($v) ? trim($v) : '');
+        if (preg_match('/^\d{1,9}$/', $s) !== 1) {
             throw new InvalidArgumentException("$nhan phải là số nguyên không âm.");
         }
-        return (int) $v;
+        return (int) $s;
     }
 }

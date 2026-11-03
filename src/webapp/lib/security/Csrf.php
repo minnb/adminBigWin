@@ -26,6 +26,12 @@ final class Csrf
         return is_string($tok) && $tok !== '' && is_string($gui) && hash_equals($tok, $gui);
     }
 
+    /** Form POST hợp lệ: cùng nguồn + token (field `csrf`, mọi kiểu khác chuỗi = sai). Phiên phải đang mở. */
+    public static function formHopLe(array $server, mixed $token): bool
+    {
+        return self::nguonHopLe($server) && self::hopLe(is_string($token) ? $token : null);
+    }
+
     /** Request đến từ chính trang này: Origin (không có thì Referer) cùng host:port với Host; Sec-Fetch-Site nếu có phải same-origin/none. */
     public static function nguonHopLe(array $server): bool
     {

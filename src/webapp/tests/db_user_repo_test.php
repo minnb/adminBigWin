@@ -149,6 +149,21 @@ function test_p03_s17_khoa_va_dat_lai_mat_khau_thu_hoi_phien(): void
     assert_same(['locked', 0], [bw_ur_dong($x)['trang_thai'], bw_ur_phien_con($x)]);
 }
 
+function test_p03_s17_khoa_hoac_ha_quyen_admin_go_khoi_bang_admins(): void
+{
+    [, $repo] = bw_ur_admin();
+    $coTrongAdmins = static fn (string $ten): bool => (int) db_test()->query("SELECT COUNT(*) FROM admins WHERE username = '$ten'")->fetchColumn() === 1;
+    $ad2 = $repo->tao('quantri2', 'admin')['id'];
+    $repo->khoa($ad2);
+    assert_true(!$coTrongAdmins('quantri2'), 'QĐ3: admin bị khoá không còn đăng nhập được qua admin/_auth.php cũ khi rollback');
+    $repo->moKhoa($ad2);
+    assert_true($coTrongAdmins('quantri2'), 'Mở khoá → có lại trong admins');
+    $repo->doiVaiTro($ad2, 'user');
+    assert_true(!$coTrongAdmins('quantri2'), 'Hạ thành đại lý → gỡ khỏi admins');
+    $repo->doiVaiTro($ad2, 'admin');
+    assert_true($coTrongAdmins('quantri2'), 'Nâng lại admin → có trong admins');
+}
+
 function test_p03_s17_dat_lai_mat_khau_admin_ghi_kep(): void
 {
     [, $repo] = bw_ur_admin();

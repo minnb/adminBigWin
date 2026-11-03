@@ -45,8 +45,7 @@ function khung_bat_dau(string $ma, bool $chiAdmin = false): array
 /** Form POST của trang: bắt buộc nguồn hợp lệ + token CSRF (field `csrf`), sai → 403 và dừng. */
 function khung_kiem_post(): void
 {
-    $token = $_POST['csrf'] ?? null;
-    if (!Csrf::nguonHopLe($_SERVER) || !Csrf::hopLe(is_string($token) ? $token : null)) {
+    if (!form_hop_le()) {
         http_response_code(403);
         trang_don_gian('Phiên làm việc đã hết hạn', '<p>Vui lòng tải lại trang rồi thử lại.</p>');
         exit;
@@ -93,7 +92,7 @@ function khung_ve(array $ctx, string $tieuDe, callable $noiDung): void
     $u = $ctx['user'];
     $laAdmin = $ctx['tenant']->laAdmin();
     $muc = $laAdmin ? KHUNG_TRANG + KHUNG_TRANG_QUAN_TRI : KHUNG_TRANG;
-    $tenHien = $u['ten_hien_thi'] !== '' ? $u['ten_hien_thi'] : $u['username'];
+    $tenHien = ten_hien($u);
     $chuTat = mb_strtoupper(mb_substr($tenHien, 0, 2, 'UTF-8'), 'UTF-8');
     $bang = khung_bang_thue_bao($ctx['giay_phep']);
     $ngayKhac = $ctx['ngay'] !== $ctx['ngay_mac_dinh'];
@@ -173,7 +172,7 @@ function khung_ve(array $ctx, string $tieuDe, callable $noiDung): void
         <div x-show="menu" x-cloak class="absolute right-0 mt-2 w-56 card shadow-2xl p-1 z-40 text-pos-ink" role="menu">
           <button type="button" class="nav-item !text-sm" role="menuitem" @click="moMk()"><i class="fa-solid fa-key w-5"></i>Đổi mật khẩu</button>
           <form method="post" action="<?= h(url_web('logout.php')) ?>">
-            <input type="hidden" name="csrf" value="<?= h(Csrf::token()) ?>">
+            <?= truong_csrf() ?>
             <button class="nav-item !text-sm" role="menuitem"><i class="fa-solid fa-right-from-bracket w-5"></i>Đăng xuất</button>
           </form>
         </div>

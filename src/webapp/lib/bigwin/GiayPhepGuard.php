@@ -63,7 +63,6 @@ final class GiayPhepGuard
         return self::MA_TRAN[$trangThai][$cheDo] ?? throw new LogicException("GiayPhepGuard: trạng thái '$trangThai' / chế độ '$cheDo' không hợp lệ");
     }
 
-    /** ['trang_thai', 'cho_phep', 'canh_bao' (ân hạn — băng đỏ topbar), 'thong_diep'] */
     /**
      * ['trang_thai', 'cho_phep', 'canh_bao' (ân hạn — băng đỏ topbar), 'thong_diep', 'het_han' ('Y-m-d' | null),
      *  'so_ngay_con' (số ngày tới hạn, âm = đã quá; null khi không có thuê bao / admin)]

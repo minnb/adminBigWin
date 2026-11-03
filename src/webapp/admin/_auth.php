@@ -57,15 +57,14 @@ if (!function_exists('csrf_token')) {
 if (!function_exists('csrf_field')) {
     function csrf_field(): string
     {
-        return '<input type="hidden" name="csrf" value="' . h(csrf_token()) . '">';
+        return truong_csrf();
     }
 }
 
 if (!function_exists('csrf_check')) {
     function csrf_check(): void
     {
-        $token = $_POST['csrf'] ?? null;
-        if (!Csrf::nguonHopLe($_SERVER) || !Csrf::hopLe(is_string($token) ? $token : null)) {
+        if (!form_hop_le()) {
             trang_bao_loi(403, 'Phiên làm việc đã hết hạn', 'Mã bảo vệ form (CSRF) không khớp — thường do mở trang quá lâu hoặc đã đăng xuất ở tab khác. Tải lại trang rồi thao tác lại.');
         }
     }
@@ -135,7 +134,7 @@ if (!function_exists('ten_admin')) {
     function ten_admin(): string
     {
         $u = $GLOBALS['bw_admin'] ?? null;
-        return $u === null ? 'Admin' : ($u['ten_hien_thi'] !== '' ? $u['ten_hien_thi'] : $u['username']);
+        return $u === null ? 'Admin' : ten_hien($u);
     }
 }
 

@@ -141,12 +141,30 @@ function test_p02_t27_mat_quan_tri_tu_choi_ngu_canh_dai_ly_va_du_lieu_sai(): voi
     assert_same([], bw_gp_lich_su($a), 'Thao tác bị từ chối không ghi lịch sử');
 }
 
+function test_p03_s17_gia_han_them_cong_tu_het_han_hoac_tu_hom_nay(): void
+{
+    bw_gp_lam_sach();
+    $ad = bw_auth_tao_user('ad_gh', ['role' => 'admin']);
+    $repo = new ThueBaoRepo(bw_ctx($ad, 'admin'));
+    $conHan = bw_gp_dai_ly('gh_con', bw_gp_ngay(5));
+    $quaHan = bw_gp_dai_ly('gh_qua', bw_gp_ngay(-10));
+    $repo->giaHanThem($conHan, 30);
+    $repo->giaHanThem($quaHan, 30);
+    $hh = static fn (int $id): string => (string) db_test()->query("SELECT het_han FROM thue_bao WHERE user_id = $id")->fetchColumn();
+    assert_same([bw_gp_ngay(35), bw_gp_ngay(30)], [$hh($conHan), $hh($quaHan)], 'Còn hạn cộng tiếp; quá hạn tính từ hôm nay');
+    assert_same(['gia_han'], array_column(bw_gp_lich_su($conHan), 'hanh_dong'));
+    foreach ([0, ThueBaoRepo::GIA_HAN_TOI_DA_NGAY + 1] as $sai) {
+        assert_true(bw_test_loi_lop(static fn () => $repo->giaHanThem($conHan, $sai)) !== null, "Số ngày $sai phải bị từ chối");
+    }
+    assert_true(bw_test_loi_lop(static fn () => $repo->giaHanThem(bw_gp_dai_ly('gh_chua', null), 30)) !== null, 'Chưa có thuê bao → không gia hạn');
+}
+
 function test_p02_t28_lich_su_chi_ghi_them(): void
 {
     $cong = array_map(static fn (ReflectionMethod $m): string => $m->getName(),
         array_filter((new ReflectionClass(ThueBaoRepo::class))->getMethods(ReflectionMethod::IS_PUBLIC), static fn (ReflectionMethod $m): bool => !$m->isConstructor()));
     sort($cong, SORT_STRING);
-    assert_same(['coTheThemDaiLy', 'cuaToi', 'doiGoi', 'ghiChuyenTrangThaiTuDong', 'giaHan', 'lichSu', 'moKhoa', 'sapHetHan', 'soDaiLyHoatDong', 'tamKhoa', 'tangDem', 'tao'],
+    assert_same(['coTheThemDaiLy', 'cuaToi', 'doiGoi', 'ghiChuyenTrangThaiTuDong', 'giaHan', 'giaHanThem', 'lichSu', 'moKhoa', 'sapHetHan', 'soDaiLyHoatDong', 'tamKhoa', 'tangDem', 'tao'],
         $cong, 'Method public của ThueBaoRepo — không có method sửa/xoá lịch sử');
     $nguon = file_get_contents(BW_WEBAPP_DIR . '/lib/bigwin/repo/ThueBaoRepo.php');
     assert_true(!preg_match('/\bUPDATE\s+`?thue_bao_lich_su\b/i', $nguon) && !preg_match('/\bDELETE\b/i', $nguon), 'ThueBaoRepo không được có UPDATE lịch sử hay DELETE');

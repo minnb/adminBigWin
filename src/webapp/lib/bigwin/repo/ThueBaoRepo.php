@@ -17,6 +17,8 @@ final class ThueBaoRepo
     public const BANG_THUE_BAO = ['thue_bao', 'thue_bao_lich_su', 'su_dung_ngay'];
     /** Cột đếm của su_dung_ngay => cột hạn mức tương ứng trong gói (null = không có hạn mức). */
     public const COT_DEM = ['so_tin_doi_soat' => 'so_tin_ngay_toi_da', 'so_lan_phan_tich' => null];
+    /** Số ngày gia hạn tối đa một lần (admin/goi_thue_bao.php). */
+    public const GIA_HAN_TOI_DA_NGAY = 3650;
 
     private const COT = 'tb.user_id, g.ma AS goi_ma, tb.bat_dau, tb.het_han, tb.tam_khoa, tb.ly_do_khoa,
             g.so_ngay_an_han, g.so_khach_toi_da, g.so_tin_ngay_toi_da, g.cho_phep_telegram, g.so_ngay_tra_cuu_lich_su';
@@ -90,6 +92,18 @@ final class ThueBaoRepo
                 throw new InvalidArgumentException('ThueBaoRepo::giaHan(): ngày hết hạn trước ngày bắt đầu');
             }
         });
+    }
+
+    /** Gia hạn thêm $soNgay: còn hạn → cộng từ ngày hết hạn; đã quá hạn → tính từ hôm nay (đọc dòng trong khoá). */
+    public function giaHanThem(int $daiLy, int $soNgay): void
+    {
+        if ($soNgay < 1 || $soNgay > self::GIA_HAN_TOI_DA_NGAY) {
+            throw new InvalidArgumentException('Số ngày gia hạn 1–' . self::GIA_HAN_TOI_DA_NGAY . '.');
+        }
+        $this->capNhat($daiLy, 'gia_han', 'het_han = ?', static fn (array $truoc): array => [
+            (new DateTimeImmutable(max($truoc['het_han'], GiayPhepGuard::homNay()->format('Y-m-d')), new DateTimeZone(BW_TZ)))
+                ->modify("+$soNgay day")->format('Y-m-d'),
+        ]);
     }
 
     public function doiGoi(int $daiLy, string $maGoi): void
@@ -235,8 +249,11 @@ final class ThueBaoRepo
         return (int) $id;
     }
 
-    /** Thao tác quản trị trên thuê bao ĐÃ CÓ: UPDATE `$gan` (sau khi $kiem(dòng hiện tại) nếu có) + lịch sử. */
-    private function capNhat(int $daiLy, string $hanhDong, string $gan, array $thamSo, ?callable $kiem = null): void
+    /**
+     * Thao tác quản trị trên thuê bao ĐÃ CÓ: UPDATE `$gan` (sau khi $kiem(dòng hiện tại) nếu có) + lịch sử. $thamSo là mảng,
+     * hoặc hàm nhận dòng hiện tại (đã khoá) trả mảng — khi giá trị mới phụ thuộc giá trị cũ.
+     */
+    private function capNhat(int $daiLy, string $hanhDong, string $gan, array|Closure $thamSo, ?callable $kiem = null): void
     {
         $this->thayDoi($daiLy, $hanhDong, static function (?array $truoc, ?int $boi) use ($daiLy, $hanhDong, $gan, $thamSo, $kiem): void {
             if ($truoc === null) {
@@ -245,7 +262,8 @@ final class ThueBaoRepo
             if ($kiem !== null) {
                 $kiem($truoc);
             }
-            db()->prepare("UPDATE thue_bao SET $gan, cap_nhat_boi = ?, cap_nhat_luc = NOW() WHERE user_id = ?")->execute([...$thamSo, $boi, $daiLy]);
+            db()->prepare("UPDATE thue_bao SET $gan, cap_nhat_boi = ?, cap_nhat_luc = NOW() WHERE user_id = ?")
+                ->execute([...($thamSo instanceof Closure ? $thamSo($truoc) : $thamSo), $boi, $daiLy]);
         });
     }
 

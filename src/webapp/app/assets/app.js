@@ -30,6 +30,9 @@ window.goiApi = goiApi;
 /** Cấu hình khung do _layout.php in ở <body data-khung="…"> (không dùng <script> nội tuyến — sẵn cho CSP chặt S9.3). */
 window.BW_KHUNG = JSON.parse(document.body?.dataset.khung ?? '{}');
 
+/** Ô của form Đổi mật khẩu (khớp tên trường của app/ajax/doi_mat_khau.php). */
+const mkTrong = () => ({ mat_khau_cu: '', mat_khau_moi: '', xac_nhan: '' });
+
 /** x-data của <body>: đồng hồ, phím tắt, menu tài khoản, modal Phím tắt, modal Đổi mật khẩu. */
 window.bwKhung = function bwKhung() {
   return {
@@ -37,7 +40,7 @@ window.bwKhung = function bwKhung() {
     help: false,
     menu: false,
     modalMk: false,
-    mk: { mat_khau_cu: '', mat_khau_moi: '', xac_nhan: '' },
+    mk: mkTrong(),
     loiMk: {},
     thongBaoMk: '',
     dangGuiMk: false,
@@ -62,7 +65,7 @@ window.bwKhung = function bwKhung() {
 
     moMk() {
       this.menu = false;
-      this.mk = { mat_khau_cu: '', mat_khau_moi: '', xac_nhan: '' };
+      this.mk = mkTrong();
       this.loiMk = {};
       this.thongBaoMk = '';
       this.modalMk = true;
@@ -78,7 +81,7 @@ window.bwKhung = function bwKhung() {
       try {
         const kq = await goiApi(window.BW_KHUNG.urlDoiMatKhau, this.mk);
         this.thongBaoMk = kq.thong_diep;
-        this.mk = { mat_khau_cu: '', mat_khau_moi: '', xac_nhan: '' };
+        this.mk = mkTrong();
       } catch (e) {
         this.loiMk = e.duLieu?.loi_truong ?? { chung: e.message };
       } finally {

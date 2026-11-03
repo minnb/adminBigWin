@@ -7,14 +7,11 @@ declare(strict_types=1);
 
 require __DIR__ . '/_quan_tri.php';
 
-const QT_GIA_HAN_TOI_DA_NGAY = 3650;
-
 $ctx = khung_bat_dau('quan_tri', true);
 $thueBao = new ThueBaoRepo($ctx['tenant']);
 $goiRepo = new GoiDichVuRepo($ctx['tenant']);
-$daiLy = array_values(array_filter((new UserRepo($ctx['tenant']))->danhSach(), static fn (array $u): bool => $u['role'] === 'user'));
 
-$kq = quan_tri_xu_ly_post(static function (string $hanhDong) use ($thueBao, $goiRepo, $daiLy): array {
+$kq = quan_tri_xu_ly_post(static function (string $hanhDong) use ($thueBao, $goiRepo): array {
     $cotGoi = ['ten', 'gia_thang', 'so_khach_toi_da', 'so_tin_ngay_toi_da', 'so_ngay_tra_cuu_lich_su', 'so_ngay_an_han', 'cho_phep_telegram'];
     $goiTuForm = static fn (): array => array_combine($cotGoi, array_map('o_post', $cotGoi));
     switch ($hanhDong) {
@@ -32,15 +29,8 @@ $kq = quan_tri_xu_ly_post(static function (string $hanhDong) use ($thueBao, $goi
             $thueBao->tao(o_post_id(), o_post('goi'), GiayPhepGuard::homNay(), o_post_ngay('het_han'));
             return ['loai' => 'ok', 'thong_diep' => 'Đã cấp thuê bao.'];
         case 'gia_han':
-            $id = o_post_id();
             $soNgay = (int) o_post('so_ngay');
-            if ($soNgay < 1 || $soNgay > QT_GIA_HAN_TOI_DA_NGAY) {
-                throw new InvalidArgumentException('Số ngày gia hạn 1–' . QT_GIA_HAN_TOI_DA_NGAY . '.');
-            }
-            $hienTai = array_column($daiLy, 'het_han', 'id')[$id] ?? throw new InvalidArgumentException('Đại lý chưa có thuê bao — dùng "Cấp thuê bao".');
-            // Còn hạn → cộng tiếp từ ngày hết hạn; đã quá hạn → tính từ hôm nay
-            $tu = max($hienTai, GiayPhepGuard::homNay()->format('Y-m-d'));
-            $thueBao->giaHan($id, (new DateTimeImmutable($tu, new DateTimeZone(BW_TZ)))->modify("+$soNgay day"));
+            $thueBao->giaHanThem(o_post_id(), $soNgay);
             return ['loai' => 'ok', 'thong_diep' => "Đã gia hạn $soNgay ngày."];
         case 'doi_goi':
             $thueBao->doiGoi(o_post_id(), o_post('goi'));
@@ -56,26 +46,19 @@ $kq = quan_tri_xu_ly_post(static function (string $hanhDong) use ($thueBao, $goi
     }
 });
 
-if ($kq !== null) { // nạp lại sau thao tác
-    $daiLy = array_values(array_filter((new UserRepo($ctx['tenant']))->danhSach(), static fn (array $u): bool => $u['role'] === 'user'));
-}
+$daiLy = (new UserRepo($ctx['tenant']))->danhSach('user');
 $goi = $goiRepo->danhSach();
 $giayPhep = (new GiayPhepNenTangRepo($ctx['tenant']))->hienTai();
 $dangDung = $thueBao->soDaiLyHoatDong();
-$xemLichSu = preg_match('/^[1-9]\d{0,9}$/', (string) ($_GET['lich_su'] ?? '')) === 1 ? (int) $_GET['lich_su'] : null;
+$xemLichSu = so_id($_GET['lich_su'] ?? null);
 $lichSu = $xemLichSu === null ? [] : $thueBao->lichSu($xemLichSu);
 
 khung_ve($ctx, 'Quản trị — Gói & Thuê bao', static function (array $ctx) use ($kq, $goi, $daiLy, $giayPhep, $dangDung, $xemLichSu, $lichSu): void {
     quan_tri_dau('goi_thue_bao', $kq);
     $toiDa = $giayPhep['so_dai_ly_toi_da'] ?? '∞';
-    $dangBan = array_filter($goi, static fn (array $g): bool => (int) $g['dang_ban'] === 1);
-    $chonGoi = static function (string $ten) use ($dangBan): string {
-        $s = '<select class="ctl !py-1 !w-auto" name="' . h($ten) . '">';
-        foreach ($dangBan as $g) {
-            $s .= '<option value="' . h($g['ma']) . '">' . h($g['ten']) . '</option>';
-        }
-        return $s . '</select>';
-    };
+    $dangBan = array_filter($goi, static fn (array $g): bool => (int) $g['dang_ban'] === 1); // cùng danh sách đã nạp (hiển thị mọi gói)
+    $luaChonGoi = implode('', array_map(static fn (array $g): string => '<option value="' . h($g['ma']) . '">' . h($g['ten']) . '</option>', $dangBan));
+    $chonGoi = static fn (string $ten): string => '<select class="ctl !py-1 !w-auto" name="' . h($ten) . '">' . $luaChonGoi . '</select>';
     $o = static fn (string $ten, string $nhan, mixed $giaTri = '', string $kieu = 'text'): string => '<label class="text-sm font-semibold">' . h($nhan)
         . '<input class="ctl mt-1" type="' . h($kieu) . '" name="' . h($ten) . '" value="' . h((string) ($giaTri ?? '')) . '"></label>';
     ?>
@@ -107,22 +90,22 @@ khung_ve($ctx, 'Quản trị — Gói & Thuê bao', static function (array $ctx)
         <td><div class="font-bold mono"><?= h($u['username']) ?></div><div class="text-sm text-pos-muted"><?= h($u['ten_hien_thi']) ?><?= $u['trang_thai'] !== 'active' ? ' · tài khoản đã khoá' : '' ?></div></td>
         <?php if ($u['goi_ma'] === null): ?>
         <td colspan="2"><span class="pill pill-err">chưa có thuê bao</span></td>
-        <td><form method="post" class="flex gap-2 items-center flex-wrap"><?= o_csrf() ?><input type="hidden" name="hanh_dong" value="cap_moi"><input type="hidden" name="id" value="<?= $id ?>">
-          <?= $chonGoi('goi') ?><input type="date" class="ctl !py-1 !w-auto mono" name="het_han" value="<?= h(GiayPhepGuard::homNay()->modify('+30 day')->format('Y-m-d')) ?>">
-          <button class="btn btn-primary !px-2.5 !py-1 !text-[13px]">Cấp thuê bao</button></form></td>
+        <td><?= form_mo('cap_moi', $id, 'flex gap-2 items-center flex-wrap') ?>
+          <?= $chonGoi('goi') ?><input type="date" class="ctl !py-1 !w-auto mono" name="het_han" value="<?= h(het_han_mac_dinh()) ?>">
+          <?= nut_nho('Cấp thuê bao', 'btn-primary') ?></form></td>
         <?php else: ?>
         <td class="mono"><?= h($u['goi_ma']) ?><?= (int) $u['tam_khoa'] === 1 ? ' <span class="pill pill-err">tạm khoá</span>' : '' ?></td>
         <td class="mono"><?= h($u['het_han']) ?></td>
         <td class="whitespace-nowrap">
-          <form method="post" class="inline-flex gap-1 items-center"><?= o_csrf() ?><input type="hidden" name="hanh_dong" value="gia_han"><input type="hidden" name="id" value="<?= $id ?>">
-            <input class="ctl !py-1 !w-20 mono" type="number" name="so_ngay" value="30" min="1" max="<?= QT_GIA_HAN_TOI_DA_NGAY ?>"><button class="btn btn-primary !px-2.5 !py-1 !text-[13px]">Gia hạn (ngày)</button></form>
-          <form method="post" class="inline-flex gap-1 items-center"><?= o_csrf() ?><input type="hidden" name="hanh_dong" value="doi_goi"><input type="hidden" name="id" value="<?= $id ?>">
-            <?= $chonGoi('goi') ?><button class="btn btn-ghost !px-2.5 !py-1 !text-[13px]">Đổi gói</button></form>
+          <?= form_mo('gia_han', $id, 'inline-flex gap-1 items-center') ?>
+            <input class="ctl !py-1 !w-20 mono" type="number" name="so_ngay" value="<?= QT_NGAY_THUE_BAO_MAC_DINH ?>" min="1" max="<?= ThueBaoRepo::GIA_HAN_TOI_DA_NGAY ?>"><?= nut_nho('Gia hạn (ngày)', 'btn-primary') ?></form>
+          <?= form_mo('doi_goi', $id, 'inline-flex gap-1 items-center') ?>
+            <?= $chonGoi('goi') ?><?= nut_nho('Đổi gói', 'btn-ghost') ?></form>
           <?php if ((int) $u['tam_khoa'] === 1): ?>
             <?= nut_form('mo_tam_khoa', $id, 'Mở tạm khoá') ?>
           <?php else: ?>
-          <form method="post" class="inline-flex gap-1 items-center"><?= o_csrf() ?><input type="hidden" name="hanh_dong" value="tam_khoa"><input type="hidden" name="id" value="<?= $id ?>">
-            <input class="ctl !py-1 !w-36" name="ly_do" placeholder="Lý do tạm khoá" required><button class="btn btn-ghost !px-2.5 !py-1 !text-[13px]">Tạm khoá</button></form>
+          <?= form_mo('tam_khoa', $id, 'inline-flex gap-1 items-center') ?>
+            <input class="ctl !py-1 !w-36" name="ly_do" placeholder="Lý do tạm khoá" required><?= nut_nho('Tạm khoá', 'btn-ghost') ?></form>
           <?php endif; ?>
           <a class="btn btn-ghost !px-2.5 !py-1 !text-[13px]" href="?lich_su=<?= $id ?>">Lịch sử</a>
         </td>
@@ -137,17 +120,17 @@ khung_ve($ctx, 'Quản trị — Gói & Thuê bao', static function (array $ctx)
 <section class="card p-4">
   <div class="font-extrabold text-lg text-pos-title mb-3"><i class="fa-solid fa-box mr-2"></i>Gói dịch vụ <span class="text-sm font-semibold text-pos-muted">(hạn mức để trống = không giới hạn; gói không xoá được, chỉ ngừng bán)</span></div>
   <?php foreach ($goi as $g): $gid = (int) $g['id']; ?>
-  <form method="post" class="grid gap-2 md:grid-cols-8 items-end border-b border-slate-100 py-3"><?= o_csrf() ?><input type="hidden" name="hanh_dong" value="sua_goi"><input type="hidden" name="id" value="<?= $gid ?>">
+  <?= form_mo('sua_goi', $gid, 'grid gap-2 md:grid-cols-8 items-end border-b border-slate-100 py-3') ?>
     <div class="text-sm"><div class="font-bold mono"><?= h($g['ma']) ?></div><?= (int) $g['dang_ban'] === 1 ? '<span class="pill pill-ok">đang bán</span>' : '<span class="pill pill-warn">ngừng bán</span>' ?></div>
     <?= $o('ten', 'Tên', $g['ten']) ?><?= $o('gia_thang', 'Giá/tháng', $g['gia_thang'], 'number') ?><?= $o('so_khach_toi_da', 'Khách tối đa', $g['so_khach_toi_da'], 'number') ?>
     <?= $o('so_tin_ngay_toi_da', 'Tin/ngày tối đa', $g['so_tin_ngay_toi_da'], 'number') ?><?= $o('so_ngay_tra_cuu_lich_su', 'Ngày tra cứu', $g['so_ngay_tra_cuu_lich_su'], 'number') ?>
     <?= $o('so_ngay_an_han', 'Ngày ân hạn', $g['so_ngay_an_han'], 'number') ?>
     <div class="flex gap-2 items-center"><label class="text-sm"><input type="checkbox" name="cho_phep_telegram" value="1"<?= (int) $g['cho_phep_telegram'] === 1 ? ' checked' : '' ?>> Telegram</label>
-      <button class="btn btn-primary !px-2.5 !py-1 !text-[13px]">Lưu</button></div>
+      <?= nut_nho('Lưu', 'btn-primary') ?></div>
   </form>
   <div class="text-right -mt-1 mb-2"><?= nut_form((int) $g['dang_ban'] === 1 ? 'ngung_ban' : 'mo_ban', $gid, (int) $g['dang_ban'] === 1 ? 'Ngừng bán' : 'Bán lại') ?></div>
   <?php endforeach; ?>
-  <form method="post" class="grid gap-2 md:grid-cols-8 items-end pt-3"><?= o_csrf() ?><input type="hidden" name="hanh_dong" value="them_goi">
+  <?= form_mo('them_goi', null, 'grid gap-2 md:grid-cols-8 items-end pt-3') ?>
     <?= $o('ma', 'Mã gói mới') ?><?= $o('ten', 'Tên') ?><?= $o('gia_thang', 'Giá/tháng', '0', 'number') ?><?= $o('so_khach_toi_da', 'Khách tối đa', '', 'number') ?>
     <?= $o('so_tin_ngay_toi_da', 'Tin/ngày tối đa', '', 'number') ?><?= $o('so_ngay_tra_cuu_lich_su', 'Ngày tra cứu', '', 'number') ?><?= $o('so_ngay_an_han', 'Ngày ân hạn', '3', 'number') ?>
     <div class="flex gap-2 items-center"><label class="text-sm"><input type="checkbox" name="cho_phep_telegram" value="1" checked> Telegram</label>
