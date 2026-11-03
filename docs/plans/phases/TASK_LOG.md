@@ -80,6 +80,80 @@ Câu hỏi cần chủ dự án quyết (nếu có) → câu trả lời + ngày
 
 <!-- Các entry thật bắt đầu dưới dòng này, mới nhất ở trên -->
 
+## P00 — Đóng băng BigWIN & Golden Fixture engine Mới
+
+| Mục | Giá trị |
+|---|---|
+| Trạng thái | 🚫 **BỊ CHẶN** (2026-11-03 20:11) — tiền đề R1 / O4 chưa đạt; chưa lập Action Plan, chưa chạy exporter, chưa sửa mã |
+| Luồng | A (lõi PURE) |
+| Bắt đầu | 2026-11-03 (đánh giá tiền đề) |
+| Kết thúc | |
+| Người thực thi | Claude (bước 4–7) · Chủ repo BigWIN (bước 1–3) |
+| Người duyệt | Chủ dự án |
+| Commit BigWIN (`port-baseline`) | **Chưa có** — HEAD `3c5fab3` (2026-10-08 20:30) |
+| Commit web đầu / cuối phase | `32c7ed8` (chốt P03) / |
+
+### ① Tiền đề
+| Điều kiện (P00 §2 + EXECUTION_PIPELINE P00) | ✔/✘ | Ghi chú (kiểm 2026-11-03 20:11, chỉ đọc) |
+|---|---|---|
+| Tag `port-baseline` tồn tại, `git describe --exact-match` khớp | ✘ **CHẶN** | `git tag -l port-baseline` (D:\Projects\bigwin) → rỗng · `git describe --exact-match HEAD` → `fatal: No names found` · `git ls-remote --tags origin` (github.com/minnb/bigwin) → **không có** `port-baseline` (không phải do chưa fetch) |
+| Chủ repo đã dọn dẹp + commit ~1.300 dòng treo trong `core/`, `utils/` — `git status` sạch | ✘ **CHẶN** | `git status --short` → **80 mục** chưa commit. Riêng `core/` + `utils/`: **11 tệp, +1.341 / −578 dòng** — `core/{database,heuristic_cleaner,learning_service,messageParser,quan_ly_dan_so,rule_parser}.py`, `utils/raw_logger.py` (sửa) + `core/{api_client,cloud_backup,license_service}.py`, `utils/machine_id.py` (chưa theo dõi). Toàn repo: 44 tệp, +3.969 / −6.226 |
+| Test Python BigWIN xanh trên commit được gắn tag | ☐ Chưa kiểm được | Chưa có commit / tag để chạy; Claude không chạy `pytest` trên working tree treo (kết quả không đại diện cho mốc) |
+| Claude chỉ sửa `D:\Projects\bigwin\scripts\export_golden.py` (Q7) | ✔ (cam kết) | Lượt này chỉ ĐỌC repo BigWIN (`git tag/describe/status/diff --stat/ls-remote`); không đọc `*.session`, `backups/` |
+| Hạ tầng web (Luồng B) sẵn sàng | ✔ | Working tree web sạch (commit `32c7ed8`); fixture hiện có 6 tệp: `cleaner`, `do_trung`, `learning`, `parser`, `seqmatch`, `tinh_tien` |
+| Hồi quy nền xanh | ✔ | Xem dưới |
+
+Hồi quy nền trước khi làm (2026-11-03 20:11): `BIGWIN_CONFIG_FILE=<cấu hình gốc> php src/webapp/tools/test.php` → **`186 passed, 0 failed (20.56s)`**, exit 0 ✅ · không còn `php.exe` sót.
+
+**Kết luận Bước ①: BỊ CHẶN** — thông báo "đã dọn code treo và đánh tag" không khớp hiện trạng repo BigWIN trên máy này lẫn trên remote. Theo EXECUTION_PIPELINE §1.1 ("Có ✘ → dừng, ghi BỊ CHẶN + lý do, không gõ code") và bẫy P00 ("xuất fixture hoặc gắn tag khi repo còn code treo = S0.4 không đạt", R1): **không lập Action Plan chi tiết, không chạy exporter** cho tới khi gỡ chặn.
+
+**Điều kiện gỡ chặn (chủ repo BigWIN):**
+1. Dọn + commit toàn bộ thay đổi treo (tối thiểu `core/`, `utils/`; khuyến nghị cả repo — tệp chưa theo dõi `core/api_client.py`, `cloud_backup.py`, `license_service.py`, `utils/machine_id.py` cần quyết định commit hay bỏ).
+2. `pytest` xanh trên commit đó.
+3. `git tag -a port-baseline -m "Mốc mã nguồn cho migration PHP"` (+ `git push origin port-baseline` nếu muốn lưu trên remote).
+4. Báo lại → Claude chạy lại Bước ① (kiểm `git describe --exact-match` = `port-baseline`, `git status` sạch) rồi mới lập Bước ②.
+
+### ② Action Plan
+_(Chưa lập — P00 đang BỊ CHẶN ở Bước ①.)_
+
+### ③ Tiến độ slice
+| Slice | Bắt đầu | Xanh lúc | Test của slice | Ghi chú |
+|---|---|---|---|---|
+| S0.4 | | | P00-T01, T04 | Chờ gỡ chặn |
+| S0.5 | | | P00-T01..T03 | Chờ gỡ chặn |
+
+### ④ Lần chạy test
+| Lần | Ngày giờ | Lệnh | Kết quả (dòng tổng kết) | Đỏ (mã test) |
+|---|---|---|---|---|
+| Hồi quy nền | 2026-11-03 20:11 | `BIGWIN_CONFIG_FILE=<cấu hình gốc> php src/webapp/tools/test.php` | **`186 passed, 0 failed (20.56s)`**, exit 0 | — |
+
+### Checklist thủ công
+| Mã | Nội dung (tóm tắt) | Người test | Ngày | ✔ |
+|---|---|---|---|---|
+| P00-M01 | `git describe --exact-match` tại commit xuất fixture = `port-baseline` | | | |
+| P00-M02 | Chạy exporter 2 lần → SHA-256 trùng | | | |
+| P00-M03 | 5 ca ngẫu nhiên `rule_parser.json` đối chiếu tay với Python | | | |
+
+### ⑤ Khác biệt / Bug phát hiện
+| Mã | Loại | Nguồn | Input | Kỳ vọng | Thực tế | Nguyên nhân gốc | Cách sửa | Trạng thái |
+|---|---|---|---|---|---|---|---|---|
+| P00-B01 | Tiền đề không đạt | Bước ① | Thông báo của chủ dự án: "chủ repo đã dọn code treo và đánh tag `port-baseline`" | Tag tồn tại; `git status` sạch | Không có tag (local + remote); 80 mục treo, `core/`+`utils/` +1.341 / −578 dòng | Chủ repo chưa thực hiện R1 trên repo này (hoặc thực hiện ở bản sao / máy khác chưa push) | Chủ repo làm 4 bước "Điều kiện gỡ chặn" ở trên | **Mở — chặn P00** |
+
+### ⑥ Xác nhận Cổng nghiệm thu
+| # | Điều kiện | ✔ | Bằng chứng |
+|---|---|---|---|
+| 1 | Toàn bộ P00-Tnn xanh, 0 bỏ qua | | |
+| 2 | Hồi quy toàn bộ xanh | | |
+| 3 | Checklist P00-Mnn tick đủ | | |
+| 4 | `/healthcheck` xanh | | |
+| 5 | DoD §10 kế hoạch tổng (mục 1, 2 áp dụng) | | |
+| 6 | Chủ dự án ký PASS | | |
+
+**Kết luận:** _(BỊ CHẶN ở Bước ①)_
+**Phase được mở khoá:** _(P04 khi PASS)_
+
+---
+
 ## P03 — Khung app 6 page · Quản trị tài khoản & thuê bao
 
 | Mục | Giá trị |
